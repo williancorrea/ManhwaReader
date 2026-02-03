@@ -1,0 +1,15 @@
+
+${Ansi.CYAN}  __  __             _                  
+${Ansi.CYAN} |  \/  | __ _ _ __ | |____      ____ _ 
+${Ansi.CYAN} | |\/| |/ _` | '_ \| '_ \ \ /\ / / _` |
+${Ansi.CYAN} | |  | | (_| | | | | | | \ V  V / (_| |
+${Ansi.CYAN} |_|  |_|\__,_|_| |_|_| |_|\_/\_/ \__,_|
+
+
+${Ansi.WHITE}:: Spring Boot ${spring-boot.formatted-version} ::
+
+${Ansi.BRIGHT_BLUE}Running on Java ${java.version} (${java.vendor})
+${Ansi.GREEN}Running in ${os.name}, Version: ${os.version} (${os.arch})
+
+
+${Ansi.DEFAULT}
