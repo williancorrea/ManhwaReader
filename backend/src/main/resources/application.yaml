@@ -1,3 +1,67 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: reader
+  datasource:
+    url: jdbc:h2:mem:${DATABASE_NAME:reader};DB_CLOSE_DELAY=-1;MODE=MYSQL;DATABASE_TO_UPPER=false;AUTO_RECONNECT=TRUE
+    username: ${DATABASE_USER:root}
+    password: ${DATABASE_PASS:root}
+    driverClassName: org.h2.Driver
+  h2:
+    console:
+      enabled: true
+      path: /console
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: true
+
+  flyway:
+    ignore-migration-patterns: "*:Ignored"
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    enabled: true
+    clean-disabled: true
+    clean-on-validation-error: false
+    validate-migration-naming: true
+  
+  output:
+    ansi:
+      enabled: always
+
+
+#Actuator
+management:
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"
+
+info:
+  app:
+    name: @project.name@
+    version: @project.version@
+    encoding: @project.build.sourceEncoding@
+    java:
+      vendor: @java.vendor@
+      version: @java.version@
+
+logging:
+  level:
+    dev.williancorrea.manhwa: TRACE
+    root: INFO
+    org.springframework.web: DEBUG
+    org.hibernate: INFO
