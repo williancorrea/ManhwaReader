@@ -5,10 +5,10 @@ spring:
   application:
     name: reader
   datasource:
-    url: jdbc:h2:mem:${DATABASE_NAME:reader};DB_CLOSE_DELAY=-1;MODE=MYSQL;DATABASE_TO_UPPER=false;AUTO_RECONNECT=TRUE
+    url: jdbc:mariadb://${DATABASE_CONTAINER_NAME:localhost}:3306/${DATABASE_NAME:reader}?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
     username: ${DATABASE_USER:root}
     password: ${DATABASE_PASS:root}
-    driverClassName: org.h2.Driver
+    driver-class-name: org.mariadb.jdbc.Driver
   h2:
     console:
       enabled: true
