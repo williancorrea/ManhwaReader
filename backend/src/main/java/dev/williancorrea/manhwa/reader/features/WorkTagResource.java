@@ -1,6 +1,17 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
-import java.util.List;\nimport java.util.UUID;\nimport org.springframework.context.annotation.Lazy;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.PathVariable;\nimport org.springframework.web.bind.annotation.RequestMapping;\nimport org.springframework.web.bind.annotation.RestController;
+import java.util.List;
+import java.util.UUID;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("features/work-tag")
@@ -20,6 +31,13 @@ public class WorkTagResource {
     return ResponseEntity.ok(items);
   }
 
+  @PostMapping()
+  public ResponseEntity<WorkTagOutput> create(@RequestBody WorkTagInput input) {
+    var entity = toEntity(input);
+    var saved = workTagService.save(entity);
+    return ResponseEntity.ok(new WorkTagOutput(saved));
+  }
+
   @GetMapping("/{workId}/{tagId}")
   public ResponseEntity<WorkTagOutput> findById(@PathVariable UUID workId, @PathVariable UUID tagId) {
     var id = new WorkTagId(workId, tagId);
@@ -31,4 +49,47 @@ public class WorkTagResource {
     }
     return ResponseEntity.ok(item);
   }
+
+  @PutMapping("/{workId}/{tagId}")
+  public ResponseEntity<WorkTagOutput> update(@PathVariable UUID workId, @PathVariable UUID tagId, @RequestBody WorkTagInput input) {
+    var id = new WorkTagId(workId, tagId);
+    if (!workTagService.existsById(id)) {
+      return ResponseEntity.notFound().build();
+    }
+    var entity = toEntity(input);
+    var work = new Work();
+    work.setId(workId);
+    entity.setWork(work);
+    var tag = new Tag();
+    tag.setId(tagId);
+    entity.setTag(tag);
+    var saved = workTagService.save(entity);
+    return ResponseEntity.ok(new WorkTagOutput(saved));
+  }
+
+  @DeleteMapping("/{workId}/{tagId}")
+  public ResponseEntity<Void> delete(@PathVariable UUID workId, @PathVariable UUID tagId) {
+    var id = new WorkTagId(workId, tagId);
+    if (!workTagService.existsById(id)) {
+      return ResponseEntity.notFound().build();
+    }
+    workTagService.deleteById(id);
+    return ResponseEntity.noContent().build();
+  }
+
+  private WorkTag toEntity(WorkTagInput input) {
+    var entity = new WorkTag();
+    if (input.getWorkId() != null) {
+      var work = new Work();
+      work.setId(input.getWorkId());
+      entity.setWork(work);
+    }
+    if (input.getTagId() != null) {
+      var tag = new Tag();
+      tag.setId(input.getTagId());
+      entity.setTag(tag);
+    }
+    return entity;
+  }
 }
+

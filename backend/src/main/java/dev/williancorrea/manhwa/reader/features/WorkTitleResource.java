@@ -1,6 +1,17 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
-import java.util.List;\nimport java.util.UUID;\nimport org.springframework.context.annotation.Lazy;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.PathVariable;\nimport org.springframework.web.bind.annotation.RequestMapping;\nimport org.springframework.web.bind.annotation.RestController;
+import java.util.List;
+import java.util.UUID;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("features/work-title")
@@ -20,6 +31,13 @@ public class WorkTitleResource {
     return ResponseEntity.ok(items);
   }
 
+  @PostMapping()
+  public ResponseEntity<WorkTitleOutput> create(@RequestBody WorkTitleInput input) {
+    var entity = toEntity(input);
+    var saved = workTitleService.save(entity);
+    return ResponseEntity.ok(new WorkTitleOutput(saved));
+  }
+
   @GetMapping("/{id}")
   public ResponseEntity<WorkTitleOutput> findById(@PathVariable UUID id) {
     var item = workTitleService.findById(id)
@@ -30,4 +48,42 @@ public class WorkTitleResource {
     }
     return ResponseEntity.ok(item);
   }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<WorkTitleOutput> update(@PathVariable UUID id, @RequestBody WorkTitleInput input) {
+    if (!workTitleService.existsById(id)) {
+      return ResponseEntity.notFound().build();
+    }
+    var entity = toEntity(input);
+    entity.setId(id);
+    var saved = workTitleService.save(entity);
+    return ResponseEntity.ok(new WorkTitleOutput(saved));
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    if (!workTitleService.existsById(id)) {
+      return ResponseEntity.notFound().build();
+    }
+    workTitleService.deleteById(id);
+    return ResponseEntity.noContent().build();
+  }
+
+  private WorkTitle toEntity(WorkTitleInput input) {
+    var entity = new WorkTitle();
+    if (input.getWorkId() != null) {
+      var work = new Work();
+      work.setId(input.getWorkId());
+      entity.setWork(work);
+    }
+    if (input.getLanguageId() != null) {
+      var language = new Language();
+      language.setId(input.getLanguageId());
+      entity.setLanguage(language);
+    }
+    entity.setTitle(input.getTitle());
+    entity.setIsOfficial(input.getIsOfficial());
+    return entity;
+  }
 }
+

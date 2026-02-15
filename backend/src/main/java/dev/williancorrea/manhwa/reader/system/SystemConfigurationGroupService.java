@@ -2,7 +2,7 @@
 
 import java.util.List;
 import java.util.Optional;
-import dev.williancorrea.manhwa.reader.system.SystemConfigurationGroup;
+import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -23,5 +23,17 @@ public class SystemConfigurationGroupService {
 
   public Optional<SystemConfigurationGroup> findById(UUID id) {
     return repository.findById(id);
+  }
+
+  public SystemConfigurationGroup save(SystemConfigurationGroup entity) {
+    return repository.save(entity);
+  }
+
+  public boolean existsById(UUID id) {
+    return repository.existsById(id);
+  }
+
+  public void deleteById(UUID id) {
+    repository.deleteById(id);
   }
 }

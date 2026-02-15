@@ -1,6 +1,17 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
-import java.util.List;\nimport java.util.UUID;\nimport org.springframework.context.annotation.Lazy;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.PathVariable;\nimport org.springframework.web.bind.annotation.RequestMapping;\nimport org.springframework.web.bind.annotation.RestController;
+import java.util.List;
+import java.util.UUID;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("features/author")
@@ -20,6 +31,13 @@ public class AuthorResource {
     return ResponseEntity.ok(items);
   }
 
+  @PostMapping()
+  public ResponseEntity<AuthorOutput> create(@RequestBody AuthorInput input) {
+    var entity = toEntity(input);
+    var saved = authorService.save(entity);
+    return ResponseEntity.ok(new AuthorOutput(saved));
+  }
+
   @GetMapping("/{id}")
   public ResponseEntity<AuthorOutput> findById(@PathVariable UUID id) {
     var item = authorService.findById(id)
@@ -30,4 +48,32 @@ public class AuthorResource {
     }
     return ResponseEntity.ok(item);
   }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<AuthorOutput> update(@PathVariable UUID id, @RequestBody AuthorInput input) {
+    if (!authorService.existsById(id)) {
+      return ResponseEntity.notFound().build();
+    }
+    var entity = toEntity(input);
+    entity.setId(id);
+    var saved = authorService.save(entity);
+    return ResponseEntity.ok(new AuthorOutput(saved));
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    if (!authorService.existsById(id)) {
+      return ResponseEntity.notFound().build();
+    }
+    authorService.deleteById(id);
+    return ResponseEntity.noContent().build();
+  }
+
+  private Author toEntity(AuthorInput input) {
+    var entity = new Author();
+    entity.setName(input.getName());
+    entity.setType(input.getType());
+    return entity;
+  }
 }
+

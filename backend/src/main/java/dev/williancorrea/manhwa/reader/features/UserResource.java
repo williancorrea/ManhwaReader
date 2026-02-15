@@ -1,6 +1,17 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
-import java.util.List;\nimport java.util.UUID;\nimport org.springframework.context.annotation.Lazy;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.PathVariable;\nimport org.springframework.web.bind.annotation.RequestMapping;\nimport org.springframework.web.bind.annotation.RestController;
+import java.util.List;
+import java.util.UUID;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("features/user")
@@ -20,6 +31,13 @@ public class UserResource {
     return ResponseEntity.ok(items);
   }
 
+  @PostMapping()
+  public ResponseEntity<UserOutput> create(@RequestBody UserInput input) {
+    var entity = toEntity(input);
+    var saved = userService.save(entity);
+    return ResponseEntity.ok(new UserOutput(saved));
+  }
+
   @GetMapping("/{id}")
   public ResponseEntity<UserOutput> findById(@PathVariable UUID id) {
     var item = userService.findById(id)
@@ -30,4 +48,35 @@ public class UserResource {
     }
     return ResponseEntity.ok(item);
   }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<UserOutput> update(@PathVariable UUID id, @RequestBody UserInput input) {
+    if (!userService.existsById(id)) {
+      return ResponseEntity.notFound().build();
+    }
+    var entity = toEntity(input);
+    entity.setId(id);
+    var saved = userService.save(entity);
+    return ResponseEntity.ok(new UserOutput(saved));
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    if (!userService.existsById(id)) {
+      return ResponseEntity.notFound().build();
+    }
+    userService.deleteById(id);
+    return ResponseEntity.noContent().build();
+  }
+
+  private User toEntity(UserInput input) {
+    var entity = new User();
+    entity.setUsername(input.getUsername());
+    entity.setEmail(input.getEmail());
+    entity.setPasswordHash(input.getPasswordHash());
+    entity.setRole(input.getRole());
+    entity.setCreatedAt(input.getCreatedAt());
+    return entity;
+  }
 }
+

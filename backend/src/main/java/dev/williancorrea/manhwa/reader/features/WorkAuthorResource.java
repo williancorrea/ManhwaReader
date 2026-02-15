@@ -1,6 +1,17 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
-import java.util.List;\nimport java.util.UUID;\nimport org.springframework.context.annotation.Lazy;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.PathVariable;\nimport org.springframework.web.bind.annotation.RequestMapping;\nimport org.springframework.web.bind.annotation.RestController;
+import java.util.List;
+import java.util.UUID;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("features/work-author")
@@ -20,6 +31,13 @@ public class WorkAuthorResource {
     return ResponseEntity.ok(items);
   }
 
+  @PostMapping()
+  public ResponseEntity<WorkAuthorOutput> create(@RequestBody WorkAuthorInput input) {
+    var entity = toEntity(input);
+    var saved = workAuthorService.save(entity);
+    return ResponseEntity.ok(new WorkAuthorOutput(saved));
+  }
+
   @GetMapping("/{workId}/{authorId}")
   public ResponseEntity<WorkAuthorOutput> findById(@PathVariable UUID workId, @PathVariable UUID authorId) {
     var id = new WorkAuthorId(workId, authorId);
@@ -31,4 +49,48 @@ public class WorkAuthorResource {
     }
     return ResponseEntity.ok(item);
   }
+
+  @PutMapping("/{workId}/{authorId}")
+  public ResponseEntity<WorkAuthorOutput> update(@PathVariable UUID workId, @PathVariable UUID authorId, @RequestBody WorkAuthorInput input) {
+    var id = new WorkAuthorId(workId, authorId);
+    if (!workAuthorService.existsById(id)) {
+      return ResponseEntity.notFound().build();
+    }
+    var entity = toEntity(input);
+    var work = new Work();
+    work.setId(workId);
+    entity.setWork(work);
+    var author = new Author();
+    author.setId(authorId);
+    entity.setAuthor(author);
+    var saved = workAuthorService.save(entity);
+    return ResponseEntity.ok(new WorkAuthorOutput(saved));
+  }
+
+  @DeleteMapping("/{workId}/{authorId}")
+  public ResponseEntity<Void> delete(@PathVariable UUID workId, @PathVariable UUID authorId) {
+    var id = new WorkAuthorId(workId, authorId);
+    if (!workAuthorService.existsById(id)) {
+      return ResponseEntity.notFound().build();
+    }
+    workAuthorService.deleteById(id);
+    return ResponseEntity.noContent().build();
+  }
+
+  private WorkAuthor toEntity(WorkAuthorInput input) {
+    var entity = new WorkAuthor();
+    if (input.getWorkId() != null) {
+      var work = new Work();
+      work.setId(input.getWorkId());
+      entity.setWork(work);
+    }
+    if (input.getAuthorId() != null) {
+      var author = new Author();
+      author.setId(input.getAuthorId());
+      entity.setAuthor(author);
+    }
+    entity.setRole(input.getRole());
+    return entity;
+  }
 }
+

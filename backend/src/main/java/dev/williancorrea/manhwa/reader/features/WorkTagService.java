@@ -1,11 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
-import java.util.List;
-import java.util.Optional;
-import dev.williancorrea.manhwa.reader.features.WorkTag;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
+import java.util.List;\nimport java.util.Optional;\nimport org.springframework.context.annotation.Lazy;\nimport org.springframework.stereotype.Service;\nimport org.springframework.validation.annotation.Validated;
 
 @Validated
 @Service
@@ -23,5 +18,17 @@ public class WorkTagService {
 
   public Optional<WorkTag> findById(WorkTagId id) {
     return repository.findById(id);
+  }
+
+  public WorkTag save(WorkTag entity) {
+    return repository.save(entity);
+  }
+
+  public boolean existsById(WorkTagId id) {
+    return repository.existsById(id);
+  }
+
+  public void deleteById(WorkTagId id) {
+    repository.deleteById(id);
   }
 }
