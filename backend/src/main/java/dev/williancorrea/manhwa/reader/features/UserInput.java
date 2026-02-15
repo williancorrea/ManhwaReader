@@ -1,6 +1,13 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
-import jakarta.validation.constraints.NotNull;\nimport jakarta.validation.constraints.Size;\nimport java.time.OffsetDateTime;\nimport lombok.AllArgsConstructor;\nimport lombok.Getter;\nimport lombok.NoArgsConstructor;\nimport lombok.Setter;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import java.time.OffsetDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -12,6 +19,7 @@ public class UserInput {
   private String username;
   @NotNull
   @Size(max = 255)
+  @Email
   private String email;
   @NotNull
   @Size(max = 255)
@@ -21,3 +29,4 @@ public class UserInput {
   private String role;
   private OffsetDateTime createdAt;
 }
+

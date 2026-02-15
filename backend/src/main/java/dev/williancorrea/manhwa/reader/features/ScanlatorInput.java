@@ -1,6 +1,11 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
-import jakarta.validation.constraints.NotNull;\nimport jakarta.validation.constraints.Size;\nimport lombok.AllArgsConstructor;\nimport lombok.Getter;\nimport lombok.NoArgsConstructor;\nimport lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -13,3 +18,4 @@ public class ScanlatorInput {
   @Size(max = 255)
   private String website;
 }
+

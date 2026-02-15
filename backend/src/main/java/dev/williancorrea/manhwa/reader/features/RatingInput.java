@@ -1,6 +1,15 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
-import jakarta.validation.constraints.NotNull;\nimport jakarta.validation.constraints.Size;\nimport java.time.OffsetDateTime;\nimport java.util.UUID;\nimport lombok.AllArgsConstructor;\nimport lombok.Getter;\nimport lombok.NoArgsConstructor;\nimport lombok.Setter;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import java.time.OffsetDateTime;
+import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -12,6 +21,9 @@ public class RatingInput {
   @NotNull
   private UUID workId;
   @NotNull
+  @Min(1)
+  @Max(10)
   private Integer score;
   private OffsetDateTime createdAt;
 }
+
