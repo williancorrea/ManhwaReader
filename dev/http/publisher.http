@@ -1,0 +1,23 @@
+﻿### GET /features/publisher
+GET {{host}}/features/publisher
+
+### GET /features/publisher/{id}
+GET {{host}}/features/publisher/{id}
+
+### POST /features/publisher
+POST {{host}}/features/publisher
+Content-Type: {{contentType}}
+
+{"name":"Publisher Name"}
+
+### PUT /features/publisher/{id}
+PUT {{host}}/features/publisher/{id}
+Content-Type: {{contentType}}
+
+{"name":"Publisher Name"}
+
+### DELETE /features/publisher/{id}
+DELETE {{host}}/features/publisher/{id}
+
+
+

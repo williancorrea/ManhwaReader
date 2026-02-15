@@ -1,0 +1,29 @@
+﻿### GET /features/rating
+GET {{host}}/features/rating
+
+### GET /features/rating/{id}
+GET {{host}}/features/rating/{id}
+
+### GET /features/rating/work/{workId}
+GET {{host}}/features/rating/work/{workId}
+
+### GET /features/rating/user/{userId}
+GET {{host}}/features/rating/user/{userId}
+
+### POST /features/rating
+POST {{host}}/features/rating
+Content-Type: {{contentType}}
+
+{"userId":"00000000-0000-0000-0000-000000000003","workId":"00000000-0000-0000-0000-000000000001","score":8,"createdAt":"2024-01-01T00:00:00Z"}
+
+### PUT /features/rating/{id}
+PUT {{host}}/features/rating/{id}
+Content-Type: {{contentType}}
+
+{"userId":"00000000-0000-0000-0000-000000000003","workId":"00000000-0000-0000-0000-000000000001","score":8,"createdAt":"2024-01-01T00:00:00Z"}
+
+### DELETE /features/rating/{id}
+DELETE {{host}}/features/rating/{id}
+
+
+

@@ -1,0 +1,23 @@
+﻿### GET /features/genre
+GET {{host}}/features/genre
+
+### GET /features/genre/{id}
+GET {{host}}/features/genre/{id}
+
+### POST /features/genre
+POST {{host}}/features/genre
+Content-Type: {{contentType}}
+
+{"name":"Action"}
+
+### PUT /features/genre/{id}
+PUT {{host}}/features/genre/{id}
+Content-Type: {{contentType}}
+
+{"name":"Action"}
+
+### DELETE /features/genre/{id}
+DELETE {{host}}/features/genre/{id}
+
+
+

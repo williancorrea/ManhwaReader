@@ -1,0 +1,23 @@
+﻿### GET /features/scanlator
+GET {{host}}/features/scanlator
+
+### GET /features/scanlator/{id}
+GET {{host}}/features/scanlator/{id}
+
+### POST /features/scanlator
+POST {{host}}/features/scanlator
+Content-Type: {{contentType}}
+
+{"name":"Scan Team","website":"https://example.com"}
+
+### PUT /features/scanlator/{id}
+PUT {{host}}/features/scanlator/{id}
+Content-Type: {{contentType}}
+
+{"name":"Scan Team","website":"https://example.com"}
+
+### DELETE /features/scanlator/{id}
+DELETE {{host}}/features/scanlator/{id}
+
+
+

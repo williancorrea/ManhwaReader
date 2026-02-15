@@ -1,0 +1,26 @@
+﻿### GET /features/work-tag
+GET {{host}}/features/work-tag
+
+### GET /features/work-tag/{workId}/{tagId}
+GET {{host}}/features/work-tag/{workId}/{tagId}
+
+### GET /features/work-tag/work/{workId}
+GET {{host}}/features/work-tag/work/{workId}
+
+### POST /features/work-tag
+POST {{host}}/features/work-tag
+Content-Type: {{contentType}}
+
+{"workId":"00000000-0000-0000-0000-000000000001","tagId":"00000000-0000-0000-0000-000000000008"}
+
+### PUT /features/work-tag/{id}
+PUT {{host}}/features/work-tag/{id}
+Content-Type: {{contentType}}
+
+{"workId":"00000000-0000-0000-0000-000000000001","tagId":"00000000-0000-0000-0000-000000000008"}
+
+### DELETE /features/work-tag/{id}
+DELETE {{host}}/features/work-tag/{id}
+
+
+

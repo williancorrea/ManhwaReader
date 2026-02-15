@@ -1,0 +1,23 @@
+﻿### GET /features/tag
+GET {{host}}/features/tag
+
+### GET /features/tag/{id}
+GET {{host}}/features/tag/{id}
+
+### POST /features/tag
+POST {{host}}/features/tag
+Content-Type: {{contentType}}
+
+{"name":"Romance","isNsfw":false}
+
+### PUT /features/tag/{id}
+PUT {{host}}/features/tag/{id}
+Content-Type: {{contentType}}
+
+{"name":"Romance","isNsfw":false}
+
+### DELETE /features/tag/{id}
+DELETE {{host}}/features/tag/{id}
+
+
+

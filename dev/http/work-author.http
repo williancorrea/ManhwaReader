@@ -1,0 +1,26 @@
+﻿### GET /features/work-author
+GET {{host}}/features/work-author
+
+### GET /features/work-author/{workId}/{authorId}
+GET {{host}}/features/work-author/{workId}/{authorId}
+
+### GET /features/work-author/work/{workId}
+GET {{host}}/features/work-author/work/{workId}
+
+### POST /features/work-author
+POST {{host}}/features/work-author
+Content-Type: {{contentType}}
+
+{"workId":"00000000-0000-0000-0000-000000000001","authorId":"00000000-0000-0000-0000-000000000006","role":"WRITER"}
+
+### PUT /features/work-author/{id}
+PUT {{host}}/features/work-author/{id}
+Content-Type: {{contentType}}
+
+{"workId":"00000000-0000-0000-0000-000000000001","authorId":"00000000-0000-0000-0000-000000000006","role":"WRITER"}
+
+### DELETE /features/work-author/{id}
+DELETE {{host}}/features/work-author/{id}
+
+
+

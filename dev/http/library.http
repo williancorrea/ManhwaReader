@@ -1,0 +1,26 @@
+﻿### GET /features/library
+GET {{host}}/features/library
+
+### GET /features/library/{id}
+GET {{host}}/features/library/{id}
+
+### GET /features/library/user/{userId}
+GET {{host}}/features/library/user/{userId}
+
+### POST /features/library
+POST {{host}}/features/library
+Content-Type: {{contentType}}
+
+{"userId":"00000000-0000-0000-0000-000000000003","workId":"00000000-0000-0000-0000-000000000001","status":"READING"}
+
+### PUT /features/library/{id}
+PUT {{host}}/features/library/{id}
+Content-Type: {{contentType}}
+
+{"userId":"00000000-0000-0000-0000-000000000003","workId":"00000000-0000-0000-0000-000000000001","status":"READING"}
+
+### DELETE /features/library/{id}
+DELETE {{host}}/features/library/{id}
+
+
+

@@ -1,0 +1,23 @@
+﻿### GET /features/file
+GET {{host}}/features/file
+
+### GET /features/file/{id}
+GET {{host}}/features/file/{id}
+
+### POST /features/file
+POST {{host}}/features/file
+Content-Type: {{contentType}}
+
+{"storagePath":"/files/cover.jpg","mimeType":"image/jpeg","sizeBytes":12345,"checksum":"abc123","createdAt":"2024-01-01T00:00:00Z"}
+
+### PUT /features/file/{id}
+PUT {{host}}/features/file/{id}
+Content-Type: {{contentType}}
+
+{"storagePath":"/files/cover.jpg","mimeType":"image/jpeg","sizeBytes":12345,"checksum":"abc123","createdAt":"2024-01-01T00:00:00Z"}
+
+### DELETE /features/file/{id}
+DELETE {{host}}/features/file/{id}
+
+
+

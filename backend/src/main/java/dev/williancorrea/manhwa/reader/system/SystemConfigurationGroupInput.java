@@ -1,4 +1,4 @@
-﻿package dev.williancorrea.manhwa.reader.system;
+package dev.williancorrea.manhwa.reader.system;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

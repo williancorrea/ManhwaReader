@@ -1,4 +1,4 @@
-﻿package dev.williancorrea.manhwa.reader.system;
+package dev.williancorrea.manhwa.reader.system;
 
 import java.util.UUID;
 import jakarta.validation.constraints.NotNull;

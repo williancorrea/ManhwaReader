@@ -1,0 +1,26 @@
+﻿### GET /features/work-title
+GET {{host}}/features/work-title
+
+### GET /features/work-title/{id}
+GET {{host}}/features/work-title/{id}
+
+### GET /features/work-title/work/{workId}
+GET {{host}}/features/work-title/work/{workId}
+
+### POST /features/work-title
+POST {{host}}/features/work-title
+Content-Type: {{contentType}}
+
+{"workId":"00000000-0000-0000-0000-000000000001","languageId":"00000000-0000-0000-0000-000000000002","title":"Work Title","isOfficial":true}
+
+### PUT /features/work-title/{id}
+PUT {{host}}/features/work-title/{id}
+Content-Type: {{contentType}}
+
+{"workId":"00000000-0000-0000-0000-000000000001","languageId":"00000000-0000-0000-0000-000000000002","title":"Work Title","isOfficial":true}
+
+### DELETE /features/work-title/{id}
+DELETE {{host}}/features/work-title/{id}
+
+
+

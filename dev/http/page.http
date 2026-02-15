@@ -1,0 +1,26 @@
+﻿### GET /features/page
+GET {{host}}/features/page
+
+### GET /features/page/{id}
+GET {{host}}/features/page/{id}
+
+### GET /features/page/chapter/{chapterId}
+GET {{host}}/features/page/chapter/{chapterId}
+
+### POST /features/page
+POST {{host}}/features/page
+Content-Type: {{contentType}}
+
+{"chapterId":"00000000-0000-0000-0000-000000000004","pageNumber":1,"imageFileId":"00000000-0000-0000-0000-000000000005"}
+
+### PUT /features/page/{id}
+PUT {{host}}/features/page/{id}
+Content-Type: {{contentType}}
+
+{"chapterId":"00000000-0000-0000-0000-000000000004","pageNumber":1,"imageFileId":"00000000-0000-0000-0000-000000000005"}
+
+### DELETE /features/page/{id}
+DELETE {{host}}/features/page/{id}
+
+
+

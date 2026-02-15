@@ -1,4 +1,4 @@
-﻿package dev.williancorrea.manhwa.reader.features;
+package dev.williancorrea.manhwa.reader.features;
 
 import jakarta.validation.Valid;
 import java.util.List;

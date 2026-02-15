@@ -1,0 +1,29 @@
+﻿### GET /features/work
+GET {{host}}/features/work
+
+### GET /features/work/{id}
+GET {{host}}/features/work/{id}
+
+### GET /features/work/status/{status}
+GET {{host}}/features/work/status/{status}
+
+### GET /features/work/type/{type}
+GET {{host}}/features/work/type/{type}
+
+### POST /features/work
+POST {{host}}/features/work
+Content-Type: {{contentType}}
+
+{"originalTitle":"Work Title","synopsis":"Synopsis","type":"MANHWA","status":"ONGOING","releaseYear":2024,"coverImageId":null,"publisherId":null,"createdAt":"2024-01-01T00:00:00Z","updatedAt":"2024-01-01T00:00:00Z"}
+
+### PUT /features/work/{id}
+PUT {{host}}/features/work/{id}
+Content-Type: {{contentType}}
+
+{"originalTitle":"Work Title","synopsis":"Synopsis","type":"MANHWA","status":"ONGOING","releaseYear":2024,"coverImageId":null,"publisherId":null,"createdAt":"2024-01-01T00:00:00Z","updatedAt":"2024-01-01T00:00:00Z"}
+
+### DELETE /features/work/{id}
+DELETE {{host}}/features/work/{id}
+
+
+

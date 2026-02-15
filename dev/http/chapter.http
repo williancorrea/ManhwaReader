@@ -1,0 +1,26 @@
+﻿### GET /features/chapter
+GET {{host}}/features/chapter
+
+### GET /features/chapter/{id}
+GET {{host}}/features/chapter/{id}
+
+### GET /features/chapter/work/{workId}
+GET {{host}}/features/chapter/work/{workId}
+
+### POST /features/chapter
+POST {{host}}/features/chapter
+Content-Type: {{contentType}}
+
+{"workId":"00000000-0000-0000-0000-000000000001","volumeId":null,"number":1.0,"title":"Chapter 1","languageId":"00000000-0000-0000-0000-000000000002","releaseDate":"2024-01-01","scanlatorId":null,"createdAt":"2024-01-01T00:00:00Z"}
+
+### PUT /features/chapter/{id}
+PUT {{host}}/features/chapter/{id}
+Content-Type: {{contentType}}
+
+{"workId":"00000000-0000-0000-0000-000000000001","volumeId":null,"number":1.0,"title":"Chapter 1","languageId":"00000000-0000-0000-0000-000000000002","releaseDate":"2024-01-01","scanlatorId":null,"createdAt":"2024-01-01T00:00:00Z"}
+
+### DELETE /features/chapter/{id}
+DELETE {{host}}/features/chapter/{id}
+
+
+

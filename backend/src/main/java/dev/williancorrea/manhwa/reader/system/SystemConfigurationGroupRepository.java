@@ -1,4 +1,4 @@
-﻿package dev.williancorrea.manhwa.reader.system;
+package dev.williancorrea.manhwa.reader.system;
 
 import dev.williancorrea.manhwa.reader.system.SystemConfigurationGroup;
 import java.util.UUID;

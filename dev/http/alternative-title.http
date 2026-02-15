@@ -1,0 +1,26 @@
+﻿### GET /features/alternative-title
+GET {{host}}/features/alternative-title
+
+### GET /features/alternative-title/{id}
+GET {{host}}/features/alternative-title/{id}
+
+### GET /features/alternative-title/work/{workId}
+GET {{host}}/features/alternative-title/work/{workId}
+
+### POST /features/alternative-title
+POST {{host}}/features/alternative-title
+Content-Type: {{contentType}}
+
+{"workId":"00000000-0000-0000-0000-000000000001","languageId":"00000000-0000-0000-0000-000000000002","title":"Alt Title"}
+
+### PUT /features/alternative-title/{id}
+PUT {{host}}/features/alternative-title/{id}
+Content-Type: {{contentType}}
+
+{"workId":"00000000-0000-0000-0000-000000000001","languageId":"00000000-0000-0000-0000-000000000002","title":"Alt Title"}
+
+### DELETE /features/alternative-title/{id}
+DELETE {{host}}/features/alternative-title/{id}
+
+
+

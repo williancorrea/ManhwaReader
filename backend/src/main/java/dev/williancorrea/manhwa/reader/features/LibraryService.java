@@ -1,6 +1,11 @@
-﻿package dev.williancorrea.manhwa.reader.features;
+package dev.williancorrea.manhwa.reader.features;
 
-import java.util.List;\nimport java.util.Optional;\nimport java.util.UUID;\nimport org.springframework.context.annotation.Lazy;\nimport org.springframework.stereotype.Service;\nimport org.springframework.validation.annotation.Validated;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 @Validated
 @Service
@@ -31,5 +36,9 @@ public class LibraryService {
   public void deleteById(UUID id) {
     repository.deleteById(id);
   }
-  public List<Library> findAllByUserId(UUID userId) {\r\n    return repository.findAllByUser_Id(userId);\r\n  }\r\n}
+
+  public List<Library> findAllByUserId(UUID userId) {
+    return repository.findAllByUser_Id(userId);
+  }
+}
 

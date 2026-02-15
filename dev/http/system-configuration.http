@@ -1,0 +1,26 @@
+﻿### GET /system/configuration
+GET {{host}}/system/configuration
+
+### GET /system/configuration/{id}
+GET {{host}}/system/configuration/{id}
+
+### GET /system/configuration/group?groupId={groupId}
+GET {{host}}/system/configuration/group?groupId={groupId}
+
+### POST /system/configuration
+POST {{host}}/system/configuration
+Content-Type: {{contentType}}
+
+{"groupId":"00000000-0000-0000-0000-000000000009","description":"Config","reference":"REF","value":"VAL","active":true}
+
+### PUT /system/configuration/{id}
+PUT {{host}}/system/configuration/{id}
+Content-Type: {{contentType}}
+
+{"groupId":"00000000-0000-0000-0000-000000000009","description":"Config","reference":"REF","value":"VAL","active":true}
+
+### DELETE /system/configuration/{id}
+DELETE {{host}}/system/configuration/{id}
+
+
+

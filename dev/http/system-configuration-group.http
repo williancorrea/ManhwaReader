@@ -1,0 +1,23 @@
+﻿### GET /system/configuration-group
+GET {{host}}/system/configuration-group
+
+### GET /system/configuration-group/{id}
+GET {{host}}/system/configuration-group/{id}
+
+### POST /system/configuration-group
+POST {{host}}/system/configuration-group
+Content-Type: {{contentType}}
+
+{"name":"MINIO","description":"Minio configs","active":true}
+
+### PUT /system/configuration-group/{id}
+PUT {{host}}/system/configuration-group/{id}
+Content-Type: {{contentType}}
+
+{"name":"MINIO","description":"Minio configs","active":true}
+
+### DELETE /system/configuration-group/{id}
+DELETE {{host}}/system/configuration-group/{id}
+
+
+

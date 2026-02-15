@@ -1,4 +1,4 @@
-﻿package dev.williancorrea.manhwa.reader.features;
+package dev.williancorrea.manhwa.reader.features;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

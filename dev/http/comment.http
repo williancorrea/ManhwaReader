@@ -1,0 +1,29 @@
+﻿### GET /features/comment
+GET {{host}}/features/comment
+
+### GET /features/comment/{id}
+GET {{host}}/features/comment/{id}
+
+### GET /features/comment/work/{workId}
+GET {{host}}/features/comment/work/{workId}
+
+### GET /features/comment/chapter/{chapterId}
+GET {{host}}/features/comment/chapter/{chapterId}
+
+### POST /features/comment
+POST {{host}}/features/comment
+Content-Type: {{contentType}}
+
+{"userId":"00000000-0000-0000-0000-000000000003","workId":"00000000-0000-0000-0000-000000000001","chapterId":null,"content":"Great chapter","createdAt":"2024-01-01T00:00:00Z"}
+
+### PUT /features/comment/{id}
+PUT {{host}}/features/comment/{id}
+Content-Type: {{contentType}}
+
+{"userId":"00000000-0000-0000-0000-000000000003","workId":"00000000-0000-0000-0000-000000000001","chapterId":null,"content":"Great chapter","createdAt":"2024-01-01T00:00:00Z"}
+
+### DELETE /features/comment/{id}
+DELETE {{host}}/features/comment/{id}
+
+
+

@@ -1,4 +1,4 @@
-﻿package dev.williancorrea.manhwa.reader.features;
+package dev.williancorrea.manhwa.reader.features;
 
 import java.util.List;
 import dev.williancorrea.manhwa.reader.features.Chapter;

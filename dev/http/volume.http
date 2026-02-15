@@ -1,0 +1,26 @@
+﻿### GET /features/volume
+GET {{host}}/features/volume
+
+### GET /features/volume/{id}
+GET {{host}}/features/volume/{id}
+
+### GET /features/volume/work/{workId}
+GET {{host}}/features/volume/work/{workId}
+
+### POST /features/volume
+POST {{host}}/features/volume
+Content-Type: {{contentType}}
+
+{"workId":"00000000-0000-0000-0000-000000000001","number":1,"title":"Volume 1"}
+
+### PUT /features/volume/{id}
+PUT {{host}}/features/volume/{id}
+Content-Type: {{contentType}}
+
+{"workId":"00000000-0000-0000-0000-000000000001","number":1,"title":"Volume 1"}
+
+### DELETE /features/volume/{id}
+DELETE {{host}}/features/volume/{id}
+
+
+

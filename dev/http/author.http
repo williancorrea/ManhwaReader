@@ -1,0 +1,23 @@
+﻿### GET /features/author
+GET {{host}}/features/author
+
+### GET /features/author/{id}
+GET {{host}}/features/author/{id}
+
+### POST /features/author
+POST {{host}}/features/author
+Content-Type: {{contentType}}
+
+{"name":"Willian Correa","type":"WRITER"}
+
+### PUT /features/author/{id}
+PUT {{host}}/features/author/{id}
+Content-Type: {{contentType}}
+
+{"name":"Willian V V Correa","type":"AUTHOR"}
+
+### DELETE /features/author/{id}
+DELETE {{host}}/features/author/{id}
+
+
+

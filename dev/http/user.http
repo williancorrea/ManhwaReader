@@ -1,0 +1,23 @@
+﻿### GET /features/user
+GET {{host}}/features/user
+
+### GET /features/user/{id}
+GET {{host}}/features/user/{id}
+
+### POST /features/user
+POST {{host}}/features/user
+Content-Type: {{contentType}}
+
+{"username":"user1","email":"user1@example.com","passwordHash":"hash","role":"USER","createdAt":"2024-01-01T00:00:00Z"}
+
+### PUT /features/user/{id}
+PUT {{host}}/features/user/{id}
+Content-Type: {{contentType}}
+
+{"username":"user1","email":"user1@example.com","passwordHash":"hash","role":"USER","createdAt":"2024-01-01T00:00:00Z"}
+
+### DELETE /features/user/{id}
+DELETE {{host}}/features/user/{id}
+
+
+

@@ -1,0 +1,23 @@
+﻿### GET /features/language
+GET {{host}}/features/language
+
+### GET /features/language/{id}
+GET {{host}}/features/language/{id}
+
+### POST /features/language
+POST {{host}}/features/language
+Content-Type: {{contentType}}
+
+{"code":"pt-BR","name":"Portuguese (Brazil)"}
+
+### PUT /features/language/{id}
+PUT {{host}}/features/language/{id}
+Content-Type: {{contentType}}
+
+{"code":"pt-BR","name":"Portuguese (Brazil)"}
+
+### DELETE /features/language/{id}
+DELETE {{host}}/features/language/{id}
+
+
+

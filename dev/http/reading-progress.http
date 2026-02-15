@@ -1,0 +1,26 @@
+﻿### GET /features/reading-progress
+GET {{host}}/features/reading-progress
+
+### GET /features/reading-progress/{id}
+GET {{host}}/features/reading-progress/{id}
+
+### GET /features/reading-progress/user/{userId}
+GET {{host}}/features/reading-progress/user/{userId}
+
+### POST /features/reading-progress
+POST {{host}}/features/reading-progress
+Content-Type: {{contentType}}
+
+{"userId":"00000000-0000-0000-0000-000000000003","chapterId":"00000000-0000-0000-0000-000000000004","pageNumber":10,"lastReadAt":"2024-01-01T00:00:00Z"}
+
+### PUT /features/reading-progress/{id}
+PUT {{host}}/features/reading-progress/{id}
+Content-Type: {{contentType}}
+
+{"userId":"00000000-0000-0000-0000-000000000003","chapterId":"00000000-0000-0000-0000-000000000004","pageNumber":10,"lastReadAt":"2024-01-01T00:00:00Z"}
+
+### DELETE /features/reading-progress/{id}
+DELETE {{host}}/features/reading-progress/{id}
+
+
+

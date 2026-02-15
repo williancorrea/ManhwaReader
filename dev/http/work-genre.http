@@ -1,0 +1,26 @@
+﻿### GET /features/work-genre
+GET {{host}}/features/work-genre
+
+### GET /features/work-genre/{workId}/{genreId}
+GET {{host}}/features/work-genre/{workId}/{genreId}
+
+### GET /features/work-genre/work/{workId}
+GET {{host}}/features/work-genre/work/{workId}
+
+### POST /features/work-genre
+POST {{host}}/features/work-genre
+Content-Type: {{contentType}}
+
+{"workId":"00000000-0000-0000-0000-000000000001","genreId":"00000000-0000-0000-0000-000000000007"}
+
+### PUT /features/work-genre/{id}
+PUT {{host}}/features/work-genre/{id}
+Content-Type: {{contentType}}
+
+{"workId":"00000000-0000-0000-0000-000000000001","genreId":"00000000-0000-0000-0000-000000000007"}
+
+### DELETE /features/work-genre/{id}
+DELETE {{host}}/features/work-genre/{id}
+
+
+
