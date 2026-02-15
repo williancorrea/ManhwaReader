@@ -36,6 +36,16 @@ spring:
     ansi:
       enabled: always
 
+# Feign Client configuration
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 30000
+        loggerLevel: basic
+  httpclient:
+    enabled: true
 
 #Actuator
 management:
@@ -62,6 +72,7 @@ info:
 logging:
   level:
     dev.williancorrea.manhwa: TRACE
+    feign.client.config.default.loggerLevel: 
     root: INFO
     org.springframework.web: DEBUG
     org.hibernate: INFO
