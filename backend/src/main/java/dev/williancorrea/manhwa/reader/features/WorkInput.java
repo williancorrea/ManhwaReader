@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.OffsetDateTime;
@@ -22,6 +23,7 @@ public class WorkInput {
   private WorkType type;
   @NotNull
   private WorkStatus status;
+  @Min(1)
   private Integer releaseYear;
   private UUID coverImageId;
   private UUID publisherId;
