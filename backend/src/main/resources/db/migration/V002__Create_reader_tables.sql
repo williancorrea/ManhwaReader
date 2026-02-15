@@ -14,6 +14,12 @@ CREATE TABLE publisher (
     name VARCHAR(255) NOT NULL
 );
 
+CREATE TABLE language (
+    id CHAR(36) NOT NULL PRIMARY KEY,
+    code VARCHAR(10) NOT NULL UNIQUE,
+    name VARCHAR(50) NOT NULL
+);
+
 CREATE TABLE work (
     id CHAR(36) NOT NULL PRIMARY KEY,
     original_title VARCHAR(255) NOT NULL,
@@ -32,19 +38,21 @@ CREATE TABLE work (
 CREATE TABLE work_title (
     id CHAR(36) NOT NULL PRIMARY KEY,
     work_id CHAR(36) NOT NULL,
-    language_code VARCHAR(10) NOT NULL,
+    language_id CHAR(36) NOT NULL,
     title VARCHAR(255) NOT NULL,
     is_official BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (work_id) REFERENCES work(id),
-    UNIQUE (work_id, language_code)
+    FOREIGN KEY (language_id) REFERENCES language(id),
+    UNIQUE (work_id, language_id)
 );
 
 CREATE TABLE alternative_title (
     id CHAR(36) NOT NULL PRIMARY KEY,
     work_id CHAR(36) NOT NULL,
-    language_code VARCHAR(10),
+    language_id CHAR(36),
     title VARCHAR(255) NOT NULL,
-    FOREIGN KEY (work_id) REFERENCES work(id)
+    FOREIGN KEY (work_id) REFERENCES work(id),
+    FOREIGN KEY (language_id) REFERENCES language(id)
 );
 
 CREATE TABLE genre (
@@ -112,13 +120,14 @@ CREATE TABLE chapter (
     volume_id CHAR(36),
     number DECIMAL(10, 2) NOT NULL,
     title VARCHAR(255),
-    language_code VARCHAR(10) NOT NULL,
+    language_id CHAR(36) NOT NULL,
     release_date DATE,
     scanlator_id CHAR(36),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (work_id) REFERENCES work(id),
     FOREIGN KEY (volume_id) REFERENCES volume(id),
-    FOREIGN KEY (scanlator_id) REFERENCES scanlator(id)
+    FOREIGN KEY (scanlator_id) REFERENCES scanlator(id),
+    FOREIGN KEY (language_id) REFERENCES language(id)
 );
 
 CREATE TABLE page (

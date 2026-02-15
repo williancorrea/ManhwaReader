@@ -3,6 +3,7 @@ package dev.williancorrea.manhwa.reader.system;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.UUID;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -33,10 +34,13 @@ public class SystemConfigurationGroup implements Serializable {
   private UUID id;
 
   @Size(min = 3, max = 200)
+  @Column(nullable = false, unique = true, length = 200)
   private String name;
 
   @Size(max = 200)
+  @Column(length = 200)
   private String description;
 
+  @Column(nullable = false)
   private boolean active;
 }

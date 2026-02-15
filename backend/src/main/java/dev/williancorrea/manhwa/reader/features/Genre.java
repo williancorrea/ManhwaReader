@@ -2,6 +2,7 @@ package dev.williancorrea.manhwa.reader.features;
 
 import java.io.Serializable;
 import java.util.UUID;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,6 +27,7 @@ public class Genre implements Serializable {
   @EqualsAndHashCode.Include
   private UUID id;
 
+  @Column(nullable = false, unique = true)
   private String name;
 
 }

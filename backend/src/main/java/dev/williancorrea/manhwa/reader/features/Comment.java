@@ -1,8 +1,6 @@
 package dev.williancorrea.manhwa.reader.features;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import jakarta.persistence.Column;
@@ -20,39 +18,30 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "chapter")
+@Table(name = "comment")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Chapter implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "work_id", nullable = false)
-    private Work work;
-
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal number;
-
-    private String title;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "language_id", nullable = false)
-    private Language language;
-
-  @Column(name = "release_date")
-  private LocalDate releaseDate;
+public class Comment implements Serializable {
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "volume_id")
-  private Volume volume;
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "scanlator_id")
-  private Scanlator scanlator;
+  @JoinColumn(name = "work_id")
+  private Work work;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "chapter_id")
+  private Chapter chapter;
+
+  @Column(nullable = false)
+  private String content;
 
   @Column(name = "created_at")
   private OffsetDateTime createdAt;
