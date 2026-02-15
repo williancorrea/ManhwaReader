@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +33,7 @@ public class LibraryResource {
   }
 
   @PostMapping()
-  public ResponseEntity<LibraryOutput> create(@RequestBody LibraryInput input) {
+  public ResponseEntity<LibraryOutput> create(@RequestBody @Valid LibraryInput input) {
     var entity = toEntity(input);
     var saved = libraryService.save(entity);
     return ResponseEntity.ok(new LibraryOutput(saved));
@@ -50,7 +51,7 @@ public class LibraryResource {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<LibraryOutput> update(@PathVariable UUID id, @RequestBody LibraryInput input) {
+  public ResponseEntity<LibraryOutput> update(@PathVariable UUID id, @RequestBody @Valid LibraryInput input) {
     if (!libraryService.existsById(id)) {
       return ResponseEntity.notFound().build();
     }
@@ -83,6 +84,13 @@ public class LibraryResource {
     }
     entity.setStatus(input.getStatus());
     return entity;
+  }
+  @GetMapping("/user/{userId}")
+  public ResponseEntity<List<LibraryOutput>> findAllByUser(@PathVariable UUID userId) {
+    var items = libraryService.findAllByUserId(userId)
+        .stream().map(LibraryOutput::new)
+        .toList();
+    return ResponseEntity.ok(items);
   }
 }
 

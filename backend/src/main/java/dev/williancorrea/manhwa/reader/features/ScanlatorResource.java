@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +33,7 @@ public class ScanlatorResource {
   }
 
   @PostMapping()
-  public ResponseEntity<ScanlatorOutput> create(@RequestBody ScanlatorInput input) {
+  public ResponseEntity<ScanlatorOutput> create(@RequestBody @Valid ScanlatorInput input) {
     var entity = toEntity(input);
     var saved = scanlatorService.save(entity);
     return ResponseEntity.ok(new ScanlatorOutput(saved));
@@ -50,7 +51,7 @@ public class ScanlatorResource {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<ScanlatorOutput> update(@PathVariable UUID id, @RequestBody ScanlatorInput input) {
+  public ResponseEntity<ScanlatorOutput> update(@PathVariable UUID id, @RequestBody @Valid ScanlatorInput input) {
     if (!scanlatorService.existsById(id)) {
       return ResponseEntity.notFound().build();
     }
@@ -76,4 +77,5 @@ public class ScanlatorResource {
     return entity;
   }
 }
+
 

@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +33,7 @@ public class TagResource {
   }
 
   @PostMapping()
-  public ResponseEntity<TagOutput> create(@RequestBody TagInput input) {
+  public ResponseEntity<TagOutput> create(@RequestBody @Valid TagInput input) {
     var entity = toEntity(input);
     var saved = tagService.save(entity);
     return ResponseEntity.ok(new TagOutput(saved));
@@ -50,7 +51,7 @@ public class TagResource {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<TagOutput> update(@PathVariable UUID id, @RequestBody TagInput input) {
+  public ResponseEntity<TagOutput> update(@PathVariable UUID id, @RequestBody @Valid TagInput input) {
     if (!tagService.existsById(id)) {
       return ResponseEntity.notFound().build();
     }
@@ -76,4 +77,5 @@ public class TagResource {
     return entity;
   }
 }
+
 

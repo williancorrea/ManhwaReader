@@ -31,4 +31,5 @@ public class PageService {
   public void deleteById(UUID id) {
     repository.deleteById(id);
   }
-}
+  public List<Page> findAllByChapterId(UUID chapterId) {\r\n    return repository.findAllByChapter_Id(chapterId);\r\n  }\r\n}
+

@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +33,7 @@ public class RatingResource {
   }
 
   @PostMapping()
-  public ResponseEntity<RatingOutput> create(@RequestBody RatingInput input) {
+  public ResponseEntity<RatingOutput> create(@RequestBody @Valid RatingInput input) {
     var entity = toEntity(input);
     var saved = ratingService.save(entity);
     return ResponseEntity.ok(new RatingOutput(saved));
@@ -50,7 +51,7 @@ public class RatingResource {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<RatingOutput> update(@PathVariable UUID id, @RequestBody RatingInput input) {
+  public ResponseEntity<RatingOutput> update(@PathVariable UUID id, @RequestBody @Valid RatingInput input) {
     if (!ratingService.existsById(id)) {
       return ResponseEntity.notFound().build();
     }
@@ -84,6 +85,21 @@ public class RatingResource {
     entity.setScore(input.getScore());
     entity.setCreatedAt(input.getCreatedAt());
     return entity;
+  }
+  @GetMapping("/work/{workId}")
+  public ResponseEntity<List<RatingOutput>> findAllByWork(@PathVariable UUID workId) {
+    var items = ratingService.findAllByWorkId(workId)
+        .stream().map(RatingOutput::new)
+        .toList();
+    return ResponseEntity.ok(items);
+  }
+
+  @GetMapping("/user/{userId}")
+  public ResponseEntity<List<RatingOutput>> findAllByUser(@PathVariable UUID userId) {
+    var items = ratingService.findAllByUserId(userId)
+        .stream().map(RatingOutput::new)
+        .toList();
+    return ResponseEntity.ok(items);
   }
 }
 

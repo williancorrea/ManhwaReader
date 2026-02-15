@@ -31,4 +31,5 @@ public class LibraryService {
   public void deleteById(UUID id) {
     repository.deleteById(id);
   }
-}
+  public List<Library> findAllByUserId(UUID userId) {\r\n    return repository.findAllByUser_Id(userId);\r\n  }\r\n}
+

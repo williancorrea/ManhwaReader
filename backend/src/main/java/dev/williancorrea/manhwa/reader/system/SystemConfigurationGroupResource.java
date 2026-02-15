@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.system;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -39,14 +40,14 @@ public class SystemConfigurationGroupResource {
   }
 
   @PostMapping()
-  public ResponseEntity<SystemConfigurationGroupOutput> create(@RequestBody SystemConfigurationGroupInput input) {
+  public ResponseEntity<SystemConfigurationGroupOutput> create(@RequestBody @Valid SystemConfigurationGroupInput input) {
     var entity = toEntity(input);
     var saved = service.save(entity);
     return ResponseEntity.ok(new SystemConfigurationGroupOutput(saved));
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<SystemConfigurationGroupOutput> update(@PathVariable UUID id, @RequestBody SystemConfigurationGroupInput input) {
+  public ResponseEntity<SystemConfigurationGroupOutput> update(@PathVariable UUID id, @RequestBody @Valid SystemConfigurationGroupInput input) {
     if (!service.existsById(id)) {
       return ResponseEntity.notFound().build();
     }
@@ -73,3 +74,4 @@ public class SystemConfigurationGroupResource {
     return entity;
   }
 }
+

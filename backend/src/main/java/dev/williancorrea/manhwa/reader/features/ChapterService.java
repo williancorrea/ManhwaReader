@@ -31,4 +31,5 @@ public class ChapterService {
   public void deleteById(UUID id) {
     repository.deleteById(id);
   }
-}
+  public List<Chapter> findAllByWorkId(UUID workId) {\r\n    return repository.findAllByWork_Id(workId);\r\n  }\r\n}
+

@@ -31,4 +31,5 @@ public class VolumeService {
   public void deleteById(UUID id) {
     repository.deleteById(id);
   }
-}
+  public List<Volume> findAllByWorkId(UUID workId) {\r\n    return repository.findAllByWork_Id(workId);\r\n  }\r\n}
+

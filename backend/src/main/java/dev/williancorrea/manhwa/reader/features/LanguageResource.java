@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +33,7 @@ public class LanguageResource {
   }
 
   @PostMapping()
-  public ResponseEntity<LanguageOutput> create(@RequestBody LanguageInput input) {
+  public ResponseEntity<LanguageOutput> create(@RequestBody @Valid LanguageInput input) {
     var entity = toEntity(input);
     var saved = languageService.save(entity);
     return ResponseEntity.ok(new LanguageOutput(saved));
@@ -50,7 +51,7 @@ public class LanguageResource {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<LanguageOutput> update(@PathVariable UUID id, @RequestBody LanguageInput input) {
+  public ResponseEntity<LanguageOutput> update(@PathVariable UUID id, @RequestBody @Valid LanguageInput input) {
     if (!languageService.existsById(id)) {
       return ResponseEntity.notFound().build();
     }
@@ -76,4 +77,5 @@ public class LanguageResource {
     return entity;
   }
 }
+
 

@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +33,7 @@ public class WorkTagResource {
   }
 
   @PostMapping()
-  public ResponseEntity<WorkTagOutput> create(@RequestBody WorkTagInput input) {
+  public ResponseEntity<WorkTagOutput> create(@RequestBody @Valid WorkTagInput input) {
     var entity = toEntity(input);
     var saved = workTagService.save(entity);
     return ResponseEntity.ok(new WorkTagOutput(saved));
@@ -51,7 +52,7 @@ public class WorkTagResource {
   }
 
   @PutMapping("/{workId}/{tagId}")
-  public ResponseEntity<WorkTagOutput> update(@PathVariable UUID workId, @PathVariable UUID tagId, @RequestBody WorkTagInput input) {
+  public ResponseEntity<WorkTagOutput> update(@PathVariable UUID workId, @PathVariable UUID tagId, @RequestBody @Valid WorkTagInput input) {
     var id = new WorkTagId(workId, tagId);
     if (!workTagService.existsById(id)) {
       return ResponseEntity.notFound().build();
@@ -90,6 +91,13 @@ public class WorkTagResource {
       entity.setTag(tag);
     }
     return entity;
+  }
+  @GetMapping("/work/{workId}")
+  public ResponseEntity<List<WorkTagOutput>> findAllByWork(@PathVariable UUID workId) {
+    var items = workTagService.findAllByWorkId(workId)
+        .stream().map(WorkTagOutput::new)
+        .toList();
+    return ResponseEntity.ok(items);
   }
 }
 

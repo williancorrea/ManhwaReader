@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +33,7 @@ public class VolumeResource {
   }
 
   @PostMapping()
-  public ResponseEntity<VolumeOutput> create(@RequestBody VolumeInput input) {
+  public ResponseEntity<VolumeOutput> create(@RequestBody @Valid VolumeInput input) {
     var entity = toEntity(input);
     var saved = volumeService.save(entity);
     return ResponseEntity.ok(new VolumeOutput(saved));
@@ -50,7 +51,7 @@ public class VolumeResource {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<VolumeOutput> update(@PathVariable UUID id, @RequestBody VolumeInput input) {
+  public ResponseEntity<VolumeOutput> update(@PathVariable UUID id, @RequestBody @Valid VolumeInput input) {
     if (!volumeService.existsById(id)) {
       return ResponseEntity.notFound().build();
     }
@@ -79,6 +80,13 @@ public class VolumeResource {
     entity.setNumber(input.getNumber());
     entity.setTitle(input.getTitle());
     return entity;
+  }
+  @GetMapping("/work/{workId}")
+  public ResponseEntity<List<VolumeOutput>> findAllByWork(@PathVariable UUID workId) {
+    var items = volumeService.findAllByWorkId(workId)
+        .stream().map(VolumeOutput::new)
+        .toList();
+    return ResponseEntity.ok(items);
   }
 }
 

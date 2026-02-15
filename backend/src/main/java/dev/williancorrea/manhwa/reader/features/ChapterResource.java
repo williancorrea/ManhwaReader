@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +33,7 @@ public class ChapterResource {
   }
 
   @PostMapping()
-  public ResponseEntity<ChapterOutput> create(@RequestBody ChapterInput input) {
+  public ResponseEntity<ChapterOutput> create(@RequestBody @Valid ChapterInput input) {
     var entity = toEntity(input);
     var saved = chapterService.save(entity);
     return ResponseEntity.ok(new ChapterOutput(saved));
@@ -50,7 +51,7 @@ public class ChapterResource {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<ChapterOutput> update(@PathVariable UUID id, @RequestBody ChapterInput input) {
+  public ResponseEntity<ChapterOutput> update(@PathVariable UUID id, @RequestBody @Valid ChapterInput input) {
     if (!chapterService.existsById(id)) {
       return ResponseEntity.notFound().build();
     }
@@ -96,6 +97,13 @@ public class ChapterResource {
     entity.setReleaseDate(input.getReleaseDate());
     entity.setCreatedAt(input.getCreatedAt());
     return entity;
+  }
+  @GetMapping("/work/{workId}")
+  public ResponseEntity<List<ChapterOutput>> findAllByWork(@PathVariable UUID workId) {
+    var items = chapterService.findAllByWorkId(workId)
+        .stream().map(ChapterOutput::new)
+        .toList();
+    return ResponseEntity.ok(items);
   }
 }
 

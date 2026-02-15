@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +33,7 @@ public class WorkAuthorResource {
   }
 
   @PostMapping()
-  public ResponseEntity<WorkAuthorOutput> create(@RequestBody WorkAuthorInput input) {
+  public ResponseEntity<WorkAuthorOutput> create(@RequestBody @Valid WorkAuthorInput input) {
     var entity = toEntity(input);
     var saved = workAuthorService.save(entity);
     return ResponseEntity.ok(new WorkAuthorOutput(saved));
@@ -51,7 +52,7 @@ public class WorkAuthorResource {
   }
 
   @PutMapping("/{workId}/{authorId}")
-  public ResponseEntity<WorkAuthorOutput> update(@PathVariable UUID workId, @PathVariable UUID authorId, @RequestBody WorkAuthorInput input) {
+  public ResponseEntity<WorkAuthorOutput> update(@PathVariable UUID workId, @PathVariable UUID authorId, @RequestBody @Valid WorkAuthorInput input) {
     var id = new WorkAuthorId(workId, authorId);
     if (!workAuthorService.existsById(id)) {
       return ResponseEntity.notFound().build();
@@ -91,6 +92,13 @@ public class WorkAuthorResource {
     }
     entity.setRole(input.getRole());
     return entity;
+  }
+  @GetMapping("/work/{workId}")
+  public ResponseEntity<List<WorkAuthorOutput>> findAllByWork(@PathVariable UUID workId) {
+    var items = workAuthorService.findAllByWorkId(workId)
+        .stream().map(WorkAuthorOutput::new)
+        .toList();
+    return ResponseEntity.ok(items);
   }
 }
 

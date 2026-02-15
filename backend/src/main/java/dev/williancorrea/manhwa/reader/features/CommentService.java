@@ -31,4 +31,5 @@ public class CommentService {
   public void deleteById(UUID id) {
     repository.deleteById(id);
   }
-}
+  public List<Comment> findAllByWorkId(UUID workId) {\r\n    return repository.findAllByWork_Id(workId);\r\n  }\r\n  public List<Comment> findAllByChapterId(UUID chapterId) {\r\n    return repository.findAllByChapter_Id(chapterId);\r\n  }\r\n}
+

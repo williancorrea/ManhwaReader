@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +33,7 @@ public class WorkGenreResource {
   }
 
   @PostMapping()
-  public ResponseEntity<WorkGenreOutput> create(@RequestBody WorkGenreInput input) {
+  public ResponseEntity<WorkGenreOutput> create(@RequestBody @Valid WorkGenreInput input) {
     var entity = toEntity(input);
     var saved = workGenreService.save(entity);
     return ResponseEntity.ok(new WorkGenreOutput(saved));
@@ -51,7 +52,7 @@ public class WorkGenreResource {
   }
 
   @PutMapping("/{workId}/{genreId}")
-  public ResponseEntity<WorkGenreOutput> update(@PathVariable UUID workId, @PathVariable UUID genreId, @RequestBody WorkGenreInput input) {
+  public ResponseEntity<WorkGenreOutput> update(@PathVariable UUID workId, @PathVariable UUID genreId, @RequestBody @Valid WorkGenreInput input) {
     var id = new WorkGenreId(workId, genreId);
     if (!workGenreService.existsById(id)) {
       return ResponseEntity.notFound().build();
@@ -90,6 +91,13 @@ public class WorkGenreResource {
       entity.setGenre(genre);
     }
     return entity;
+  }
+  @GetMapping("/work/{workId}")
+  public ResponseEntity<List<WorkGenreOutput>> findAllByWork(@PathVariable UUID workId) {
+    var items = workGenreService.findAllByWorkId(workId)
+        .stream().map(WorkGenreOutput::new)
+        .toList();
+    return ResponseEntity.ok(items);
   }
 }
 

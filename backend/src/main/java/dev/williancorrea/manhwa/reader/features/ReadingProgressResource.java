@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +33,7 @@ public class ReadingProgressResource {
   }
 
   @PostMapping()
-  public ResponseEntity<ReadingProgressOutput> create(@RequestBody ReadingProgressInput input) {
+  public ResponseEntity<ReadingProgressOutput> create(@RequestBody @Valid ReadingProgressInput input) {
     var entity = toEntity(input);
     var saved = readingProgressService.save(entity);
     return ResponseEntity.ok(new ReadingProgressOutput(saved));
@@ -50,7 +51,7 @@ public class ReadingProgressResource {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<ReadingProgressOutput> update(@PathVariable UUID id, @RequestBody ReadingProgressInput input) {
+  public ResponseEntity<ReadingProgressOutput> update(@PathVariable UUID id, @RequestBody @Valid ReadingProgressInput input) {
     if (!readingProgressService.existsById(id)) {
       return ResponseEntity.notFound().build();
     }
@@ -84,6 +85,13 @@ public class ReadingProgressResource {
     entity.setPageNumber(input.getPageNumber());
     entity.setLastReadAt(input.getLastReadAt());
     return entity;
+  }
+  @GetMapping("/user/{userId}")
+  public ResponseEntity<List<ReadingProgressOutput>> findAllByUser(@PathVariable UUID userId) {
+    var items = readingProgressService.findAllByUserId(userId)
+        .stream().map(ReadingProgressOutput::new)
+        .toList();
+    return ResponseEntity.ok(items);
   }
 }
 

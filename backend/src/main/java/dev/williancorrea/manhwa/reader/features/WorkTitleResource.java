@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +33,7 @@ public class WorkTitleResource {
   }
 
   @PostMapping()
-  public ResponseEntity<WorkTitleOutput> create(@RequestBody WorkTitleInput input) {
+  public ResponseEntity<WorkTitleOutput> create(@RequestBody @Valid WorkTitleInput input) {
     var entity = toEntity(input);
     var saved = workTitleService.save(entity);
     return ResponseEntity.ok(new WorkTitleOutput(saved));
@@ -50,7 +51,7 @@ public class WorkTitleResource {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<WorkTitleOutput> update(@PathVariable UUID id, @RequestBody WorkTitleInput input) {
+  public ResponseEntity<WorkTitleOutput> update(@PathVariable UUID id, @RequestBody @Valid WorkTitleInput input) {
     if (!workTitleService.existsById(id)) {
       return ResponseEntity.notFound().build();
     }
@@ -84,6 +85,13 @@ public class WorkTitleResource {
     entity.setTitle(input.getTitle());
     entity.setIsOfficial(input.getIsOfficial());
     return entity;
+  }
+  @GetMapping("/work/{workId}")
+  public ResponseEntity<List<WorkTitleOutput>> findAllByWork(@PathVariable UUID workId) {
+    var items = workTitleService.findAllByWorkId(workId)
+        .stream().map(WorkTitleOutput::new)
+        .toList();
+    return ResponseEntity.ok(items);
   }
 }
 

@@ -31,4 +31,5 @@ public class WorkTitleService {
   public void deleteById(UUID id) {
     repository.deleteById(id);
   }
-}
+  public List<WorkTitle> findAllByWorkId(UUID workId) {\r\n    return repository.findAllByWork_Id(workId);\r\n  }\r\n}
+

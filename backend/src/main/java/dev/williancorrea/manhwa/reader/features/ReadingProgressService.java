@@ -31,4 +31,5 @@ public class ReadingProgressService {
   public void deleteById(UUID id) {
     repository.deleteById(id);
   }
-}
+  public List<ReadingProgress> findAllByUserId(UUID userId) {\r\n    return repository.findAllByUser_Id(userId);\r\n  }\r\n}
+

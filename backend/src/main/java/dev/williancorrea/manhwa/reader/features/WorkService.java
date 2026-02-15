@@ -31,4 +31,5 @@ public class WorkService {
   public void deleteById(UUID id) {
     repository.deleteById(id);
   }
-}
+  public List<Work> findAllByStatus(WorkStatus status) {\r\n    return repository.findAllByStatus(status);\r\n  }\r\n  public List<Work> findAllByType(WorkType type) {\r\n    return repository.findAllByType(type);\r\n  }\r\n}
+

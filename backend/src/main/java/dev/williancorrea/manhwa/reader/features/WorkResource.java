@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +33,7 @@ public class WorkResource {
   }
 
   @PostMapping()
-  public ResponseEntity<WorkOutput> create(@RequestBody WorkInput input) {
+  public ResponseEntity<WorkOutput> create(@RequestBody @Valid WorkInput input) {
     var entity = toEntity(input);
     var saved = workService.save(entity);
     return ResponseEntity.ok(new WorkOutput(saved));
@@ -50,7 +51,7 @@ public class WorkResource {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<WorkOutput> update(@PathVariable UUID id, @RequestBody WorkInput input) {
+  public ResponseEntity<WorkOutput> update(@PathVariable UUID id, @RequestBody @Valid WorkInput input) {
     if (!workService.existsById(id)) {
       return ResponseEntity.notFound().build();
     }
@@ -89,6 +90,21 @@ public class WorkResource {
     entity.setCreatedAt(input.getCreatedAt());
     entity.setUpdatedAt(input.getUpdatedAt());
     return entity;
+  }
+  @GetMapping("/status/{status}")
+  public ResponseEntity<List<WorkOutput>> findAllByStatus(@PathVariable WorkStatus status) {
+    var items = workService.findAllByStatus(status)
+        .stream().map(WorkOutput::new)
+        .toList();
+    return ResponseEntity.ok(items);
+  }
+
+  @GetMapping("/type/{type}")
+  public ResponseEntity<List<WorkOutput>> findAllByType(@PathVariable WorkType type) {
+    var items = workService.findAllByType(type)
+        .stream().map(WorkOutput::new)
+        .toList();
+    return ResponseEntity.ok(items);
   }
 }
 

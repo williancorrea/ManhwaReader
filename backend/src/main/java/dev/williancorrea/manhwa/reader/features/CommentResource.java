@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +33,7 @@ public class CommentResource {
   }
 
   @PostMapping()
-  public ResponseEntity<CommentOutput> create(@RequestBody CommentInput input) {
+  public ResponseEntity<CommentOutput> create(@RequestBody @Valid CommentInput input) {
     var entity = toEntity(input);
     var saved = commentService.save(entity);
     return ResponseEntity.ok(new CommentOutput(saved));
@@ -50,7 +51,7 @@ public class CommentResource {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<CommentOutput> update(@PathVariable UUID id, @RequestBody CommentInput input) {
+  public ResponseEntity<CommentOutput> update(@PathVariable UUID id, @RequestBody @Valid CommentInput input) {
     if (!commentService.existsById(id)) {
       return ResponseEntity.notFound().build();
     }
@@ -89,6 +90,21 @@ public class CommentResource {
     entity.setContent(input.getContent());
     entity.setCreatedAt(input.getCreatedAt());
     return entity;
+  }
+  @GetMapping("/work/{workId}")
+  public ResponseEntity<List<CommentOutput>> findAllByWork(@PathVariable UUID workId) {
+    var items = commentService.findAllByWorkId(workId)
+        .stream().map(CommentOutput::new)
+        .toList();
+    return ResponseEntity.ok(items);
+  }
+
+  @GetMapping("/chapter/{chapterId}")
+  public ResponseEntity<List<CommentOutput>> findAllByChapter(@PathVariable UUID chapterId) {
+    var items = commentService.findAllByChapterId(chapterId)
+        .stream().map(CommentOutput::new)
+        .toList();
+    return ResponseEntity.ok(items);
   }
 }
 

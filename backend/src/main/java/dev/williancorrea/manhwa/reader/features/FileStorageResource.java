@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +33,7 @@ public class FileStorageResource {
   }
 
   @PostMapping()
-  public ResponseEntity<FileStorageOutput> create(@RequestBody FileStorageInput input) {
+  public ResponseEntity<FileStorageOutput> create(@RequestBody @Valid FileStorageInput input) {
     var entity = toEntity(input);
     var saved = fileStorageService.save(entity);
     return ResponseEntity.ok(new FileStorageOutput(saved));
@@ -50,7 +51,7 @@ public class FileStorageResource {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<FileStorageOutput> update(@PathVariable UUID id, @RequestBody FileStorageInput input) {
+  public ResponseEntity<FileStorageOutput> update(@PathVariable UUID id, @RequestBody @Valid FileStorageInput input) {
     if (!fileStorageService.existsById(id)) {
       return ResponseEntity.notFound().build();
     }
@@ -79,4 +80,5 @@ public class FileStorageResource {
     return entity;
   }
 }
+
 

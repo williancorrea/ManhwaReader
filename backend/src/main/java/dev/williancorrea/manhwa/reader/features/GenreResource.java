@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +33,7 @@ public class GenreResource {
   }
 
   @PostMapping()
-  public ResponseEntity<GenreOutput> create(@RequestBody GenreInput input) {
+  public ResponseEntity<GenreOutput> create(@RequestBody @Valid GenreInput input) {
     var entity = toEntity(input);
     var saved = genreService.save(entity);
     return ResponseEntity.ok(new GenreOutput(saved));
@@ -50,7 +51,7 @@ public class GenreResource {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<GenreOutput> update(@PathVariable UUID id, @RequestBody GenreInput input) {
+  public ResponseEntity<GenreOutput> update(@PathVariable UUID id, @RequestBody @Valid GenreInput input) {
     if (!genreService.existsById(id)) {
       return ResponseEntity.notFound().build();
     }
@@ -75,4 +76,5 @@ public class GenreResource {
     return entity;
   }
 }
+
 

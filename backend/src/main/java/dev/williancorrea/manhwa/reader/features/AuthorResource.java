@@ -1,5 +1,6 @@
 ﻿package dev.williancorrea.manhwa.reader.features;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +33,7 @@ public class AuthorResource {
   }
 
   @PostMapping()
-  public ResponseEntity<AuthorOutput> create(@RequestBody AuthorInput input) {
+  public ResponseEntity<AuthorOutput> create(@RequestBody @Valid AuthorInput input) {
     var entity = toEntity(input);
     var saved = authorService.save(entity);
     return ResponseEntity.ok(new AuthorOutput(saved));
@@ -50,7 +51,7 @@ public class AuthorResource {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<AuthorOutput> update(@PathVariable UUID id, @RequestBody AuthorInput input) {
+  public ResponseEntity<AuthorOutput> update(@PathVariable UUID id, @RequestBody @Valid AuthorInput input) {
     if (!authorService.existsById(id)) {
       return ResponseEntity.notFound().build();
     }
@@ -76,4 +77,5 @@ public class AuthorResource {
     return entity;
   }
 }
+
 
