@@ -1,0 +1,39 @@
+package dev.williancorrea.manhwa.reader.features;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+
+@Validated
+@Service
+public class PermissionService {
+
+  private final PermissionRepository repository;
+
+  public PermissionService(@Lazy PermissionRepository repository) {
+    this.repository = repository;
+  }
+
+  public List<Permission> findAll() {
+    return repository.findAll();
+  }
+
+  public Optional<Permission> findById(UUID id) {
+    return repository.findById(id);
+  }
+
+  public Permission save(Permission entity) {
+    return repository.save(entity);
+  }
+
+  public boolean existsById(UUID id) {
+    return repository.existsById(id);
+  }
+
+  public void deleteById(UUID id) {
+    repository.deleteById(id);
+  }
+}
