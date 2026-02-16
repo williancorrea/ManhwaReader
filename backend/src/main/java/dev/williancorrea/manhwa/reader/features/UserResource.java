@@ -75,7 +75,6 @@ public class UserResource {
     entity.setUsername(input.getUsername());
     entity.setEmail(input.getEmail());
     entity.setPasswordHash(input.getPasswordHash());
-    entity.setRole(input.getRole());
     entity.setCreatedAt(input.getCreatedAt());
     return entity;
   }

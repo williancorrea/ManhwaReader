@@ -25,9 +25,24 @@ CREATE TABLE user_access_group (
     FOREIGN KEY (access_group_id) REFERENCES access_group(id)
 );
 
+-- Seed de permissoes iniciais
 INSERT INTO permission (id, name)
 VALUES
-    (UUID(), 'Administrador'),
-    (UUID(), 'Moderador'),
-    (UUID(), 'Leitor'),
-    (UUID(), 'Uploader');
+    (UUID(), 'ADMINISTRATOR'),
+    (UUID(), 'MODERATOR'),
+    (UUID(), 'READER'),
+    (UUID(), 'UPLOADER');
+
+-- Seed de grupos iniciais
+INSERT INTO access_group (id, name)
+VALUES
+    (UUID(), 'ADMINISTRATOR'),
+    (UUID(), 'MODERATOR'),
+    (UUID(), 'READER'),
+    (UUID(), 'UPLOADER');
+
+-- Vincula grupos com permissoes correspondentes
+INSERT INTO access_group_permission (access_group_id, permission_id)
+    SELECT ag.id, p.id
+    FROM access_group ag
+    JOIN permission p ON p.name = ag.name;
