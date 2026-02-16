@@ -1,0 +1,175 @@
+### Create cover file
+# @name createCoverFile
+POST {{host}}/features/file
+Content-Type: {{contentType}}
+
+{"storagePath":"/files/cover.jpg","mimeType":"image/jpeg","sizeBytes":12345,"checksum":"abc123","createdAt":"2024-01-01T00:00:00Z"}
+> {% client.global.set("coverImageId", response.body.id); %}
+
+### Create chapter page file
+# @name createPageFile
+POST {{host}}/features/file
+Content-Type: {{contentType}}
+
+{"storagePath":"/files/chapters/001/page-001.jpg","mimeType":"image/jpeg","sizeBytes":23456,"checksum":"def456","createdAt":"2024-01-01T00:00:00Z"}
+> {% client.global.set("pageImageFileId", response.body.id); %}
+
+### Create publisher
+# @name createPublisher
+POST {{host}}/features/publisher
+Content-Type: {{contentType}}
+
+{"name":"Publisher Name"}
+> {% client.global.set("publisherId", response.body.id); %}
+
+### Create language
+# @name createLanguage
+POST {{host}}/features/language
+Content-Type: {{contentType}}
+
+{"code":"pt-BR","name":"Portuguese (Brazil)"}
+> {% client.global.set("languageId", response.body.id); %}
+
+### Create scanlator
+# @name createScanlator
+POST {{host}}/features/scanlator
+Content-Type: {{contentType}}
+
+{"name":"Scan Team","website":"https://example.com"}
+> {% client.global.set("scanlatorId", response.body.id); %}
+
+### Create work
+# @name createWork
+POST {{host}}/features/work
+Content-Type: {{contentType}}
+
+{"originalTitle":"Work Title","synopsis":"Synopsis","type":"MANHWA","status":"ONGOING","releaseYear":2024,"coverImageId":"{{coverImageId}}","publisherId":"{{publisherId}}","createdAt":"2024-01-01T00:00:00Z","updatedAt":"2024-01-01T00:00:00Z"}
+> {% client.global.set("workId", response.body.id); %}
+
+### Create work title
+# @name createWorkTitle
+POST {{host}}/features/work-title
+Content-Type: {{contentType}}
+
+{"workId":"{{workId}}","languageId":"{{languageId}}","title":"Work Title","isOfficial":true}
+> {% client.global.set("workTitleId", response.body.id); %}
+
+### Create alternative title
+# @name createAlternativeTitle
+POST {{host}}/features/alternative-title
+Content-Type: {{contentType}}
+
+{"workId":"{{workId}}","languageId":"{{languageId}}","title":"Alt Title"}
+> {% client.global.set("alternativeTitleId", response.body.id); %}
+
+### Create author
+# @name createAuthor
+POST {{host}}/features/author
+Content-Type: {{contentType}}
+
+{"name":"Willian Correa","type":"WRITER"}
+> {% client.global.set("authorId", response.body.id); %}
+
+### Link work author
+# @name createWorkAuthor
+POST {{host}}/features/work-author
+Content-Type: {{contentType}}
+
+{"workId":"{{workId}}","authorId":"{{authorId}}","role":"WRITER"}
+> {% client.global.set("workAuthorId", response.body.id); %}
+
+### Create genre
+# @name createGenre
+POST {{host}}/features/genre
+Content-Type: {{contentType}}
+
+{"name":"Action"}
+> {% client.global.set("genreId", response.body.id); %}
+
+### Link work genre
+# @name createWorkGenre
+POST {{host}}/features/work-genre
+Content-Type: {{contentType}}
+
+{"workId":"{{workId}}","genreId":"{{genreId}}"}
+> {% client.global.set("workGenreId", response.body.id); %}
+
+### Create tag
+# @name createTag
+POST {{host}}/features/tag
+Content-Type: {{contentType}}
+
+{"name":"Romance","isNsfw":false}
+> {% client.global.set("tagId", response.body.id); %}
+
+### Link work tag
+# @name createWorkTag
+POST {{host}}/features/work-tag
+Content-Type: {{contentType}}
+
+{"workId":"{{workId}}","tagId":"{{tagId}}"}
+> {% client.global.set("workTagId", response.body.id); %}
+
+### Create volume
+# @name createVolume
+POST {{host}}/features/volume
+Content-Type: {{contentType}}
+
+{"workId":"{{workId}}","number":1,"title":"Volume 1"}
+> {% client.global.set("volumeId", response.body.id); %}
+
+### Create chapter
+# @name createChapter
+POST {{host}}/features/chapter
+Content-Type: {{contentType}}
+
+{"workId":"{{workId}}","volumeId":"{{volumeId}}","number":1.0,"title":"Chapter 1","languageId":"{{languageId}}","releaseDate":"2024-01-01","scanlatorId":"{{scanlatorId}}","createdAt":"2024-01-01T00:00:00Z"}
+> {% client.global.set("chapterId", response.body.id); %}
+
+### Create page
+# @name createPage
+POST {{host}}/features/page
+Content-Type: {{contentType}}
+
+{"chapterId":"{{chapterId}}","pageNumber":1,"imageFileId":"{{pageImageFileId}}"}
+> {% client.global.set("pageId", response.body.id); %}
+
+### Create user
+# @name createUser
+POST {{host}}/features/user
+Content-Type: {{contentType}}
+
+{"username":"user1","email":"user1@example.com","passwordHash":"hash","role":"USER","createdAt":"2024-01-01T00:00:00Z"}
+> {% client.global.set("userId", response.body.id); %}
+
+### Create library
+# @name createLibrary
+POST {{host}}/features/library
+Content-Type: {{contentType}}
+
+{"userId":"{{userId}}","workId":"{{workId}}","status":"READING"}
+> {% client.global.set("libraryId", response.body.id); %}
+
+### Create rating
+# @name createRating
+POST {{host}}/features/rating
+Content-Type: {{contentType}}
+
+{"userId":"{{userId}}","workId":"{{workId}}","score":8,"createdAt":"2024-01-01T00:00:00Z"}
+> {% client.global.set("ratingId", response.body.id); %}
+
+### Create comment
+# @name createComment
+POST {{host}}/features/comment
+Content-Type: {{contentType}}
+
+{"userId":"{{userId}}","workId":"{{workId}}","chapterId":"{{chapterId}}","content":"Great chapter","createdAt":"2024-01-01T00:00:00Z"}
+> {% client.global.set("commentId", response.body.id); %}
+
+### Create reading progress
+# @name createReadingProgress
+POST {{host}}/features/reading-progress
+Content-Type: {{contentType}}
+
+{"userId":"{{userId}}","chapterId":"{{chapterId}}","pageNumber":1,"lastReadAt":"2024-01-01T00:00:00Z"}
+> {% client.global.set("readingProgressId", response.body.id); %}

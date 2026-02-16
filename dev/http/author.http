@@ -14,7 +14,7 @@ Content-Type: {{contentType}}
 PUT {{host}}/features/author/{id}
 Content-Type: {{contentType}}
 
-{"name":"Willian V V Correa","type":"AUTHOR"}
+{"name":"WCorrea","type":"AUTHOR"}
 
 ### DELETE /features/author/{id}
 DELETE {{host}}/features/author/{id}
