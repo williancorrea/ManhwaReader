@@ -1,8 +1,0 @@
-package dev.williancorrea.manhwa.reader.features;
-
-import dev.williancorrea.manhwa.reader.features.Author;
-import java.util.UUID;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-public interface AuthorRepository extends JpaRepository<Author, UUID> {
-}

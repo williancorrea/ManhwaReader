@@ -1,0 +1,34 @@
+package dev.williancorrea.manhwa.reader.features.access.user;
+
+import java.io.Serializable;
+import dev.williancorrea.manhwa.reader.features.access.group.AccessGroup;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = "user_access_group")
+@IdClass(UserAccessGroupId.class)
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserAccessGroup implements Serializable {
+  @Id
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
+
+  @Id
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "access_group_id", nullable = false)
+  private AccessGroup accessGroup;
+}

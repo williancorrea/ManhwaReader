@@ -1,0 +1,15 @@
+package dev.williancorrea.manhwa.reader.features.access.user;
+
+import java.io.Serializable;
+import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserAccessGroupId implements Serializable {
+  private UUID user;
+  private UUID accessGroup;
+}
