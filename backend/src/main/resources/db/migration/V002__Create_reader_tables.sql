@@ -1,6 +1,7 @@
 -- Arquivos e Imagens (Base para outros domínios)
 CREATE TABLE file (
     id CHAR(36) NOT NULL PRIMARY KEY,
+    file_name VARCHAR(255) NOT NULL,
     storage_path VARCHAR(512) NOT NULL,
     mime_type VARCHAR(100),
     size_bytes BIGINT,
