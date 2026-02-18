@@ -1,5 +1,5 @@
-import { Routes } from '@angular/router';
-import { AppLayout } from '@/app/layout/components/app.layout';
+import {Routes} from '@angular/router';
+import {AppLayout} from '@/app/layout/components/app.layout';
 
 export const appRoutes: Routes = [
     {
@@ -10,11 +10,6 @@ export const appRoutes: Routes = [
                 path: '',
                 data: { breadcrumb: 'E-Commerce Dashboard' },
                 loadComponent: () => import('@/app/pages/dashboard/ecommercedashboard').then((c) => c.EcommerceDashboard)
-            },
-            {
-                path: 'uikit',
-                data: { breadcrumb: 'UI Kit' },
-                loadChildren: () => import('@/app/pages/uikit/uikit.routes')
             },
             {
                 path: 'documentation',

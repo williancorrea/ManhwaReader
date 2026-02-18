@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { AppMenuitem } from './app.menuitem';
+import {Component} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {RouterModule} from '@angular/router';
+import {AppMenuitem} from './app.menuitem';
 
 @Component({
     selector: 'app-menu',
@@ -90,94 +90,6 @@ export class AppMenu {
             ]
         },
         {
-            label: 'UI Kit',
-            icon: 'pi pi-fw pi-star-fill',
-            path: '/uikit',
-            items: [
-                {
-                    label: 'Form Layout',
-                    icon: 'pi pi-fw pi-id-card',
-                    routerLink: ['/uikit/formlayout']
-                },
-                {
-                    label: 'Input',
-                    icon: 'pi pi-fw pi-check-square',
-                    routerLink: ['/uikit/input']
-                },
-                {
-                    label: 'Button',
-                    icon: 'pi pi-fw pi-box',
-                    routerLink: ['/uikit/button']
-                },
-                {
-                    label: 'Table',
-                    icon: 'pi pi-fw pi-table',
-                    routerLink: ['/uikit/table']
-                },
-                {
-                    label: 'List',
-                    icon: 'pi pi-fw pi-list',
-                    routerLink: ['/uikit/list']
-                },
-                {
-                    label: 'Tree',
-                    icon: 'pi pi-fw pi-share-alt',
-                    routerLink: ['/uikit/tree']
-                },
-                {
-                    label: 'Panel',
-                    icon: 'pi pi-fw pi-tablet',
-                    routerLink: ['/uikit/panel']
-                },
-                {
-                    label: 'Overlay',
-                    icon: 'pi pi-fw pi-clone',
-                    routerLink: ['/uikit/overlay']
-                },
-                {
-                    label: 'Media',
-                    icon: 'pi pi-fw pi-image',
-                    routerLink: ['/uikit/media']
-                },
-                {
-                    label: 'Menu',
-                    icon: 'pi pi-fw pi-bars',
-                    routerLink: ['/uikit/menu'],
-                    routerLinkActiveOptions: {
-                        paths: 'subset',
-                        queryParams: 'ignored',
-                        matrixParams: 'ignored',
-                        fragment: 'ignored'
-                    }
-                },
-                {
-                    label: 'Message',
-                    icon: 'pi pi-fw pi-comment',
-                    routerLink: ['/uikit/message']
-                },
-                {
-                    label: 'File',
-                    icon: 'pi pi-fw pi-file',
-                    routerLink: ['/uikit/file']
-                },
-                {
-                    label: 'Chart',
-                    icon: 'pi pi-fw pi-chart-bar',
-                    routerLink: ['/uikit/charts']
-                },
-                {
-                    label: 'Timeline',
-                    icon: 'pi pi-fw pi-calendar',
-                    routerLink: ['/uikit/timeline']
-                },
-                {
-                    label: 'Misc',
-                    icon: 'pi pi-fw pi-circle-off',
-                    routerLink: ['/uikit/misc']
-                }
-            ]
-        },
-        {
             label: 'Prime Blocks',
             icon: 'pi pi-fw pi-prime',
             path: '/blocks',
@@ -196,19 +108,6 @@ export class AppMenu {
             ]
         },
         { separator: true },
-        {
-            label: 'Utilities',
-            icon: 'pi pi-fw pi-compass',
-            path: '/utilities',
-            items: [
-                {
-                    label: 'Figma',
-                    icon: 'pi pi-fw pi-pencil',
-                    url: 'https://www.figma.com/file/two0OGwOwHfq0sdjeK34l0/Preview-%7C-Atlantis-2022?type=design&node-id=15%3A1427&t=qiyvYNgWP234Ik5g-1',
-                    target: '_blank'
-                }
-            ]
-        },
         {
             label: 'Pages',
             icon: 'pi pi-fw pi-briefcase',
