@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("system/configuration-group")
+@PreAuthorize("hasAuthority('ADMINISTRATOR')")
 public class SystemConfigurationGroupResource {
 
   private final SystemConfigurationGroupService service;
@@ -74,4 +76,5 @@ public class SystemConfigurationGroupResource {
     return entity;
   }
 }
+
 

@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/genre")
+@PreAuthorize("hasAnyAuthority('ADMINISTRATOR','MODERATOR','UPLOADER','READER')")
 public class GenreResource {
 
   private final GenreService genreService;
@@ -32,6 +34,7 @@ public class GenreResource {
     return ResponseEntity.ok(items);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PostMapping()
   public ResponseEntity<GenreOutput> create(@RequestBody @Valid GenreInput input) {
     var entity = toEntity(input);
@@ -50,6 +53,7 @@ public class GenreResource {
     return ResponseEntity.ok(item);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PutMapping("/{id}")
   public ResponseEntity<GenreOutput> update(@PathVariable UUID id, @RequestBody @Valid GenreInput input) {
     if (!genreService.existsById(id)) {
@@ -61,6 +65,7 @@ public class GenreResource {
     return ResponseEntity.ok(new GenreOutput(saved));
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable UUID id) {
     if (!genreService.existsById(id)) {
@@ -76,5 +81,7 @@ public class GenreResource {
     return entity;
   }
 }
+
+
 
 

@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/work-tag")
+@PreAuthorize("hasAnyAuthority('ADMINISTRATOR','MODERATOR','UPLOADER','READER')")
 public class WorkTagResource {
 
   private final WorkTagService workTagService;
@@ -33,6 +35,7 @@ public class WorkTagResource {
     return ResponseEntity.ok(items);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PostMapping()
   public ResponseEntity<WorkTagOutput> create(@RequestBody @Valid WorkTagInput input) {
     var entity = toEntity(input);
@@ -52,6 +55,7 @@ public class WorkTagResource {
     return ResponseEntity.ok(item);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PutMapping("/{workId}/{tagId}")
   public ResponseEntity<WorkTagOutput> update(@PathVariable UUID workId, @PathVariable UUID tagId, @RequestBody @Valid WorkTagInput input) {
     var id = new WorkTagId(workId, tagId);
@@ -69,6 +73,7 @@ public class WorkTagResource {
     return ResponseEntity.ok(new WorkTagOutput(saved));
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @DeleteMapping("/{workId}/{tagId}")
   public ResponseEntity<Void> delete(@PathVariable UUID workId, @PathVariable UUID tagId) {
     var id = new WorkTagId(workId, tagId);
@@ -101,4 +106,6 @@ public class WorkTagResource {
     return ResponseEntity.ok(items);
   }
 }
+
+
 

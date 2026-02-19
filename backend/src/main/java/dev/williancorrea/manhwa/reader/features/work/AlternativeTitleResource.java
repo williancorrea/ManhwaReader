@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/alternative-title")
+@PreAuthorize("hasAnyAuthority('ADMINISTRATOR','MODERATOR','UPLOADER','READER')")
 public class AlternativeTitleResource {
 
   private final AlternativeTitleService alternativeTitleService;
@@ -33,6 +35,7 @@ public class AlternativeTitleResource {
     return ResponseEntity.ok(items);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PostMapping()
   public ResponseEntity<AlternativeTitleOutput> create(@RequestBody @Valid AlternativeTitleInput input) {
     var entity = toEntity(input);
@@ -51,6 +54,7 @@ public class AlternativeTitleResource {
     return ResponseEntity.ok(item);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PutMapping("/{id}")
   public ResponseEntity<AlternativeTitleOutput> update(@PathVariable UUID id, @RequestBody @Valid AlternativeTitleInput input) {
     if (!alternativeTitleService.existsById(id)) {
@@ -62,6 +66,7 @@ public class AlternativeTitleResource {
     return ResponseEntity.ok(new AlternativeTitleOutput(saved));
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable UUID id) {
     if (!alternativeTitleService.existsById(id)) {
@@ -94,4 +99,6 @@ public class AlternativeTitleResource {
     return ResponseEntity.ok(items);
   }
 }
+
+
 

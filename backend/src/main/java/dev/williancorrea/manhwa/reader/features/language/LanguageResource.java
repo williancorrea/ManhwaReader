@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/language")
+@PreAuthorize("hasAnyAuthority('ADMINISTRATOR','MODERATOR','UPLOADER','READER')")
 public class LanguageResource {
 
   private final LanguageService languageService;
@@ -32,6 +34,7 @@ public class LanguageResource {
     return ResponseEntity.ok(items);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PostMapping()
   public ResponseEntity<LanguageOutput> create(@RequestBody @Valid LanguageInput input) {
     var entity = toEntity(input);
@@ -50,6 +53,7 @@ public class LanguageResource {
     return ResponseEntity.ok(item);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PutMapping("/{id}")
   public ResponseEntity<LanguageOutput> update(@PathVariable UUID id, @RequestBody @Valid LanguageInput input) {
     if (!languageService.existsById(id)) {
@@ -61,6 +65,7 @@ public class LanguageResource {
     return ResponseEntity.ok(new LanguageOutput(saved));
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable UUID id) {
     if (!languageService.existsById(id)) {
@@ -77,5 +82,7 @@ public class LanguageResource {
     return entity;
   }
 }
+
+
 
 

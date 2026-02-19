@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/tag")
+@PreAuthorize("hasAnyAuthority('ADMINISTRATOR','MODERATOR','UPLOADER','READER')")
 public class TagResource {
 
   private final TagService tagService;
@@ -32,6 +34,7 @@ public class TagResource {
     return ResponseEntity.ok(items);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PostMapping()
   public ResponseEntity<TagOutput> create(@RequestBody @Valid TagInput input) {
     var entity = toEntity(input);
@@ -50,6 +53,7 @@ public class TagResource {
     return ResponseEntity.ok(item);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PutMapping("/{id}")
   public ResponseEntity<TagOutput> update(@PathVariable UUID id, @RequestBody @Valid TagInput input) {
     if (!tagService.existsById(id)) {
@@ -61,6 +65,7 @@ public class TagResource {
     return ResponseEntity.ok(new TagOutput(saved));
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable UUID id) {
     if (!tagService.existsById(id)) {
@@ -77,5 +82,7 @@ public class TagResource {
     return entity;
   }
 }
+
+
 
 

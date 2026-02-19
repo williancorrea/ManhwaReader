@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/publisher")
+@PreAuthorize("hasAnyAuthority('ADMINISTRATOR','MODERATOR','UPLOADER','READER')")
 public class PublisherResource {
 
   private final PublisherService publisherService;
@@ -32,6 +34,7 @@ public class PublisherResource {
     return ResponseEntity.ok(items);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PostMapping()
   public ResponseEntity<PublisherOutput> create(@RequestBody @Valid PublisherInput input) {
     var entity = toEntity(input);
@@ -50,6 +53,7 @@ public class PublisherResource {
     return ResponseEntity.ok(item);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PutMapping("/{id}")
   public ResponseEntity<PublisherOutput> update(@PathVariable UUID id, @RequestBody @Valid PublisherInput input) {
     if (!publisherService.existsById(id)) {
@@ -61,6 +65,7 @@ public class PublisherResource {
     return ResponseEntity.ok(new PublisherOutput(saved));
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable UUID id) {
     if (!publisherService.existsById(id)) {
@@ -76,5 +81,7 @@ public class PublisherResource {
     return entity;
   }
 }
+
+
 
 

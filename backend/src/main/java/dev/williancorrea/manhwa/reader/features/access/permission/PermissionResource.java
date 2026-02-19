@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/permission")
+@PreAuthorize("hasAuthority('ADMINISTRATOR')")
 public class PermissionResource {
 
   private final PermissionService permissionService;
@@ -76,3 +78,4 @@ public class PermissionResource {
     return entity;
   }
 }
+

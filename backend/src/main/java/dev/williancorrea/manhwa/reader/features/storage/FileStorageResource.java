@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/file")
+@PreAuthorize("hasAnyAuthority('ADMINISTRATOR','MODERATOR','UPLOADER','READER')")
 public class FileStorageResource {
 
   private final FileStorageService fileStorageService;
@@ -32,6 +34,7 @@ public class FileStorageResource {
     return ResponseEntity.ok(items);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PostMapping()
   public ResponseEntity<FileStorageOutput> create(@RequestBody @Valid FileStorageInput input) {
     var entity = toEntity(input);
@@ -50,6 +53,7 @@ public class FileStorageResource {
     return ResponseEntity.ok(item);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PutMapping("/{id}")
   public ResponseEntity<FileStorageOutput> update(@PathVariable UUID id, @RequestBody @Valid FileStorageInput input) {
     if (!fileStorageService.existsById(id)) {
@@ -61,6 +65,7 @@ public class FileStorageResource {
     return ResponseEntity.ok(new FileStorageOutput(saved));
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable UUID id) {
     if (!fileStorageService.existsById(id)) {
@@ -80,5 +85,7 @@ public class FileStorageResource {
     return entity;
   }
 }
+
+
 
 

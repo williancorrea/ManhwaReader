@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/chapter")
+@PreAuthorize("hasAnyAuthority('ADMINISTRATOR','MODERATOR','UPLOADER','READER')")
 public class ChapterResource {
 
   private final ChapterService chapterService;
@@ -36,6 +38,7 @@ public class ChapterResource {
     return ResponseEntity.ok(items);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PostMapping()
   public ResponseEntity<ChapterOutput> create(@RequestBody @Valid ChapterInput input) {
     var entity = toEntity(input);
@@ -54,6 +57,7 @@ public class ChapterResource {
     return ResponseEntity.ok(item);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PutMapping("/{id}")
   public ResponseEntity<ChapterOutput> update(@PathVariable UUID id, @RequestBody @Valid ChapterInput input) {
     if (!chapterService.existsById(id)) {
@@ -65,6 +69,7 @@ public class ChapterResource {
     return ResponseEntity.ok(new ChapterOutput(saved));
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable UUID id) {
     if (!chapterService.existsById(id)) {
@@ -110,4 +115,6 @@ public class ChapterResource {
     return ResponseEntity.ok(items);
   }
 }
+
+
 

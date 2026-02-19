@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/work-genre")
+@PreAuthorize("hasAnyAuthority('ADMINISTRATOR','MODERATOR','UPLOADER','READER')")
 public class WorkGenreResource {
 
   private final WorkGenreService workGenreService;
@@ -33,6 +35,7 @@ public class WorkGenreResource {
     return ResponseEntity.ok(items);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PostMapping()
   public ResponseEntity<WorkGenreOutput> create(@RequestBody @Valid WorkGenreInput input) {
     var entity = toEntity(input);
@@ -52,6 +55,7 @@ public class WorkGenreResource {
     return ResponseEntity.ok(item);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PutMapping("/{workId}/{genreId}")
   public ResponseEntity<WorkGenreOutput> update(@PathVariable UUID workId, @PathVariable UUID genreId, @RequestBody @Valid WorkGenreInput input) {
     var id = new WorkGenreId(workId, genreId);
@@ -69,6 +73,7 @@ public class WorkGenreResource {
     return ResponseEntity.ok(new WorkGenreOutput(saved));
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @DeleteMapping("/{workId}/{genreId}")
   public ResponseEntity<Void> delete(@PathVariable UUID workId, @PathVariable UUID genreId) {
     var id = new WorkGenreId(workId, genreId);
@@ -101,4 +106,6 @@ public class WorkGenreResource {
     return ResponseEntity.ok(items);
   }
 }
+
+
 

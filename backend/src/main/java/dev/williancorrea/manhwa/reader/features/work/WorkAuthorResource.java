@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/work-author")
+@PreAuthorize("hasAnyAuthority('ADMINISTRATOR','MODERATOR','UPLOADER','READER')")
 public class WorkAuthorResource {
 
   private final WorkAuthorService workAuthorService;
@@ -33,6 +35,7 @@ public class WorkAuthorResource {
     return ResponseEntity.ok(items);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PostMapping()
   public ResponseEntity<WorkAuthorOutput> create(@RequestBody @Valid WorkAuthorInput input) {
     var entity = toEntity(input);
@@ -52,6 +55,7 @@ public class WorkAuthorResource {
     return ResponseEntity.ok(item);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PutMapping("/{workId}/{authorId}")
   public ResponseEntity<WorkAuthorOutput> update(@PathVariable UUID workId, @PathVariable UUID authorId, @RequestBody @Valid WorkAuthorInput input) {
     var id = new WorkAuthorId(workId, authorId);
@@ -69,6 +73,7 @@ public class WorkAuthorResource {
     return ResponseEntity.ok(new WorkAuthorOutput(saved));
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @DeleteMapping("/{workId}/{authorId}")
   public ResponseEntity<Void> delete(@PathVariable UUID workId, @PathVariable UUID authorId) {
     var id = new WorkAuthorId(workId, authorId);
@@ -102,4 +107,6 @@ public class WorkAuthorResource {
     return ResponseEntity.ok(items);
   }
 }
+
+
 

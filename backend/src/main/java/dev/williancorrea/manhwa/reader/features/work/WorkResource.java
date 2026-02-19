@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/work")
+@PreAuthorize("hasAnyAuthority('ADMINISTRATOR','MODERATOR','UPLOADER','READER')")
 public class WorkResource {
 
   private final WorkService workService;
@@ -34,6 +36,7 @@ public class WorkResource {
     return ResponseEntity.ok(items);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PostMapping()
   public ResponseEntity<WorkOutput> create(@RequestBody @Valid WorkInput input) {
     var entity = toEntity(input);
@@ -52,6 +55,7 @@ public class WorkResource {
     return ResponseEntity.ok(item);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PutMapping("/{id}")
   public ResponseEntity<WorkOutput> update(@PathVariable UUID id, @RequestBody @Valid WorkInput input) {
     if (!workService.existsById(id)) {
@@ -63,6 +67,7 @@ public class WorkResource {
     return ResponseEntity.ok(new WorkOutput(saved));
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable UUID id) {
     if (!workService.existsById(id)) {
@@ -109,4 +114,6 @@ public class WorkResource {
     return ResponseEntity.ok(items);
   }
 }
+
+
 

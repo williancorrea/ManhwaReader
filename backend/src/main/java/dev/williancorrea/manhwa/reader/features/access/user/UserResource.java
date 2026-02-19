@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/user")
+@PreAuthorize("hasAuthority('ADMINISTRATOR')")
 public class UserResource {
 
   private final UserService userService;
@@ -79,5 +81,6 @@ public class UserResource {
     return entity;
   }
 }
+
 
 

@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/reading-progress")
+@PreAuthorize("hasAnyAuthority('ADMINISTRATOR','MODERATOR','UPLOADER','READER')")
 public class ReadingProgressResource {
 
   private final ReadingProgressService readingProgressService;
@@ -96,4 +98,5 @@ public class ReadingProgressResource {
     return ResponseEntity.ok(items);
   }
 }
+
 

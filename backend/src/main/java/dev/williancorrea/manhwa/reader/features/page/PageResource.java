@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/page")
+@PreAuthorize("hasAnyAuthority('ADMINISTRATOR','MODERATOR','UPLOADER','READER')")
 public class PageResource {
 
   private final PageService pageService;
@@ -34,6 +36,7 @@ public class PageResource {
     return ResponseEntity.ok(items);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PostMapping()
   public ResponseEntity<PageOutput> create(@RequestBody @Valid PageInput input) {
     var entity = toEntity(input);
@@ -52,6 +55,7 @@ public class PageResource {
     return ResponseEntity.ok(item);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PutMapping("/{id}")
   public ResponseEntity<PageOutput> update(@PathVariable UUID id, @RequestBody @Valid PageInput input) {
     if (!pageService.existsById(id)) {
@@ -63,6 +67,7 @@ public class PageResource {
     return ResponseEntity.ok(new PageOutput(saved));
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable UUID id) {
     if (!pageService.existsById(id)) {
@@ -95,4 +100,6 @@ public class PageResource {
     return ResponseEntity.ok(items);
   }
 }
+
+
 

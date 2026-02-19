@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/scanlator")
+@PreAuthorize("hasAnyAuthority('ADMINISTRATOR','MODERATOR','UPLOADER','READER')")
 public class ScanlatorResource {
 
   private final ScanlatorService scanlatorService;
@@ -32,6 +34,7 @@ public class ScanlatorResource {
     return ResponseEntity.ok(items);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PostMapping()
   public ResponseEntity<ScanlatorOutput> create(@RequestBody @Valid ScanlatorInput input) {
     var entity = toEntity(input);
@@ -50,6 +53,7 @@ public class ScanlatorResource {
     return ResponseEntity.ok(item);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PutMapping("/{id}")
   public ResponseEntity<ScanlatorOutput> update(@PathVariable UUID id, @RequestBody @Valid ScanlatorInput input) {
     if (!scanlatorService.existsById(id)) {
@@ -61,6 +65,7 @@ public class ScanlatorResource {
     return ResponseEntity.ok(new ScanlatorOutput(saved));
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable UUID id) {
     if (!scanlatorService.existsById(id)) {
@@ -77,5 +82,7 @@ public class ScanlatorResource {
     return entity;
   }
 }
+
+
 
 

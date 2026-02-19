@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/volume")
+@PreAuthorize("hasAnyAuthority('ADMINISTRATOR','MODERATOR','UPLOADER','READER')")
 public class VolumeResource {
 
   private final VolumeService volumeService;
@@ -33,6 +35,7 @@ public class VolumeResource {
     return ResponseEntity.ok(items);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PostMapping()
   public ResponseEntity<VolumeOutput> create(@RequestBody @Valid VolumeInput input) {
     var entity = toEntity(input);
@@ -51,6 +54,7 @@ public class VolumeResource {
     return ResponseEntity.ok(item);
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PutMapping("/{id}")
   public ResponseEntity<VolumeOutput> update(@PathVariable UUID id, @RequestBody @Valid VolumeInput input) {
     if (!volumeService.existsById(id)) {
@@ -62,6 +66,7 @@ public class VolumeResource {
     return ResponseEntity.ok(new VolumeOutput(saved));
   }
 
+  @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable UUID id) {
     if (!volumeService.existsById(id)) {
@@ -90,4 +95,6 @@ public class VolumeResource {
     return ResponseEntity.ok(items);
   }
 }
+
+
 
