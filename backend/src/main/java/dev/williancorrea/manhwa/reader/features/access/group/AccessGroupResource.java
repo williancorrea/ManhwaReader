@@ -1,10 +1,11 @@
 package dev.williancorrea.manhwa.reader.features.access.group;
 
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+import jakarta.validation.Valid;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/access-group")
@@ -74,7 +74,7 @@ public class AccessGroupResource {
 
   private AccessGroup toEntity(AccessGroupInput input) {
     var entity = new AccessGroup();
-    entity.setName(input.getName());
+    entity.setName(GroupType.valueOf(input.getName()));
     return entity;
   }
 }

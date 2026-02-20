@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.UUID;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,5 +30,6 @@ public class Permission implements Serializable {
   private UUID id;
 
   @Column(nullable = false, unique = true)
-  private String name;
+  @Enumerated(EnumType.STRING)
+  private PermissionType name;
 }

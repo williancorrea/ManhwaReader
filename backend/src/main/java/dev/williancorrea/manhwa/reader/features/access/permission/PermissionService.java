@@ -25,15 +25,7 @@ public class PermissionService {
     return repository.findById(id);
   }
 
-  public Permission save(Permission entity) {
-    return repository.save(entity);
-  }
-
   public boolean existsById(UUID id) {
     return repository.existsById(id);
-  }
-
-  public void deleteById(UUID id) {
-    repository.deleteById(id);
   }
 }
