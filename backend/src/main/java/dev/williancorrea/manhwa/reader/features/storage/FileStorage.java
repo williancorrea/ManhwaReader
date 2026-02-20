@@ -21,24 +21,34 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FileStorage implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-    
-    @Column(name = "file_name", nullable = false)
-    private String fileName;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Column(name = "storage_path", nullable = false)
-    private String storagePath;
+  @Column(name = "file_name", nullable = false)
+  private String fileName;
 
-    @Column(name = "mime_type")
-    private String mimeType;
+  @Column(name = "storage_path", nullable = false)
+  private String storagePath;
 
-    @Column(name = "size_bytes")
-    private Long sizeBytes;
+  @Column(name = "mime_type")
+  private String mimeType;
 
-    private String checksum;
+  @Column(name = "size_bytes")
+  private Long sizeBytes;
 
-    @Column(name = "created_at")
-    private OffsetDateTime createdAt;
+  private String checksum;
+
+  @Column(name = "created_at")
+  private OffsetDateTime createdAt;
+
+  public FileStorage(FileStorageInput input) {
+    this.setStoragePath(input.getStoragePath());
+    this.setMimeType(input.getMimeType());
+    this.setSizeBytes(input.getSizeBytes());
+    this.setChecksum(input.getChecksum());
+    this.setCreatedAt(input.getCreatedAt());
+    this.setFileName(input.getFileName());
+  }
+  
 }

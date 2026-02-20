@@ -4,7 +4,7 @@ POST {{host}}/features/file
 Authorization: Basic {{authUser}} {{authPass}}
 Content-Type: {{contentType}}
 
-{"storagePath":"/files/cover.jpg","mimeType":"image/jpeg","sizeBytes":12345,"checksum":"abc123","createdAt":"2024-01-01T00:00:00Z"}
+{"storagePath":"/files/cover.jpg","mimeType":"image/jpeg","sizeBytes":12345,"checksum":"abc123","createdAt":"2024-01-01T00:00:00Z", "fileName": "cover.jpg"}
 > {% client.global.set("coverImageId", response.body.id); %}
 
 ### Create chapter page file
@@ -13,7 +13,7 @@ POST {{host}}/features/file
 Authorization: Basic {{authUser}} {{authPass}}
 Content-Type: {{contentType}}
 
-{"storagePath":"/files/chapters/001/page-001.jpg","mimeType":"image/jpeg","sizeBytes":23456,"checksum":"def456","createdAt":"2024-01-01T00:00:00Z"}
+{"storagePath":"/files/chapters/001/page-001.jpg","mimeType":"image/jpeg","sizeBytes":23456,"checksum":"def456","createdAt":"2024-01-01T00:00:00Z", "fileName":"page-001.jpg"}
 > {% client.global.set("pageImageFileId", response.body.id); %}
 
 ### Create publisher

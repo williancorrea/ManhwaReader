@@ -46,3 +46,9 @@ INSERT INTO access_group_permission (access_group_id, permission_id)
     SELECT ag.id, p.id
     FROM access_group ag
     JOIN permission p ON p.name = ag.name;
+
+
+INSERT INTO user (id, username, email, password_hash) 
+    VALUES ('d4c8c5ed-5016-4f21-98a7-71edd5b71cb7', 'admin', 'willian.vag@gmail.com', '$2a$12$0npv.Tjp6q06Hi4UTkaod.Y2AqKeq.jQ840aUqoPisti05VeQ8/XK');
+INSERT INTO user_access_group (user_id, access_group_id) 
+    VALUES ('d4c8c5ed-5016-4f21-98a7-71edd5b71cb7', (select id from access_group where name = 'ADMINISTRATOR'));

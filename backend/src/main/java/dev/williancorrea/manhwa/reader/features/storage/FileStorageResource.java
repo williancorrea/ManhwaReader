@@ -1,10 +1,11 @@
 package dev.williancorrea.manhwa.reader.features.storage;
 
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+import jakarta.validation.Valid;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/file")
@@ -37,7 +37,7 @@ public class FileStorageResource {
   @PreAuthorize("hasAnyAuthority('ADMINISTRATOR','UPLOADER')")
   @PostMapping()
   public ResponseEntity<FileStorageOutput> create(@RequestBody @Valid FileStorageInput input) {
-    var entity = toEntity(input);
+    var entity = new FileStorage(input);
     var saved = fileStorageService.save(entity);
     return ResponseEntity.ok(new FileStorageOutput(saved));
   }
@@ -59,7 +59,7 @@ public class FileStorageResource {
     if (!fileStorageService.existsById(id)) {
       return ResponseEntity.notFound().build();
     }
-    var entity = toEntity(input);
+    var entity = new FileStorage(input);
     entity.setId(id);
     var saved = fileStorageService.save(entity);
     return ResponseEntity.ok(new FileStorageOutput(saved));
@@ -73,16 +73,6 @@ public class FileStorageResource {
     }
     fileStorageService.deleteById(id);
     return ResponseEntity.noContent().build();
-  }
-
-  private FileStorage toEntity(FileStorageInput input) {
-    var entity = new FileStorage();
-    entity.setStoragePath(input.getStoragePath());
-    entity.setMimeType(input.getMimeType());
-    entity.setSizeBytes(input.getSizeBytes());
-    entity.setChecksum(input.getChecksum());
-    entity.setCreatedAt(input.getCreatedAt());
-    return entity;
   }
 }
 
