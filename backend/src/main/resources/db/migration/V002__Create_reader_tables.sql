@@ -21,9 +21,22 @@ CREATE TABLE language (
     name VARCHAR(50) NOT NULL
 );
 
+insert into language (id, code, name) values (UUID(), 'pt-br', 'Portuguese (Brazil)');
+insert into language (id, code, name) values (UUID(), 'ko', '');
+insert into language (id, code, name) values (UUID(), 'ko-ro', '');
+insert into language (id, code, name) values (UUID(), 'en', '');
+insert into language (id, code, name) values (UUID(), 'de', '');
+insert into language (id, code, name) values (UUID(), 'fr', '');
+insert into language (id, code, name) values (UUID(), 'es', '');
+insert into language (id, code, name) values (UUID(), 'th', '');
+insert into language (id, code, name) values (UUID(), 'ja', '');
+insert into language (id, code, name) values (UUID(), 'zh', '');
+insert into language (id, code, name) values (UUID(), 'zh-hk', '');
+insert into language (id, code, name) values (UUID(), 'pl', '');
+
+
 CREATE TABLE work (
     id CHAR(36) NOT NULL PRIMARY KEY,
-    original_title VARCHAR(255) NOT NULL,
     synopsis TEXT,
     type ENUM('MANGA', 'MANHWA', 'MANHUA', 'NOVEL') NOT NULL,
     status ENUM('ONGOING', 'COMPLETED', 'HIATUS', 'CANCELLED') NOT NULL,
@@ -42,16 +55,6 @@ CREATE TABLE work_title (
     language_id CHAR(36) NOT NULL,
     title VARCHAR(255) NOT NULL,
     is_official BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (work_id) REFERENCES work(id),
-    FOREIGN KEY (language_id) REFERENCES language(id),
-    UNIQUE (work_id, language_id)
-);
-
-CREATE TABLE alternative_title (
-    id CHAR(36) NOT NULL PRIMARY KEY,
-    work_id CHAR(36) NOT NULL,
-    language_id CHAR(36),
-    title VARCHAR(255) NOT NULL,
     FOREIGN KEY (work_id) REFERENCES work(id),
     FOREIGN KEY (language_id) REFERENCES language(id)
 );
