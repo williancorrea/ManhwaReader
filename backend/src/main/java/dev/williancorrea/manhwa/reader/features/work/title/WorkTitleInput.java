@@ -1,4 +1,4 @@
-package dev.williancorrea.manhwa.reader.features.work;
+package dev.williancorrea.manhwa.reader.features.work.title;
 
 import java.util.UUID;
 import jakarta.validation.constraints.NotNull;
@@ -12,12 +12,14 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AlternativeTitleInput {
+public class WorkTitleInput {
   @NotNull
   private UUID workId;
+  @NotNull
   private UUID languageId;
   @NotNull
   @Size(max = 255)
   private String title;
+  private Boolean isOfficial;
 }
 

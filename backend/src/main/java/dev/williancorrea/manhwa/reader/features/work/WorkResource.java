@@ -7,6 +7,7 @@ import dev.williancorrea.manhwa.reader.features.storage.FileStorage;
 import jakarta.validation.Valid;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/work")
@@ -79,7 +79,6 @@ public class WorkResource {
 
   private Work toEntity(WorkInput input) {
     var entity = new Work();
-    entity.setOriginalTitle(input.getOriginalTitle());
     entity.setSynopsis(input.getSynopsis());
     entity.setType(input.getType());
     entity.setStatus(input.getStatus());

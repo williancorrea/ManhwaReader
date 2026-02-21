@@ -17,6 +17,6 @@ public class AccessGroupOutput implements Serializable {
 
   public AccessGroupOutput(AccessGroup accessGroup) {
     this.id = accessGroup.getId();
-    this.name = accessGroup.getName();
+    this.name = accessGroup.getName().name();
   }
 }

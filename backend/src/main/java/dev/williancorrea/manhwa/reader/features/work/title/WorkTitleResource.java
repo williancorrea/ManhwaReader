@@ -1,11 +1,13 @@
-package dev.williancorrea.manhwa.reader.features.work;
+package dev.williancorrea.manhwa.reader.features.work.title;
 
 import java.util.List;
 import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.language.Language;
+import dev.williancorrea.manhwa.reader.features.work.Work;
 import jakarta.validation.Valid;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +16,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/work-title")

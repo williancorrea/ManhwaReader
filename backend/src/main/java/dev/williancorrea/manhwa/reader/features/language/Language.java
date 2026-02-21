@@ -32,7 +32,7 @@ public class Language implements Serializable {
   @EqualsAndHashCode.Include
   private UUID id;
 
-  @Size(min = 5, max = 10)
+  @Size(min = 2, max = 10)
   @Column(nullable = false, unique = true, length = 10)
   private String code;
 

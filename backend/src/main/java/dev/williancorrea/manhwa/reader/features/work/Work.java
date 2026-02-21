@@ -39,9 +39,6 @@ public class Work implements Serializable {
   @EqualsAndHashCode.Include
   private UUID id;
 
-  @Column(name = "original_title", nullable = false)
-  private String originalTitle;
-
   private String synopsis;
 
   @Enumerated(EnumType.STRING)

@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class WorkOutput implements Serializable {
   private UUID id;
-  private String originalTitle;
   private String synopsis;
   private WorkType type;
   private WorkStatus status;
@@ -26,7 +25,6 @@ public class WorkOutput implements Serializable {
 
   public WorkOutput(Work work) {
     this.id = work.getId();
-    this.originalTitle = work.getOriginalTitle();
     this.synopsis = work.getSynopsis();
     this.type = work.getType();
     this.status = work.getStatus();

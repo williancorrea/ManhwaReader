@@ -1,4 +1,4 @@
-package dev.williancorrea.manhwa.reader.features.work;
+package dev.williancorrea.manhwa.reader.features.work.title;
 
 import java.io.Serializable;
 import java.util.UUID;

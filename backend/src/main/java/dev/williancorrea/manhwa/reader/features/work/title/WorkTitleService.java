@@ -1,4 +1,4 @@
-package dev.williancorrea.manhwa.reader.features.work;
+package dev.williancorrea.manhwa.reader.features.work.title;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,23 +9,23 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @Service
-public class AlternativeTitleService {
+public class WorkTitleService {
 
-  private final AlternativeTitleRepository repository;
+  private final WorkTitleRepository repository;
 
-  public AlternativeTitleService(@Lazy AlternativeTitleRepository repository) {
+  public WorkTitleService(@Lazy WorkTitleRepository repository) {
     this.repository = repository;
   }
 
-  public List<AlternativeTitle> findAll() {
+  public List<WorkTitle> findAll() {
     return repository.findAll();
   }
 
-  public Optional<AlternativeTitle> findById(UUID id) {
+  public Optional<WorkTitle> findById(UUID id) {
     return repository.findById(id);
   }
 
-  public AlternativeTitle save(AlternativeTitle entity) {
+  public WorkTitle save(WorkTitle entity) {
     return repository.save(entity);
   }
 
@@ -37,7 +37,8 @@ public class AlternativeTitleService {
     repository.deleteById(id);
   }
 
-  public List<AlternativeTitle> findAllByWorkId(UUID workId) {
+  public List<WorkTitle> findAllByWorkId(UUID workId) {
     return repository.findAllByWork_Id(workId);
   }
 }
+

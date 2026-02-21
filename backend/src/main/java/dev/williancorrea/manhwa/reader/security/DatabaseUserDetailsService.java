@@ -1,11 +1,10 @@
 package dev.williancorrea.manhwa.reader.security;
 
-import dev.williancorrea.manhwa.reader.features.access.group.AccessGroupPermissionRepository;
-import dev.williancorrea.manhwa.reader.features.access.user.UserRepository;
-import dev.williancorrea.manhwa.reader.features.access.user.UserAccessGroupRepository;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
+import dev.williancorrea.manhwa.reader.features.access.group.AccessGroupPermissionRepository;
+import dev.williancorrea.manhwa.reader.features.access.user.UserAccessGroupRepository;
+import dev.williancorrea.manhwa.reader.features.access.user.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -46,8 +45,8 @@ public class DatabaseUserDetailsService implements UserDetailsService {
       var permissions = accessGroupPermissionRepository.findAllByAccessGroup_IdIn(groupIds);
       for (var permission : permissions) {
         var name = permission.getPermission() != null ? permission.getPermission().getName() : null;
-        if (name != null && !name.isBlank()) {
-          authorities.add(new SimpleGrantedAuthority(name));
+        if (name != null) {
+          authorities.add(new SimpleGrantedAuthority(name.name()));
         }
       }
     }

@@ -1,8 +1,9 @@
-package dev.williancorrea.manhwa.reader.features.work;
+package dev.williancorrea.manhwa.reader.features.work.title;
 
 import java.io.Serializable;
 import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.language.Language;
+import dev.williancorrea.manhwa.reader.features.work.Work;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,12 +19,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "alternative_title")
+@Table(name = "work_title")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AlternativeTitle implements Serializable {
+public class WorkTitle implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
@@ -33,9 +34,12 @@ public class AlternativeTitle implements Serializable {
   private Work work;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "language_id")
+  @JoinColumn(name = "language_id", nullable = false)
   private Language language;
 
   @Column(nullable = false)
   private String title;
+
+  @Column(name = "is_official")
+  private Boolean isOfficial;
 }
