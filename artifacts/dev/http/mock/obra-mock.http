@@ -31,7 +31,7 @@ POST {{host}}/features/language
 Authorization: Basic {{authUser}} {{authPass}}
 Content-Type: {{contentType}}
 
-{"code":"pt-BR","name":"Portuguese (Brazil)"}
+{"code":"uk","name":"VAi SABER"}
 > {% client.global.set("languageId", response.body.id); %}
 
 ### Create scanlator
@@ -49,7 +49,7 @@ POST {{host}}/features/work
 Authorization: Basic {{authUser}} {{authPass}}
 Content-Type: {{contentType}}
 
-{"originalTitle":"Work Title","synopsis":"Synopsis","type":"MANHWA","status":"ONGOING","releaseYear":2024,"coverImageId":"{{coverImageId}}","publisherId":"{{publisherId}}","createdAt":"2024-01-01T00:00:00Z","updatedAt":"2024-01-01T00:00:00Z"}
+{"synopsis":"Synopsis","type":"MANHWA","status":"ONGOING","releaseYear":2024,"coverImageId":"{{coverImageId}}","publisherId":"{{publisherId}}","createdAt":"2024-01-01T00:00:00Z","updatedAt":"2024-01-01T00:00:00Z"}
 > {% client.global.set("workId", response.body.id); %}
 
 ### Create work title
@@ -60,15 +60,6 @@ Content-Type: {{contentType}}
 
 {"workId":"{{workId}}","languageId":"{{languageId}}","title":"Work Title","isOfficial":true}
 > {% client.global.set("workTitleId", response.body.id); %}
-
-### Create alternative title
-# @name createAlternativeTitle
-POST {{host}}/features/alternative-title
-Authorization: Basic {{authUser}} {{authPass}}
-Content-Type: {{contentType}}
-
-{"workId":"{{workId}}","languageId":"{{languageId}}","title":"Alt Title"}
-> {% client.global.set("alternativeTitleId", response.body.id); %}
 
 ### Create author
 # @name createAuthor
