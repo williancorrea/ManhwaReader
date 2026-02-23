@@ -3,15 +3,23 @@ package dev.williancorrea.manhwa.reader.synchronization.mangadex;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import dev.williancorrea.manhwa.reader.features.author.Author;
+import dev.williancorrea.manhwa.reader.features.author.AuthorService;
+import dev.williancorrea.manhwa.reader.features.author.AuthorType;
 import dev.williancorrea.manhwa.reader.features.language.LanguageService;
+import dev.williancorrea.manhwa.reader.features.tag.TagGroupType;
+import dev.williancorrea.manhwa.reader.features.tag.TagService;
 import dev.williancorrea.manhwa.reader.features.work.Work;
+import dev.williancorrea.manhwa.reader.features.work.WorkAuthor;
 import dev.williancorrea.manhwa.reader.features.work.WorkContentRating;
 import dev.williancorrea.manhwa.reader.features.work.WorkPublicationDemographic;
 import dev.williancorrea.manhwa.reader.features.work.WorkService;
 import dev.williancorrea.manhwa.reader.features.work.WorkStatus;
+import dev.williancorrea.manhwa.reader.features.work.WorkTag;
 import dev.williancorrea.manhwa.reader.features.work.WorkType;
 import dev.williancorrea.manhwa.reader.features.work.link.SiteType;
 import dev.williancorrea.manhwa.reader.features.work.link.WorkLink;
@@ -34,6 +42,8 @@ public class MangaDexMapperService {
   public final WorkService workService;
   public final LanguageService languageService;
   public final WorkLinkRepository workLinkRepository;
+  public final TagService tagService;
+  public final AuthorService authorService;
 
   public Work toEntity(MangaDexData dto) {
     try {
@@ -44,6 +54,8 @@ public class MangaDexMapperService {
       syncSynopses(work, dto);
       syncLinks(work, dto);
       syncAttributes(work, dto);
+      syncTags(work, dto);
+      syncAuthors(work, dto);
 
       work.setUpdatedAt(OffsetDateTime.now());
       return work;
@@ -173,6 +185,73 @@ public class MangaDexMapperService {
     }
   }
 
+  private void syncTags(Work work, MangaDexData dto) {
+    Objects.requireNonNull(work);
+    Objects.requireNonNull(dto);
+
+    if (work.getTags() == null) {
+      work.setTags(new ArrayList<>());
+    }
+
+    dto.getAttributes().getTags().forEach(tag -> {
+
+      var group = TagGroupType.valueOf(tag.getAttributes().getGroup().toUpperCase());
+      var name = tag.getAttributes().getName().values().stream().findAny().orElse("");
+
+      if (!work.getTagsContains(group, name) && !name.isBlank()) {
+        work.getTags().add(
+            WorkTag.builder()
+                .tag(tagService.findOrCreate(group, name))
+                .work(work)
+                .build());
+      }
+    });
+  }
+
+  private void syncAuthors(Work work, MangaDexData dto) {
+    Objects.requireNonNull(work);
+    Objects.requireNonNull(dto);
+
+    if (work.getAuthors() == null) {
+      work.setAuthors(new ArrayList<>());
+    }
+
+    dto.getRelationships().forEach(author -> {
+      if (Arrays.asList(AuthorType.AUTHOR.name(), AuthorType.ARTIST.name()).contains(author.getType().toUpperCase())) {
+
+        var type = AuthorType.valueOf(author.getType().toUpperCase());
+        var name = author.getAttributes().getName();
+
+        if (!work.getAuthorsContains(type, name) && !name.isBlank()) {
+          work.getAuthors().add(
+              WorkAuthor.builder()
+                  .author(authorService.findOrCreate(Author.builder()
+                      .name(author.getAttributes().getName())
+                      .type(type)
+                      .biography(author.getAttributes().getBiography().values().stream().findAny().orElse(null))
+                      .twitter(author.getAttributes().getTwitter())
+                      .pixiv(author.getAttributes().getPixiv())
+                      .melonBook(author.getAttributes().getMelonBook())
+                      .fanBox(author.getAttributes().getFanBox())
+                      .booth(author.getAttributes().getBooth())
+                      .namicomi(author.getAttributes().getNamicomi())
+                      .nicoVideo(author.getAttributes().getNicoVideo())
+                      .skeb(author.getAttributes().getSkeb())
+                      .fanBox(author.getAttributes().getFanBox())
+                      .tumblr(author.getAttributes().getTumblr())
+                      .youtube(author.getAttributes().getYoutube())
+                      .weibo(author.getAttributes().getWeibo())
+                      .naver(author.getAttributes().getNaver())
+                      .website(author.getAttributes().getWebsite())
+                      .build()))
+                  .work(work)
+                  .build()
+          );
+        }
+      }
+    });
+  }
+
   private void syncSynchronization(Work work, MangaDexData dto) {
     Objects.requireNonNull(work);
     Objects.requireNonNull(dto);
@@ -274,9 +353,10 @@ public class MangaDexMapperService {
       work.setPublicationDemographic(
           WorkPublicationDemographic.valueOf(dto.getAttributes().getPublicationDemographic().toUpperCase()));
     }
-    if(dto.getAttributes().getContentRating() != null) {
+    if (dto.getAttributes().getContentRating() != null) {
       work.setContentRating(WorkContentRating.valueOf(dto.getAttributes().getContentRating().toUpperCase()));
     }
+    work.setChapterNumbersResetOnNewVolume(dto.getAttributes().getChapterNumbersResetOnNewVolume());
   }
 
 

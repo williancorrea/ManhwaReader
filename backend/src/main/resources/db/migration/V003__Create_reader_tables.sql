@@ -18,6 +18,7 @@ CREATE TABLE publisher (
 CREATE TABLE work (
     id CHAR(36) NOT NULL PRIMARY KEY,
     disabled BOOLEAN DEFAULT FALSE,
+    chapter_numbers_reset_on_new_volume BOOLEAN DEFAULT FALSE,
     type VARCHAR(20) NOT NULL,
     publication_demographic VARCHAR(30),
     release_year INT,
@@ -88,46 +89,57 @@ CREATE TABLE work_title (
 
 -- Tags
 CREATE TABLE tag(
-    id          CHAR(36)     NOT NULL PRIMARY KEY,
-    group_tag   VARCHAR(50) NOT NULL,
-    name        VARCHAR(100) NOT NULL
+    id        CHAR(36)     NOT NULL PRIMARY KEY,
+    group_tag VARCHAR(50)  NOT NULL,
+    name      VARCHAR(100) NOT NULL,
+    alias1    VARCHAR(100),
+    alias2    VARCHAR(100)
 );
 
 CREATE TABLE work_tag(
+    id      CHAR(36)     NOT NULL PRIMARY KEY,
     work_id CHAR(36) NOT NULL,
     tag_id  CHAR(36) NOT NULL,
-    PRIMARY KEY (work_id, tag_id),
     FOREIGN KEY (work_id) REFERENCES work (id),
     FOREIGN KEY (tag_id) REFERENCES tag (id)
 );
 
-CREATE TABLE genre (
-    id CHAR(36) NOT NULL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE
+
+CREATE TABLE author
+(
+    id         CHAR(36)     NOT NULL PRIMARY KEY,
+    name       VARCHAR(255) NOT NULL,
+    type       VARCHAR(255) NOT NULL,
+    biography  TEXT,
+    twitter    VARCHAR(255),
+    pixiv      VARCHAR(255),
+    melon_book VARCHAR(255),
+    fan_box     VARCHAR(255),
+    booth      VARCHAR(255),
+    namicomi   VARCHAR(255),
+    nico_video VARCHAR(255),
+    skeb       VARCHAR(255),
+    fantia     VARCHAR(255),
+    tumblr     VARCHAR(255),
+    youtube    VARCHAR(255),
+    weibo      VARCHAR(255),
+    naver      VARCHAR(255),
+    website    VARCHAR(255)
 );
 
-CREATE TABLE work_genre (
-    work_id CHAR(36) NOT NULL,
-    genre_id CHAR(36) NOT NULL,
-    PRIMARY KEY (work_id, genre_id),
-    FOREIGN KEY (work_id) REFERENCES work(id),
-    FOREIGN KEY (genre_id) REFERENCES genre(id)
-);
-
-CREATE TABLE author (
-    id CHAR(36) NOT NULL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    type ENUM('WRITER', 'ARTIST', 'BOTH') NOT NULL
-);
-
-CREATE TABLE work_author (
-    work_id CHAR(36) NOT NULL,
+CREATE TABLE work_author
+(
+    id        CHAR(36) NOT NULL PRIMARY KEY,
+    work_id   CHAR(36) NOT NULL,
     author_id CHAR(36) NOT NULL,
-    role VARCHAR(50),
-    PRIMARY KEY (work_id, author_id),
-    FOREIGN KEY (work_id) REFERENCES work(id),
-    FOREIGN KEY (author_id) REFERENCES author(id)
+    FOREIGN KEY (work_id) REFERENCES work (id),
+    FOREIGN KEY (author_id) REFERENCES author (id)
 );
+
+
+
+
+
 
 
 

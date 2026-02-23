@@ -1,4 +1,4 @@
-package dev.williancorrea.manhwa.reader.features.work.tag;
+package dev.williancorrea.manhwa.reader.features.tag;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -28,10 +28,11 @@ public class Tag implements Serializable {
 
   @Column(name = "group_tag")
   @Enumerated(EnumType.STRING)
-  private TagType group;
+  private TagGroupType group;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String name;
 
-
+  private String alias1;
+  private String alias2;
 }

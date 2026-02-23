@@ -1,11 +1,13 @@
-package dev.williancorrea.manhwa.reader.features.work.tag;
+package dev.williancorrea.manhwa.reader.features.work;
 
 import java.io.Serializable;
-import dev.williancorrea.manhwa.reader.features.work.Work;
+import java.util.UUID;
+import dev.williancorrea.manhwa.reader.features.tag.Tag;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -16,7 +18,6 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "work_tag")
-@IdClass(WorkTagId.class)
 @Data
 @Builder
 @AllArgsConstructor
@@ -24,11 +25,13 @@ import lombok.NoArgsConstructor;
 public class WorkTag implements Serializable {
   
   @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
+  
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "work_id", nullable = false)
   private Work work;
 
-  @Id
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "tag_id", nullable = false)
   private Tag tag;

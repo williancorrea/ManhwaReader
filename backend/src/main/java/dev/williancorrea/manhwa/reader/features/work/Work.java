@@ -5,15 +5,16 @@ import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
+import dev.williancorrea.manhwa.reader.features.author.AuthorType;
 import dev.williancorrea.manhwa.reader.features.language.Language;
 import dev.williancorrea.manhwa.reader.features.publisher.Publisher;
 import dev.williancorrea.manhwa.reader.features.storage.FileStorage;
+import dev.williancorrea.manhwa.reader.features.tag.TagGroupType;
 import dev.williancorrea.manhwa.reader.features.work.link.SiteType;
 import dev.williancorrea.manhwa.reader.features.work.link.WorkLink;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.WorkSynchronization;
 import dev.williancorrea.manhwa.reader.features.work.synopsis.WorkSynopsis;
-import dev.williancorrea.manhwa.reader.features.work.tag.WorkTag;
 import dev.williancorrea.manhwa.reader.features.work.title.WorkTitle;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -67,7 +68,7 @@ public class Work implements Serializable {
 
   @Column(name = "release_year")
   private Integer releaseYear;
-  
+
   @Enumerated(EnumType.STRING)
   @Column(name = "content_rating")
   private WorkContentRating contentRating;
@@ -85,6 +86,9 @@ public class Work implements Serializable {
   private Language originalLanguage;
 
   private Boolean disabled;
+
+  @Column(name = "chapter_numbers_reset_on_new_volume")
+  private Boolean chapterNumbersResetOnNewVolume;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "publication_demographic")
@@ -111,6 +115,9 @@ public class Work implements Serializable {
   @OneToMany(mappedBy = "work", orphanRemoval = true, cascade = CascadeType.ALL)
   private List<WorkTag> tags;
 
+  @OneToMany(mappedBy = "work", orphanRemoval = true, cascade = CascadeType.ALL)
+  private List<WorkAuthor> authors;
+
   public boolean getSynchronizationsContains(SynchronizationOriginType origin) {
     return synchronizations.stream()
         .anyMatch(synchronization -> synchronization.getOrigin() == origin);
@@ -119,6 +126,16 @@ public class Work implements Serializable {
   public boolean getLinksContains(SiteType origin) {
     return links.stream()
         .anyMatch(link -> link.getCode() == origin);
+  }
+
+  public boolean getTagsContains(TagGroupType group, String name) {
+    return tags.stream()
+        .anyMatch(tag -> tag.getTag().getGroup() == group && tag.getTag().getName().equals(name));
+  }
+
+  public boolean getAuthorsContains(AuthorType type, String name) {
+    return authors.stream()
+        .anyMatch(author -> author.getAuthor().getType() == type && author.getAuthor().getName().equals(name));
   }
 
   @PrePersist

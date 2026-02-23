@@ -1,8 +1,6 @@
 package dev.williancorrea.manhwa.reader.features.author;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -17,24 +15,17 @@ public class AuthorService {
     this.repository = repository;
   }
 
-  public List<Author> findAll() {
-    return repository.findAll();
-  }
-
-  public Optional<Author> findById(UUID id) {
-    return repository.findById(id);
-  }
-
   public Author save(Author entity) {
     return repository.save(entity);
   }
 
-  public boolean existsById(UUID id) {
-    return repository.existsById(id);
+  public Optional<Author> findByName(String name) {
+    return repository.findByName(name);
   }
 
-  public void deleteById(UUID id) {
-    repository.deleteById(id);
+  public Author findOrCreate(Author author) {
+    return repository.findByName(author.getName())
+        .orElseGet(() -> save(author));
   }
 }
 
