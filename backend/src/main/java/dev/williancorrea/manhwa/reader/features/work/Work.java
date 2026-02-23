@@ -13,6 +13,7 @@ import dev.williancorrea.manhwa.reader.features.work.link.WorkLink;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.WorkSynchronization;
 import dev.williancorrea.manhwa.reader.features.work.synopsis.WorkSynopsis;
+import dev.williancorrea.manhwa.reader.features.work.tag.WorkTag;
 import dev.williancorrea.manhwa.reader.features.work.title.WorkTitle;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -66,6 +67,10 @@ public class Work implements Serializable {
 
   @Column(name = "release_year")
   private Integer releaseYear;
+  
+  @Enumerated(EnumType.STRING)
+  @Column(name = "content_rating")
+  private WorkContentRating contentRating;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "cover_image_id")
@@ -102,6 +107,9 @@ public class Work implements Serializable {
 
   @OneToMany(mappedBy = "work", orphanRemoval = true, cascade = CascadeType.ALL)
   private List<WorkLink> links;
+
+  @OneToMany(mappedBy = "work", orphanRemoval = true, cascade = CascadeType.ALL)
+  private List<WorkTag> tags;
 
   public boolean getSynchronizationsContains(SynchronizationOriginType origin) {
     return synchronizations.stream()

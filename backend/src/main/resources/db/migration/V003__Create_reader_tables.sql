@@ -22,6 +22,7 @@ CREATE TABLE work (
     publication_demographic VARCHAR(30),
     release_year INT,
     status VARCHAR(20)NOT NULL,
+    content_rating VARCHAR(20)NOT NULL,
     cover_image_id CHAR(36),
     publisher_id CHAR(36),
     original_language_id CHAR(36),
@@ -85,6 +86,21 @@ CREATE TABLE work_title (
     FOREIGN KEY (language_id) REFERENCES language(id)
 );
 
+-- Tags
+CREATE TABLE tag(
+    id          CHAR(36)     NOT NULL PRIMARY KEY,
+    group_tag   VARCHAR(50) NOT NULL,
+    name        VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE work_tag(
+    work_id CHAR(36) NOT NULL,
+    tag_id  CHAR(36) NOT NULL,
+    PRIMARY KEY (work_id, tag_id),
+    FOREIGN KEY (work_id) REFERENCES work (id),
+    FOREIGN KEY (tag_id) REFERENCES tag (id)
+);
+
 CREATE TABLE genre (
     id CHAR(36) NOT NULL PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE
@@ -113,20 +129,7 @@ CREATE TABLE work_author (
     FOREIGN KEY (author_id) REFERENCES author(id)
 );
 
--- Tags
-CREATE TABLE tag (
-    id CHAR(36) NOT NULL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    is_nsfw BOOLEAN DEFAULT FALSE
-);
 
-CREATE TABLE work_tag (
-    work_id CHAR(36) NOT NULL,
-    tag_id CHAR(36) NOT NULL,
-    PRIMARY KEY (work_id, tag_id),
-    FOREIGN KEY (work_id) REFERENCES work(id),
-    FOREIGN KEY (tag_id) REFERENCES tag(id)
-);
 
 -- Scanlators
 CREATE TABLE scanlator (

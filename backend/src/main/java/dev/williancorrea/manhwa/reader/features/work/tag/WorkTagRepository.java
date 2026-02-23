@@ -1,4 +1,4 @@
-package dev.williancorrea.manhwa.reader.features.work;
+package dev.williancorrea.manhwa.reader.features.work.tag;
 
 import java.util.List;
 import java.util.UUID;

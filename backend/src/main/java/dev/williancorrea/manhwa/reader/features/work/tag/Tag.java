@@ -1,9 +1,11 @@
-package dev.williancorrea.manhwa.reader.features.tag;
+package dev.williancorrea.manhwa.reader.features.work.tag;
 
 import java.io.Serializable;
 import java.util.UUID;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,9 +26,12 @@ public class Tag implements Serializable {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
+  @Column(name = "group_tag")
+  @Enumerated(EnumType.STRING)
+  private TagType group;
+
   @Column(nullable = false, unique = true)
   private String name;
 
-  @Column(name = "is_nsfw")
-  private Boolean isNsfw;
+
 }

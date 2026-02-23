@@ -1,4 +1,4 @@
-package dev.williancorrea.manhwa.reader.features.tag;
+package dev.williancorrea.manhwa.reader.features.work.tag;
 
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;

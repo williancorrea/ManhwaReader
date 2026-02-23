@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import dev.williancorrea.manhwa.reader.features.language.LanguageService;
 import dev.williancorrea.manhwa.reader.features.work.Work;
+import dev.williancorrea.manhwa.reader.features.work.WorkContentRating;
 import dev.williancorrea.manhwa.reader.features.work.WorkPublicationDemographic;
 import dev.williancorrea.manhwa.reader.features.work.WorkService;
 import dev.williancorrea.manhwa.reader.features.work.WorkStatus;
@@ -272,6 +273,9 @@ public class MangaDexMapperService {
     if (dto.getAttributes().getPublicationDemographic() != null) {
       work.setPublicationDemographic(
           WorkPublicationDemographic.valueOf(dto.getAttributes().getPublicationDemographic().toUpperCase()));
+    }
+    if(dto.getAttributes().getContentRating() != null) {
+      work.setContentRating(WorkContentRating.valueOf(dto.getAttributes().getContentRating().toUpperCase()));
     }
   }
 

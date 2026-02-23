@@ -1,7 +1,7 @@
-package dev.williancorrea.manhwa.reader.features.work;
+package dev.williancorrea.manhwa.reader.features.work.tag;
 
 import java.io.Serializable;
-import dev.williancorrea.manhwa.reader.features.tag.Tag;
+import dev.williancorrea.manhwa.reader.features.work.Work;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -22,6 +22,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class WorkTag implements Serializable {
+  
   @Id
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "work_id", nullable = false)

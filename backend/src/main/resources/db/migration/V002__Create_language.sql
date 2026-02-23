@@ -17,6 +17,7 @@ insert into language (id, code, name) values (UUID(), 'en-GB', 'English (United 
 insert into language (id, code, name) values (UUID(), 'es', 'Spanish');
 insert into language (id, code, name) values (UUID(), 'es-ES', 'Spanish (Spain)');
 insert into language (id, code, name) values (UUID(), 'es-MX', 'Spanish (Mexico)');
+insert into language (id, code, name) values (UUID(), 'es-LA', 'Spanish (Latin American)');
 
 -- French
 insert into language (id, code, name) values (UUID(), 'fr', 'French');
@@ -39,6 +40,7 @@ insert into language (id, code, name) values (UUID(), 'ru', 'Russian');
 
 -- Japanese
 insert into language (id, code, name) values (UUID(), 'ja', 'Japanese');
+insert into language (id, code, name) values (UUID(), 'ja-ro', 'Japanese (Romanized)');
 
 -- Korean
 insert into language (id, code, name) values (UUID(), 'ko', 'Korean');
@@ -52,6 +54,7 @@ insert into language (id, code, name) values (UUID(), 'zh', 'Chinese');
 insert into language (id, code, name) values (UUID(), 'zh-CN', 'Chinese (Simplified, China)');
 insert into language (id, code, name) values (UUID(), 'zh-TW', 'Chinese (Traditional, Taiwan)');
 insert into language (id, code, name) values (UUID(), 'zh-HK', 'Chinese (Hong Kong)');
+insert into language (id, code, name) values (UUID(), 'zh-RO', 'Chinese (Romanized)');
 
 -- Thai
 insert into language (id, code, name) values (UUID(), 'th', 'Thai');
