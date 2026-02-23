@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
@@ -25,8 +26,9 @@ public class WorkService {
     return repository.findById(id);
   }
 
+  @Transactional
   public Work save(Work entity) {
-    return repository.save(entity);
+    return repository.saveAndFlush(entity);
   }
 
   public boolean existsById(UUID id) {
@@ -44,5 +46,15 @@ public class WorkService {
   public List<Work> findAllByType(WorkType type) {
     return repository.findAllByType(type);
   }
+
+
+  public Optional<Work> findByTitle(String title) {
+    return repository.findByTitle(title);
+  }
+
+  public Optional<Work> findBySynchronizationExternalID(String externalId) {
+    return repository.findBySynchronizationExternalID(externalId);
+  }
+
 }
 

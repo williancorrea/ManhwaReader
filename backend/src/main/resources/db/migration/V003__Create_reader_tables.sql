@@ -15,38 +15,64 @@ CREATE TABLE publisher (
     name VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE language (
-    id CHAR(36) NOT NULL PRIMARY KEY,
-    code VARCHAR(10) NOT NULL UNIQUE,
-    name VARCHAR(50) NOT NULL
-);
-
-insert into language (id, code, name) values (UUID(), 'pt-br', 'Portuguese (Brazil)');
-insert into language (id, code, name) values (UUID(), 'ko', '');
-insert into language (id, code, name) values (UUID(), 'ko-ro', '');
-insert into language (id, code, name) values (UUID(), 'en', '');
-insert into language (id, code, name) values (UUID(), 'de', '');
-insert into language (id, code, name) values (UUID(), 'fr', '');
-insert into language (id, code, name) values (UUID(), 'es', '');
-insert into language (id, code, name) values (UUID(), 'th', '');
-insert into language (id, code, name) values (UUID(), 'ja', '');
-insert into language (id, code, name) values (UUID(), 'zh', '');
-insert into language (id, code, name) values (UUID(), 'zh-hk', '');
-insert into language (id, code, name) values (UUID(), 'pl', '');
-
-
 CREATE TABLE work (
     id CHAR(36) NOT NULL PRIMARY KEY,
-    synopsis TEXT,
-    type ENUM('MANGA', 'MANHWA', 'MANHUA', 'NOVEL') NOT NULL,
-    status ENUM('ONGOING', 'COMPLETED', 'HIATUS', 'CANCELLED') NOT NULL,
+    disabled BOOLEAN DEFAULT FALSE,
+    type VARCHAR(20) NOT NULL,
+    publication_demographic VARCHAR(30),
     release_year INT,
+    status VARCHAR(20)NOT NULL,
     cover_image_id CHAR(36),
     publisher_id CHAR(36),
+    original_language_id CHAR(36),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (cover_image_id) REFERENCES file(id),
-    FOREIGN KEY (publisher_id) REFERENCES publisher(id)
+    FOREIGN KEY (publisher_id) REFERENCES publisher(id),
+    FOREIGN KEY (original_language_id) REFERENCES language(id)
+);
+
+CREATE TABLE work_synchronization (
+    id CHAR(36) NOT NULL PRIMARY KEY,
+    work_id CHAR(36) NOT NULL,
+    origin VARCHAR(50) NOT NULL,
+    external_id VARCHAR(255) NOT NULL UNIQUE,
+    FOREIGN KEY (work_id) REFERENCES work(id)
+);
+
+CREATE TABLE site (
+    id CHAR(36) NOT NULL PRIMARY KEY,
+    code VARCHAR(50) NOT NULL UNIQUE,
+    url VARCHAR(255) NOT NULL
+);
+
+INSERT INTO site (id, code, url) VALUES (UUID(), 'MANGADEX', 'https://mangadex.org/title');
+INSERT INTO site (id, code, url) VALUES (UUID(), 'MEDIOCRESCAN', 'https://mediocrescan.com/obra');
+INSERT INTO site (id, code, url) VALUES (UUID(), 'WEB_TOONS', 'https://www.webtoons.com');
+INSERT INTO site (id, code, url) VALUES (UUID(), 'ANI_LIST', 'https://anilist.co/manga');
+INSERT INTO site (id, code, url) VALUES (UUID(), 'ANIME_PLANET', 'https://www.anime-planet.com/manga');
+INSERT INTO site (id, code, url) VALUES (UUID(), 'NOVEL_UPDATES', 'https://www.novelupdates.com/series');
+INSERT INTO site (id, code, url) VALUES (UUID(), 'MY_ANIME_LIST', 'https://myanimelist.net/manga');
+INSERT INTO site (id, code, url) VALUES (UUID(), 'MANGA_UPDATES', 'https://www.mangaupdates.com/series');
+INSERT INTO site (id, code, url) VALUES (UUID(), 'KITSU', 'https://kitsu.app/manga');
+
+CREATE TABLE work_link (
+    id CHAR(36) NOT NULL PRIMARY KEY,
+    work_id CHAR(36) NOT NULL,
+    site_id CHAR(36) NOT NULL,
+    code VARCHAR(50) NOT NULL,
+    link VARCHAR(50) NOT NULL,
+    FOREIGN KEY (work_id) REFERENCES work(id),
+    FOREIGN KEY (site_id) REFERENCES site(id)
+);
+
+CREATE TABLE work_synopsis(
+    id CHAR(36) NOT NULL PRIMARY KEY,
+    work_id CHAR(36) NOT NULL,
+    language_id CHAR(36) NOT NULL,
+    description TEXT NOT NULL,
+    FOREIGN KEY (work_id) REFERENCES work(id),
+    FOREIGN KEY (language_id) REFERENCES language(id)
 );
 
 CREATE TABLE work_title (

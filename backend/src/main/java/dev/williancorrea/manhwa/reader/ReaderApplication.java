@@ -1,5 +1,7 @@
 package dev.williancorrea.manhwa.reader;
 
+import java.util.TimeZone;
+import jakarta.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -15,4 +17,8 @@ public class ReaderApplication {
     SpringApplication.run(ReaderApplication.class, args);
   }
 
+  @PostConstruct
+  public void init() {
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+  }
 }

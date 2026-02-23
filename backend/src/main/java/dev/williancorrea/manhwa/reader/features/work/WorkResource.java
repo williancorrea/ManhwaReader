@@ -79,7 +79,6 @@ public class WorkResource {
 
   private Work toEntity(WorkInput input) {
     var entity = new Work();
-    entity.setSynopsis(input.getSynopsis());
     entity.setType(input.getType());
     entity.setStatus(input.getStatus());
     entity.setReleaseYear(input.getReleaseYear());
