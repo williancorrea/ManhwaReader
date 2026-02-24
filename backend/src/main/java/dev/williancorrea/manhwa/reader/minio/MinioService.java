@@ -3,10 +3,12 @@ package dev.williancorrea.manhwa.reader.minio;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.http.HttpHeaders;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import dev.williancorrea.manhwa.reader.exception.ObjectNotFoundException;
 import io.minio.BucketExistsArgs;
 import io.minio.GetObjectArgs;
@@ -17,6 +19,7 @@ import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
 import io.minio.Result;
+import io.minio.SetBucketPolicyArgs;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
@@ -131,22 +134,49 @@ public class MinioService implements FileUploaderInterface {
     }
   }
 
-  public String uploadStream(InputStream stream, String originalFileName, long fileSize, String originalFolderName) {
-
-    String fileName = renameFile(originalFileName.replace(":", ""));
-    String folderName = renameFile(originalFolderName.replace(":", ""));
-    String objectPath = (folderName != null && !folderName.isBlank())
-        ? folderName + "/" + fileName
-        : fileName;
+  private void makeBucketPublic() {
+    String policy = """
+        {
+          "Version":"2012-10-17",
+          "Statement":[
+            {
+              "Effect":"Allow",
+              "Principal":"*",
+              "Action":["s3:GetObject"],
+              "Resource":["arn:aws:s3:::%s/*"]
+            }
+          ]
+        }
+        """.formatted(bucketName);
 
     try {
+      minioClient.setBucketPolicy(
+          SetBucketPolicyArgs.builder()
+              .bucket(bucketName)
+              .config(policy)
+              .build()
+      );
+    } catch (Exception e) {
+      throw new RuntimeException("Erro ao definir policy pública: " + e.getMessage(), e);
+    }
+  }
+
+  public String uploadStream(InputStream stream, String originalFileName, HttpHeaders headers,
+                             String originalFolderName) {
+
+    String objectPath = normalizePath(originalFileName, originalFolderName);
+    try {
       if (!this.minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
-        this.minioClient.makeBucket(MakeBucketArgs.builder().bucket(this.bucketName).build());
+        this.minioClient.makeBucket(MakeBucketArgs.builder().bucket(this.bucketName).build()); // Create bucket
+        this.makeBucketPublic(); // Make the bucket public
       }
 
+      long fileSize = headers.firstValueAsLong("Content-Length").orElse(-1);
+      String contentType = headers.firstValue("Content-Type").orElse("application/octet-stream");
       var objectArgs = PutObjectArgs.builder()
           .bucket(bucketName)
-          .object(objectPath.toUpperCase());
+          .contentType(contentType)
+          .object(objectPath.toLowerCase());
       if (fileSize > 0) {
         objectArgs.stream(stream, fileSize, -1); //Tamanho do arquivo valido
       } else {
@@ -158,7 +188,7 @@ public class MinioService implements FileUploaderInterface {
           GetPresignedObjectUrlArgs.builder()
               .method(Method.GET)
               .bucket(bucketName)
-              .object(objectPath.toUpperCase())
+              .object(objectPath.toLowerCase())
               .build()
       );
 
@@ -168,10 +198,28 @@ public class MinioService implements FileUploaderInterface {
     }
   }
 
-  private String renameFile(String originalName) {
-    if (originalName != null) {
-      return RemoveAccentuationUtils.removeAccentuation(originalName.trim());
+  private String normalizePath(String originalFileName, String originalFolderName) {
+    Objects.requireNonNull(originalFileName);
+    Objects.requireNonNull(originalFolderName);
+
+    String fileName = renameFile(originalFileName
+        .replace(":", "")
+        .replace(" ", "_")
+        .trim()
+    );
+    String folderName = renameFile(originalFolderName
+        .replace(":", "")
+        .replace(" ", "_")
+        .trim()
+    );
+    if (!folderName.isEmpty()) {
+      return folderName + "/" + fileName;
     }
-    return null;
+    return fileName;
+  }
+
+  private String renameFile(String originalName) {
+    Objects.requireNonNull(originalName);
+    return RemoveAccentuationUtils.removeAccentuation(originalName.trim());
   }
 }

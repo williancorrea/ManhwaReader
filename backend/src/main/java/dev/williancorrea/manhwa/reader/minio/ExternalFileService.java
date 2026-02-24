@@ -41,14 +41,10 @@ public class ExternalFileService {
       throw new RuntimeException("Falha no download: HTTP " + response.statusCode());
     }
 
-    long contentLength = response.headers()
-        .firstValueAsLong("Content-Length")
-        .orElse(-1);
-
     return minioService.uploadStream(
         response.body(),
         originalFileName,
-        contentLength,
+        response.headers(),
         folderName
     );
   }

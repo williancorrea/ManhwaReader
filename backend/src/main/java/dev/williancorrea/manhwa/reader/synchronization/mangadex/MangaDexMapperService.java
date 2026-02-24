@@ -49,6 +49,8 @@ public class MangaDexMapperService {
   public final AuthorService authorService;
   public final ExternalFileService externalFileService;
 
+  private static final String MANDADEX_URL_COVERS = "https://mangadex.org/covers/";
+
   public Work toEntity(MangaDexData dto) {
     try {
       Work work = findWork(dto);
@@ -71,21 +73,6 @@ public class MangaDexMapperService {
     }
   }
 
-  private void syncCover(Work work, MangaDexData dto) throws IOException, InterruptedException {
-    Objects.requireNonNull(work);
-    Objects.requireNonNull(dto);
-
-    var title = work.getTitles().stream().filter(title1 -> title1.getLanguage().getCode().equals("en")).findAny().orElse(null);
-
-    var cover = externalFileService.downloadWithAuthAndUpload(
-        "https://mangadex.org/covers/514f1a94-b09f-4331-8cf9-0f01d06d3b80/4dbc9af9-cb0f-4bdd-8c96-ff6e6d9caab4.jpg.512.jpg",
-        "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
-        "teste 123.jpg",
-        title != null ? title.getTitle() : "GENERATED"+ UUID.randomUUID().toString()
-    );
-    
-    log.warn("Cover: {}", cover);
-  }
 
   private Work findWork(MangaDexData dto) {
     Objects.requireNonNull(dto);
@@ -305,7 +292,7 @@ public class MangaDexMapperService {
     dto.getAttributes().getTitle().forEach((key, value) -> titles.add(WorkTitle.builder()
         .work(work)
         .language(languageService.findOrCreate(key, SynchronizationOriginType.MANGADEX))
-        .isOfficial(dto.getAttributes().getOriginalLanguage().equals(key))
+        .isOfficial(false)
         .title(value)
         .build()));
 
@@ -315,7 +302,7 @@ public class MangaDexMapperService {
         .forEach(item -> item.forEach((key, value) -> titles.add(WorkTitle.builder()
             .work(work)
             .language(languageService.findOrCreate(key, SynchronizationOriginType.MANGADEX))
-            .isOfficial(dto.getAttributes().getOriginalLanguage().equals(key))
+            .isOfficial(false)
             .title(value)
             .build())));
 
@@ -327,6 +314,9 @@ public class MangaDexMapperService {
         }
       });
       if (!found.get()) {
+        if (work.getTitles().isEmpty()) {
+          item.setIsOfficial(true);
+        }
         work.getTitles().add(item);
       }
     });
@@ -380,92 +370,46 @@ public class MangaDexMapperService {
     work.setChapterNumbersResetOnNewVolume(dto.getAttributes().getChapterNumbersResetOnNewVolume());
   }
 
+  private void syncCover(Work work, MangaDexData dto) throws IOException, InterruptedException {
+    Objects.requireNonNull(work);
+    Objects.requireNonNull(dto);
 
-  //TODO: Gravar o ID das busca nas Scans
+    if (work.getBucket() == null || work.getBucket().isEmpty()) {
+      work.setBucket(
+          work.getTitles()
+              .stream().filter(title1 -> Boolean.TRUE.equals(title1.getIsOfficial()))
+              .map(WorkTitle::getTitle)
+              .findAny().orElse("GENERATED" + UUID.randomUUID())
+      );
 
+      dto.getRelationships().stream().filter(rel -> rel.getType().equals("cover_art")).findFirst().ifPresent(cover -> {
+        var extension = "." + cover.getAttributes().getFileName().split("\\.")[1];
+        try {
+          externalFileService.downloadWithAuthAndUpload(
+              MANDADEX_URL_COVERS + dto.getId() + "/" + cover.getAttributes().getFileName() + ".512.jpg",
+              "",
+              "cover_512" + extension,
+              work.getBucket()
+          );
 
-//    manga.setId(dto.getId());
-//    manga.setType(dto.getType());
-//    manga.setAttributes(toAttributes(dto.getAttributes()));
-//    manga.setRelationships(dto.getRelationships().stream()
-//        .map(rel -> toRelationship(rel, manga))
-//        .collect(Collectors.toList()));
-//
-//}
-//
-//  private MangaAttributes toAttributes(MangaDexAttributes dto) {
-//    MangaAttributes attributes = new MangaAttributes();
-//    attributes.setTitle(dto.getTitle());
-//    attributes.setAltTitles(dto.getAltTitles().stream()
-//        .map(map -> map.values().iterator().next())
-//        .collect(Collectors.toList()));
-//    attributes.setDescription(dto.getDescription());
-//    attributes.setIsLocked(dto.getIsLocked());
-//    attributes.setLinks(toLinks(dto.getLinks()));
-//    attributes.setOriginalLanguage(dto.getOriginalLanguage());
-//    attributes.setLastVolume(dto.getLastVolume());
-//    attributes.setLastChapter(dto.getLastChapter());
-//    attributes.setPublicationDemographic(dto.getPublicationDemographic());
-//    attributes.setStatus(dto.getStatus());
-//    attributes.setYear(dto.getYear());
-//    attributes.setContentRating(dto.getContentRating());
-//    attributes.setState(dto.getState());
-//    attributes.setChapterNumbersResetOnNewVolume(dto.getChapterNumbersResetOnNewVolume());
-//    attributes.setCreatedAt(dto.getCreatedAt());
-//    attributes.setUpdatedAt(dto.getUpdatedAt());
-//    attributes.setVersion(dto.getVersion());
-//    attributes.setAvailableTranslatedLanguages(dto.getAvailableTranslatedLanguages());
-//    attributes.setLatestUploadedChapter(dto.getLatestUploadedChapter());
-//
-//    return attributes;
-//  }
-//
-//  private MangaLinks toLinks(MangaDexLinks dto) {
-//    return MangaLinks.builder()
-//        .anilist(dto.getAnilist())
-//        .animePlanet(dto.getAnimePlanet())
-//        .bookWalker(dto.getBookWalker())
-//        .kitsu(dto.getKitsu())
-//        .mangaUpdates(dto.getMangaUpdates())
-//        .myAnimeList(dto.getMyAnimeList())
-//        .raw(dto.getRaw())
-//        .build();
-//  }
-//
-//  private MangaRelationship toRelationship(MangaDexRelationship dto, Manga manga) {
-//    MangaRelationship relationship = new MangaRelationship();
-//    relationship.setId(dto.getId());
-//    relationship.setType(dto.getType());
-//    relationship.setAttributes(toRelationshipAttributes(dto.getAttributes()));
-//    relationship.setManga(manga);
-//    return relationship;
-//  }
-//
-//  private RelationshipAttributes toRelationshipAttributes(MangaDexRelationshipAttributes dto) {
-//    RelationshipAttributes attributes = new RelationshipAttributes();
-//    attributes.setName(dto.getName());
-//    attributes.setImageUrl(dto.getImageUrl());
-//    attributes.setBiography(dto.getBiography());
-//    attributes.setTwitter(dto.getTwitter());
-//    attributes.setPixiv(dto.getPixiv());
-//    attributes.setMelonBook(dto.getMelonBook());
-//    attributes.setFanBox(dto.getFanBox());
-//    attributes.setBooth(dto.getBooth());
-//    attributes.setNamicomi(dto.getNamicomi());
-//    attributes.setNicoVideo(dto.getNicoVideo());
-//    attributes.setSkeb(dto.getSkeb());
-//    attributes.setFantia(dto.getFantia());
-//    attributes.setTumblr(dto.getTumblr());
-//    attributes.setYoutube(dto.getYoutube());
-//    attributes.setWeibo(dto.getWeibo());
-//    attributes.setNaver(dto.getNaver());
-//    attributes.setWebsite(dto.getWebsite());
-//    attributes.setVersion(dto.getVersion());
-//    attributes.setDescription(dto.getDescription());
-//    attributes.setVolume(dto.getVolume());
-//    attributes.setFileName(dto.getFileName());
-//    attributes.setLocale(dto.getLocale());
-//
-//    return attributes;
-//  }
+          externalFileService.downloadWithAuthAndUpload(
+              MANDADEX_URL_COVERS + dto.getId() + "/" + cover.getAttributes().getFileName() + ".256.jpg",
+              "",
+              "cover_256" + extension,
+              work.getBucket()
+          );
+
+          externalFileService.downloadWithAuthAndUpload(
+              MANDADEX_URL_COVERS + dto.getId() + "/" + cover.getAttributes().getFileName(),
+              "",
+              "cover" + extension,
+              work.getBucket()
+          );
+
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      });
+    }
+  }
 }

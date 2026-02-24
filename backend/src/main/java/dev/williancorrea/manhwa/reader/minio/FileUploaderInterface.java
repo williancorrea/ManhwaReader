@@ -1,6 +1,7 @@
 package dev.williancorrea.manhwa.reader.minio;
 
 import java.io.InputStream;
+import java.net.http.HttpHeaders;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,5 +17,5 @@ public interface FileUploaderInterface {
 
   String uploadFile(MultipartFile file);
 
-  String uploadStream(InputStream stream, String originalFileName, long size, String folderName);
+  String uploadStream(InputStream stream, String originalFileName, HttpHeaders headers, String folderName);
 }

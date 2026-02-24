@@ -4,5 +4,5 @@ services:
       - "${DATABASE_PORT}:3306"
   storage_minio:
     ports:
-      - "9000:9000"
-      - "9001:9001" #Web Access
+      - "9000:9000" # API S3
+      - "9001:9001" # Console web

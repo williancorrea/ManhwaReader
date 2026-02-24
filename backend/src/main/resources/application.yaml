@@ -86,7 +86,7 @@ minio:
 logging:
   level:
     dev.williancorrea.manhwa: INFO
-    feign.client.config.default.loggerLevel:
+    feign.client.config.default.loggerLevel: INFO
     root: INFO
-    org.springframework.web: DEBUG
+    org.springframework.web: INFO
     org.hibernate: INFO

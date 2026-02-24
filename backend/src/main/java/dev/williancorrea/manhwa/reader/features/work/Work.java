@@ -86,7 +86,8 @@ public class Work implements Serializable {
   private Language originalLanguage;
 
   private Boolean disabled;
-
+  private String bucket;
+  
   @Column(name = "chapter_numbers_reset_on_new_volume")
   private Boolean chapterNumbersResetOnNewVolume;
 

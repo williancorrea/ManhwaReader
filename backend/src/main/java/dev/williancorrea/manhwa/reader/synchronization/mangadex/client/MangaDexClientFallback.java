@@ -15,11 +15,11 @@ public class MangaDexClientFallback implements MangaDexClient {
 //    return createErrorResponse();
 //  }
 
-//  @Override
-//  public MangaDexResponse getMangaById(String id, Map<String, Object> includes) {
-//    log.warn("Fallback triggered for getMangaById with id: {}", id);
-//    return createErrorResponse();
-//  }
+  @Override
+  public MangaDexResponse getMangaById(String id, String[] includes) {
+    log.warn("Fallback triggered for getMangaById with id: {}", id);
+    return createErrorResponse();
+  }
 
   @Override
   public MangaDexResponse searchManga(String title, Integer limit, Integer offset, String[] includes) {

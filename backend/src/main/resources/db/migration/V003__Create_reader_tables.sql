@@ -24,6 +24,7 @@ CREATE TABLE work (
     release_year INT,
     status VARCHAR(20)NOT NULL,
     content_rating VARCHAR(20)NOT NULL,
+    bucket VARCHAR(200) NOT NULL,
     cover_image_id CHAR(36),
     publisher_id CHAR(36),
     original_language_id CHAR(36),
