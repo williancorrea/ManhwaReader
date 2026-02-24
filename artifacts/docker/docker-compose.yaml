@@ -1,0 +1,79 @@
+networks:
+  williancorrea:
+    name: williancorrea
+    external: false
+    driver: bridge
+
+
+volumes:
+  williancorrea_minio_data:
+    name: williancorrea_minio_data
+  williancorrea_minio_config:
+    name: williancorrea_minio_config
+  williancorrea_database_data:
+    name: williancorrea_database_data
+  williancorrea_database_conf:
+    name: williancorrea_database_conf
+
+services:
+  database:
+    container_name: "${PRODUCT_VENDOR}_${DATABASE_HOST}"
+    image: "${PRODUCT_VENDOR}/${DATABASE_HOST}:${VERSION}"
+    build:
+      dockerfile: docker/database/database.dockerfile
+      context: .
+    hostname: "${PRODUCT_VENDOR}_${DATABASE_HOST}"
+    restart: always
+    ports:
+      - "${DATABASE_PORT}:3306"
+    networks:
+      - williancorrea
+    environment:
+      CONTAINER_DB: "${PRODUCT_VENDOR}_${DATABASE_HOST}"
+      MYSQL_ROOT_PASSWORD: "${DATABASE_ROOT_PASS}"
+      MYSQL_USER: "${DATABASE_MYSQL_USER}"
+      MYSQL_PASSWORD: "${DATABASE_MYSQL_PASS}"
+      DB_SCHEMAS: |
+        ${DATABASE_READER_NAME}:${DATABASE_READER_USER}:${DATABASE_READER_PASS}
+#    volumes:
+#      - "/etc/timezone:/etc/timezone:ro"
+#      - "/etc/localtime:/etc/localtime:ro"
+#      - "williancorrea_database_data:/var/lib/mysql"
+#      - "williancorrea_database_conf:/etc/mysql/conf.d"
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "test -f /app/.initialization_completed && exit 0 || exit 1" ]
+      interval: ${HEALTHCHECK_INTERVAL}
+      timeout: ${HEALTHCHECK_TIMEOUT}
+      retries: ${HEALTHCHECK_RETRIES}
+    logging:
+      driver: "${LOG_DRIVER}"
+      options:
+        max-size: "${LOG_MAX_SIZE}"
+        max-file: "${LOG_MAX_FILE}"
+        
+  storage_minio:
+    container_name: "${PRODUCT_VENDOR}_${MINIO_CONTAINER_NAME}"
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z-cpuv1
+    ports:
+      - "9000:9000"
+      - "9001:9001" #Web Access
+    restart: always
+    networks:
+      - williancorrea
+#    volumes:
+#      - 'williancorrea_minio_data:/data'
+#      - 'williancorrea_minio_config:/root/.minio'
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "mc", "ready", "local" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "${LOG_DRIVER}"
+      options:
+        max-size: "${LOG_MAX_SIZE}"
+        max-file: "${LOG_MAX_FILE}"

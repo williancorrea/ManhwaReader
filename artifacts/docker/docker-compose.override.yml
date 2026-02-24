@@ -1,0 +1,8 @@
+services:
+  database:
+    ports:
+      - "${DATABASE_PORT}:3306"
+  storage_minio:
+    ports:
+      - "9000:9000"
+      - "9001:9001" #Web Access

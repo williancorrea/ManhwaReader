@@ -75,10 +75,18 @@ info:
       vendor: @java.vendor@
       version: @java.version@
 
+minio:
+  bucket:
+    name: ${MINIO_DEFAULT_BUCKETS:manhwa}
+  access:
+    key: ${MINIO_ACCESS_KEY:admin}
+    secret: ${MINIO_SECRET_KEY:admin123}
+  url: ${MINIO_URL:http://localhost:9000}
+
 logging:
   level:
     dev.williancorrea.manhwa: INFO
-    feign.client.config.default.loggerLevel: 
+    feign.client.config.default.loggerLevel:
     root: INFO
     org.springframework.web: DEBUG
     org.hibernate: INFO
