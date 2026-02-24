@@ -1,11 +1,13 @@
 package dev.williancorrea.manhwa.reader.synchronization.mangadex;
 
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import dev.williancorrea.manhwa.reader.features.author.Author;
 import dev.williancorrea.manhwa.reader.features.author.AuthorService;
@@ -28,6 +30,7 @@ import dev.williancorrea.manhwa.reader.features.work.synchronization.Synchroniza
 import dev.williancorrea.manhwa.reader.features.work.synchronization.WorkSynchronization;
 import dev.williancorrea.manhwa.reader.features.work.synopsis.WorkSynopsis;
 import dev.williancorrea.manhwa.reader.features.work.title.WorkTitle;
+import dev.williancorrea.manhwa.reader.minio.ExternalFileService;
 import dev.williancorrea.manhwa.reader.synchronization.mangadex.dto.MangaDexData;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +47,7 @@ public class MangaDexMapperService {
   public final WorkLinkRepository workLinkRepository;
   public final TagService tagService;
   public final AuthorService authorService;
+  public final ExternalFileService externalFileService;
 
   public Work toEntity(MangaDexData dto) {
     try {
@@ -56,14 +60,31 @@ public class MangaDexMapperService {
       syncAttributes(work, dto);
       syncTags(work, dto);
       syncAuthors(work, dto);
+      syncCover(work, dto);
 
       work.setUpdatedAt(OffsetDateTime.now());
       return work;
     } catch (Exception e) {
       //TODO: Notificar que deu ruim de alguma forma
       log.error("Error mapping MangaDex data to Work entity", e);
-      throw e;
+      throw new RuntimeException("Error mapping MangaDex data to Work entity");
     }
+  }
+
+  private void syncCover(Work work, MangaDexData dto) throws IOException, InterruptedException {
+    Objects.requireNonNull(work);
+    Objects.requireNonNull(dto);
+
+    var title = work.getTitles().stream().filter(title1 -> title1.getLanguage().getCode().equals("en")).findAny().orElse(null);
+
+    var cover = externalFileService.downloadWithAuthAndUpload(
+        "https://mangadex.org/covers/514f1a94-b09f-4331-8cf9-0f01d06d3b80/4dbc9af9-cb0f-4bdd-8c96-ff6e6d9caab4.jpg.512.jpg",
+        "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+        "teste 123.jpg",
+        title != null ? title.getTitle() : "GENERATED"+ UUID.randomUUID().toString()
+    );
+    
+    log.warn("Cover: {}", cover);
   }
 
   private Work findWork(MangaDexData dto) {

@@ -15,4 +15,6 @@ public interface FileUploaderInterface {
   void remove(String nameObject);
 
   String uploadFile(MultipartFile file);
+
+  String uploadStream(InputStream stream, String originalFileName, long size, String folderName);
 }

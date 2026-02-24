@@ -7,7 +7,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import dev.williancorrea.manhwa.reader.exception.ObjectNotFoundException;
 import io.minio.BucketExistsArgs;
 import io.minio.GetObjectArgs;
@@ -108,9 +107,7 @@ public class MinioService implements FileUploaderInterface {
     String fileName = renameFile(file.getOriginalFilename());
     try {
       if (!this.minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
-        this.minioClient.makeBucket(MakeBucketArgs.builder()
-            .bucket(this.bucketName)
-            .build());
+        this.minioClient.makeBucket(MakeBucketArgs.builder().bucket(this.bucketName).build());
       }
 
       minioClient.putObject(
@@ -134,9 +131,46 @@ public class MinioService implements FileUploaderInterface {
     }
   }
 
+  public String uploadStream(InputStream stream, String originalFileName, long fileSize, String originalFolderName) {
+
+    String fileName = renameFile(originalFileName.replace(":", ""));
+    String folderName = renameFile(originalFolderName.replace(":", ""));
+    String objectPath = (folderName != null && !folderName.isBlank())
+        ? folderName + "/" + fileName
+        : fileName;
+
+    try {
+      if (!this.minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
+        this.minioClient.makeBucket(MakeBucketArgs.builder().bucket(this.bucketName).build());
+      }
+
+      var objectArgs = PutObjectArgs.builder()
+          .bucket(bucketName)
+          .object(objectPath.toUpperCase());
+      if (fileSize > 0) {
+        objectArgs.stream(stream, fileSize, -1); //Tamanho do arquivo valido
+      } else {
+        objectArgs.stream(stream, -1, 10 * 1024 * 1024);// Definindo um partSize válido (mínimo 5MB).
+      }
+      minioClient.putObject(objectArgs.build());
+
+      return this.minioClient.getPresignedObjectUrl(
+          GetPresignedObjectUrlArgs.builder()
+              .method(Method.GET)
+              .bucket(bucketName)
+              .object(objectPath.toUpperCase())
+              .build()
+      );
+
+    } catch (Exception e) {
+      throw new ObjectNotFoundException(
+          "Error uploading stream: " + e.getMessage());
+    }
+  }
+
   private String renameFile(String originalName) {
     if (originalName != null) {
-      return UUID.randomUUID() + "_" + RemoveAccentuationUtils.removeAccentuation(originalName.trim());
+      return RemoveAccentuationUtils.removeAccentuation(originalName.trim());
     }
     return null;
   }
