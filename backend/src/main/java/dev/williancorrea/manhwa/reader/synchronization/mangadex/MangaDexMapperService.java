@@ -21,18 +21,18 @@ import dev.williancorrea.manhwa.reader.features.work.WorkContentRating;
 import dev.williancorrea.manhwa.reader.features.work.WorkPublicationDemographic;
 import dev.williancorrea.manhwa.reader.features.work.WorkService;
 import dev.williancorrea.manhwa.reader.features.work.WorkStatus;
+import dev.williancorrea.manhwa.reader.features.work.WorkSynopsis;
 import dev.williancorrea.manhwa.reader.features.work.WorkTag;
+import dev.williancorrea.manhwa.reader.features.work.WorkTitle;
 import dev.williancorrea.manhwa.reader.features.work.WorkType;
 import dev.williancorrea.manhwa.reader.features.work.link.SiteType;
 import dev.williancorrea.manhwa.reader.features.work.link.WorkLink;
 import dev.williancorrea.manhwa.reader.features.work.link.WorkLinkRepository;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.WorkSynchronization;
-import dev.williancorrea.manhwa.reader.features.work.synopsis.WorkSynopsis;
-import dev.williancorrea.manhwa.reader.features.work.title.WorkTitle;
 import dev.williancorrea.manhwa.reader.minio.ExternalFileService;
-import dev.williancorrea.manhwa.reader.minio.RemoveAccentuationUtils;
 import dev.williancorrea.manhwa.reader.synchronization.mangadex.dto.MangaDexData;
+import dev.williancorrea.manhwa.reader.utils.RemoveAccentuationUtils;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -73,7 +73,6 @@ public class MangaDexMapperService {
       throw new RuntimeException("Error mapping MangaDex data to Work entity");
     }
   }
-
 
   private Work findWork(MangaDexData dto) {
     Objects.requireNonNull(dto);
@@ -386,24 +385,27 @@ public class MangaDexMapperService {
       dto.getRelationships().stream().filter(rel -> rel.getType().equals("cover_art")).findFirst().ifPresent(cover -> {
         var extension = "." + cover.getAttributes().getFileName().split("\\.")[1];
         try {
+          work.setCoverMedium("cover_512" + extension);
           externalFileService.downloadWithAuthAndUpload(
               MANDADEX_URL_COVERS + dto.getId() + "/" + cover.getAttributes().getFileName() + ".512.jpg",
               "",
-              "cover_512" + extension,
+              work.getCoverMedium(),
               work.getBucket()
           );
 
+          work.setCoverLow("cover_256" + extension);
           externalFileService.downloadWithAuthAndUpload(
               MANDADEX_URL_COVERS + dto.getId() + "/" + cover.getAttributes().getFileName() + ".256.jpg",
               "",
-              "cover_256" + extension,
+              work.getCoverLow(),
               work.getBucket()
           );
 
+          work.setCoverHigh("cover" + extension);
           externalFileService.downloadWithAuthAndUpload(
               MANDADEX_URL_COVERS + dto.getId() + "/" + cover.getAttributes().getFileName(),
               "",
-              "cover" + extension,
+              work.getCoverHigh(),
               work.getBucket()
           );
 
