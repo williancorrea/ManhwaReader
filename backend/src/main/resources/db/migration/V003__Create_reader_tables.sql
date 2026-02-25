@@ -1,14 +1,3 @@
--- Arquivos e Imagens (Base para outros domínios)
-CREATE TABLE file (
-    id CHAR(36) NOT NULL PRIMARY KEY,
-    file_name VARCHAR(255) NOT NULL,
-    storage_path VARCHAR(512) NOT NULL,
-    mime_type VARCHAR(100),
-    size_bytes BIGINT,
-    checksum VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 -- Núcleo das Obras
 CREATE TABLE publisher (
     id CHAR(36) NOT NULL PRIMARY KEY,
@@ -25,12 +14,13 @@ CREATE TABLE work (
     status VARCHAR(20)NOT NULL,
     content_rating VARCHAR(20)NOT NULL,
     bucket VARCHAR(200) NOT NULL,
-    cover_image_id CHAR(36),
+    cover_high VARCHAR(100),
+    cover_medium VARCHAR(100),
+    cover_low VARCHAR(100),
     publisher_id CHAR(36),
     original_language_id CHAR(36),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (cover_image_id) REFERENCES file(id),
     FOREIGN KEY (publisher_id) REFERENCES publisher(id),
     FOREIGN KEY (original_language_id) REFERENCES language(id)
 );

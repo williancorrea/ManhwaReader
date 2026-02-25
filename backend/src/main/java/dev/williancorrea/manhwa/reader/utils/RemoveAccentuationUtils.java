@@ -1,4 +1,4 @@
-package dev.williancorrea.manhwa.reader.minio;
+package dev.williancorrea.manhwa.reader.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

@@ -8,14 +8,11 @@ import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.author.AuthorType;
 import dev.williancorrea.manhwa.reader.features.language.Language;
 import dev.williancorrea.manhwa.reader.features.publisher.Publisher;
-import dev.williancorrea.manhwa.reader.features.storage.FileStorage;
 import dev.williancorrea.manhwa.reader.features.tag.TagGroupType;
 import dev.williancorrea.manhwa.reader.features.work.link.SiteType;
 import dev.williancorrea.manhwa.reader.features.work.link.WorkLink;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.WorkSynchronization;
-import dev.williancorrea.manhwa.reader.features.work.synopsis.WorkSynopsis;
-import dev.williancorrea.manhwa.reader.features.work.title.WorkTitle;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -73,9 +70,14 @@ public class Work implements Serializable {
   @Column(name = "content_rating")
   private WorkContentRating contentRating;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "cover_image_id")
-  private FileStorage coverImage;
+  @Column(name = "cover_high")
+  private String coverHigh;
+
+  @Column(name = "cover_medium")
+  private String coverMedium;
+  
+  @Column(name = "cover_low")
+  private String coverLow;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "publisher_id")
@@ -87,7 +89,7 @@ public class Work implements Serializable {
 
   private Boolean disabled;
   private String bucket;
-  
+
   @Column(name = "chapter_numbers_reset_on_new_volume")
   private Boolean chapterNumbersResetOnNewVolume;
 

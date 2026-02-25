@@ -1,9 +1,8 @@
-package dev.williancorrea.manhwa.reader.features.work.synopsis;
+package dev.williancorrea.manhwa.reader.features.work;
 
 import java.io.Serializable;
 import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.language.Language;
-import dev.williancorrea.manhwa.reader.features.work.Work;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
