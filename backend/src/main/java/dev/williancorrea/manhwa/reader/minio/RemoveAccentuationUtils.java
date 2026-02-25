@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RemoveAccentuationUtils {
 
-  private static final String ACCENTUATION    = "çÇáéíóúýÁÉÍÓÚÝàèìòùÀÈÌÒÙãõñäëïöüÿÄËÏÖÜÃÕÑâêîôûÂÊÎÔÛ";
+  private static final String ACCENTUATION = "çÇáéíóúýÁÉÍÓÚÝàèìòùÀÈÌÒÙãõñäëïöüÿÄËÏÖÜÃÕÑâêîôûÂÊÎÔÛ";
   private static final String NO_ACCENTUATION = "cCaeiouyAEIOUYaeiouAEIOUaonaeiouyAEIOUAONaeiouAEIOU";
   private static final char[] table;
 
@@ -31,5 +31,15 @@ public class RemoveAccentuationUtils {
       }
     }
     return sb.toString();
+  }
+
+  public static String normalize(final String word) {
+    var text = removeAccentuation(word);
+    text = text
+        .trim()
+        .replace(" ", "_")
+        .replaceAll("[^a-zA-Z0-9_\\-.]", "")
+    ;
+    return text;
   }
 }

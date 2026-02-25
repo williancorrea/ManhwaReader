@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -37,7 +38,8 @@ public class WorkTitle implements Serializable {
   @JoinColumn(name = "language_id", nullable = false)
   private Language language;
 
-  @Column(nullable = false)
+  @Lob
+  @Column(columnDefinition = "TEXT")
   private String title;
 
   @Column(name = "is_official")

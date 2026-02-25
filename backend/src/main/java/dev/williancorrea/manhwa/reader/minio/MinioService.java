@@ -202,16 +202,9 @@ public class MinioService implements FileUploaderInterface {
     Objects.requireNonNull(originalFileName);
     Objects.requireNonNull(originalFolderName);
 
-    String fileName = renameFile(originalFileName
-        .replace(":", "")
-        .replace(" ", "_")
-        .trim()
-    );
-    String folderName = renameFile(originalFolderName
-        .replace(":", "")
-        .replace(" ", "_")
-        .trim()
-    );
+    String fileName = RemoveAccentuationUtils.normalize(originalFileName);
+    String folderName = RemoveAccentuationUtils.normalize(originalFolderName);
+
     if (!folderName.isEmpty()) {
       return folderName + "/" + fileName;
     }

@@ -64,7 +64,7 @@ CREATE TABLE work_link (
     work_id CHAR(36) NOT NULL,
     site_id CHAR(36) NOT NULL,
     code VARCHAR(50) NOT NULL,
-    link VARCHAR(50) NOT NULL,
+    link TEXT NOT NULL,
     FOREIGN KEY (work_id) REFERENCES work(id),
     FOREIGN KEY (site_id) REFERENCES site(id)
 );
@@ -82,7 +82,7 @@ CREATE TABLE work_title (
     id CHAR(36) NOT NULL PRIMARY KEY,
     work_id CHAR(36) NOT NULL,
     language_id CHAR(36) NOT NULL,
-    title VARCHAR(255) NOT NULL,
+    title TEXT NOT NULL,
     is_official BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (work_id) REFERENCES work(id),
     FOREIGN KEY (language_id) REFERENCES language(id)

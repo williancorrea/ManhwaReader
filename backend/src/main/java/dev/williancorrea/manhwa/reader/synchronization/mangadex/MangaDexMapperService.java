@@ -31,6 +31,7 @@ import dev.williancorrea.manhwa.reader.features.work.synchronization.WorkSynchro
 import dev.williancorrea.manhwa.reader.features.work.synopsis.WorkSynopsis;
 import dev.williancorrea.manhwa.reader.features.work.title.WorkTitle;
 import dev.williancorrea.manhwa.reader.minio.ExternalFileService;
+import dev.williancorrea.manhwa.reader.minio.RemoveAccentuationUtils;
 import dev.williancorrea.manhwa.reader.synchronization.mangadex.dto.MangaDexData;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -375,12 +376,12 @@ public class MangaDexMapperService {
     Objects.requireNonNull(dto);
 
     if (work.getBucket() == null || work.getBucket().isEmpty()) {
-      work.setBucket(
-          work.getTitles()
-              .stream().filter(title1 -> Boolean.TRUE.equals(title1.getIsOfficial()))
-              .map(WorkTitle::getTitle)
-              .findAny().orElse("GENERATED" + UUID.randomUUID())
-      );
+      var title = work.getTitles()
+          .stream().filter(title1 -> Boolean.TRUE.equals(title1.getIsOfficial()))
+          .map(WorkTitle::getTitle)
+          .findAny().orElse("GENERATED" + UUID.randomUUID());
+      title = RemoveAccentuationUtils.normalize(title).toLowerCase();
+      work.setBucket(title);
 
       dto.getRelationships().stream().filter(rel -> rel.getType().equals("cover_art")).findFirst().ifPresent(cover -> {
         var extension = "." + cover.getAttributes().getFileName().split("\\.")[1];
