@@ -17,7 +17,6 @@ public class WorkOutput implements Serializable {
   private WorkType type;
   private WorkStatus status;
   private Integer releaseYear;
-  private UUID coverImageId;
   private UUID publisherId;
   private OffsetDateTime createdAt;
   private OffsetDateTime updatedAt;
@@ -27,7 +26,6 @@ public class WorkOutput implements Serializable {
     this.type = work.getType();
     this.status = work.getStatus();
     this.releaseYear = work.getReleaseYear();
-    this.coverImageId = work.getCoverImage() != null ? work.getCoverImage().getId() : null;
     this.publisherId = work.getPublisher() != null ? work.getPublisher().getId() : null;
     this.createdAt = work.getCreatedAt();
     this.updatedAt = work.getUpdatedAt();

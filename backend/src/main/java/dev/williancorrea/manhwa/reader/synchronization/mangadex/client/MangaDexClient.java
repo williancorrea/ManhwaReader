@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(
     name = "mangaDexClient",
     url = "https://api.mangadex.org",
+//    url = "http://localhost:3000",
     configuration = FeignConfig.class
 )
 public interface MangaDexClient {

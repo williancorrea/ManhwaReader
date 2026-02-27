@@ -3,7 +3,6 @@ package dev.williancorrea.manhwa.reader.features.page;
 import java.io.Serializable;
 import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.chapter.Chapter;
-import dev.williancorrea.manhwa.reader.features.storage.FileStorage;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -35,8 +34,9 @@ public class Page implements Serializable {
 
   @Column(name = "page_number", nullable = false)
   private Integer pageNumber;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "image_file_id", nullable = false)
-  private FileStorage imageFile;
+  
+  @Column(name = "file_name", nullable = false)
+  private String fileName;
+  
+  private Boolean disabled;
 }

@@ -1,12 +1,13 @@
 package dev.williancorrea.manhwa.reader.features.page;
 
+import java.util.List;
+import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.chapter.Chapter;
 import dev.williancorrea.manhwa.reader.features.storage.FileStorage;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("features/page")
@@ -87,7 +87,6 @@ public class PageResource {
     if (input.getImageFileId() != null) {
       var file = new FileStorage();
       file.setId(input.getImageFileId());
-      entity.setImageFile(file);
     }
     entity.setPageNumber(input.getPageNumber());
     return entity;

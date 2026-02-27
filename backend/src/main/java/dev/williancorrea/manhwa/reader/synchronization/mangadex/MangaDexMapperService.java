@@ -1,7 +1,6 @@
 package dev.williancorrea.manhwa.reader.synchronization.mangadex;
 
 
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -309,7 +308,7 @@ public class MangaDexMapperService {
     titles.forEach(item -> {
       AtomicBoolean found = new AtomicBoolean(false);
       work.getTitles().forEach(obj -> {
-        if (obj.getTitle().equals(item.getTitle())) {
+        if (obj.getTitle().equalsIgnoreCase(item.getTitle())) {
           found.set(true);
         }
       });
@@ -370,49 +369,52 @@ public class MangaDexMapperService {
     work.setChapterNumbersResetOnNewVolume(dto.getAttributes().getChapterNumbersResetOnNewVolume());
   }
 
-  private void syncCover(Work work, MangaDexData dto) throws IOException, InterruptedException {
+  private void syncCover(Work work, MangaDexData dto) {
     Objects.requireNonNull(work);
     Objects.requireNonNull(dto);
 
-    if (work.getBucket() == null || work.getBucket().isEmpty()) {
+    if (work.getSlug() == null || work.getSlug().isEmpty()) {
       var title = work.getTitles()
           .stream().filter(title1 -> Boolean.TRUE.equals(title1.getIsOfficial()))
           .map(WorkTitle::getTitle)
           .findAny().orElse("GENERATED" + UUID.randomUUID());
       title = RemoveAccentuationUtils.normalize(title).toLowerCase();
-      work.setBucket(title);
+      work.setSlug(title);
+    }
 
-      dto.getRelationships().stream().filter(rel -> rel.getType().equals("cover_art")).findFirst().ifPresent(cover -> {
-        var extension = "." + cover.getAttributes().getFileName().split("\\.")[1];
-        try {
+    dto.getRelationships().stream().filter(rel -> rel.getType().equals("cover_art")).findFirst().ifPresent(cover -> {
+      var extension = "." + cover.getAttributes().getFileName().split("\\.")[1];
+      try {
+
+        if (work.getCoverMedium() != null && !work.getCoverMedium().isEmpty()) {
           work.setCoverMedium("cover_512" + extension);
           externalFileService.downloadWithAuthAndUpload(
               MANDADEX_URL_COVERS + dto.getId() + "/" + cover.getAttributes().getFileName() + ".512.jpg",
-              "",
               work.getCoverMedium(),
-              work.getBucket()
+              work.getSlug()
           );
+        }
 
+        if (work.getCoverLow() != null && !work.getCoverLow().isEmpty()) {
           work.setCoverLow("cover_256" + extension);
           externalFileService.downloadWithAuthAndUpload(
               MANDADEX_URL_COVERS + dto.getId() + "/" + cover.getAttributes().getFileName() + ".256.jpg",
-              "",
               work.getCoverLow(),
-              work.getBucket()
+              work.getSlug()
           );
+        }
 
+        if (work.getCoverHigh() != null && !work.getCoverHigh().isEmpty()) {
           work.setCoverHigh("cover" + extension);
           externalFileService.downloadWithAuthAndUpload(
               MANDADEX_URL_COVERS + dto.getId() + "/" + cover.getAttributes().getFileName(),
-              "",
               work.getCoverHigh(),
-              work.getBucket()
+              work.getSlug()
           );
-
-        } catch (Exception e) {
-          throw new RuntimeException(e);
         }
-      });
-    }
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    });
   }
 }

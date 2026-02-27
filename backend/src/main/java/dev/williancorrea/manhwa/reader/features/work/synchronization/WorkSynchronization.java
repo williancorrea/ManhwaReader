@@ -45,5 +45,8 @@ public class WorkSynchronization implements Serializable {
   @NotBlank
   @Column(nullable = false, name = "external_id")
   private String externalId;
+  
+  @Column(name = "external_slug")
+  private String externalSlug;
 
 }

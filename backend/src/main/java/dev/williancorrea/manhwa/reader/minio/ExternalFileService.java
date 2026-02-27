@@ -19,7 +19,6 @@ public class ExternalFileService {
 
   public String downloadWithAuthAndUpload(
       String fileUrl,
-      String bearerToken,
       String originalFileName,
       String folderName
   ) throws IOException, InterruptedException {
@@ -30,8 +29,6 @@ public class ExternalFileService {
 
     HttpRequest request = HttpRequest.newBuilder()
         .uri(URI.create(fileUrl))
-//        .header("Authorization", "Bearer " + bearerToken)
-//        .header("User-Agent", "ManhwaReaderBot/1.0")
         .GET()
         .build();
 

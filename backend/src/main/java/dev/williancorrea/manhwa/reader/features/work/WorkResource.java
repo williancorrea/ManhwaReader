@@ -85,7 +85,6 @@ public class WorkResource {
     if (input.getCoverImageId() != null) {
       var file = new FileStorage();
       file.setId(input.getCoverImageId());
-      entity.setCoverImage(file);
     }
     if (input.getPublisherId() != null) {
       var publisher = new Publisher();

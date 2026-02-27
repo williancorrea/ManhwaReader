@@ -1,5 +1,7 @@
 package dev.williancorrea.manhwa.reader.features.tag;
 
+import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,15 +24,18 @@ public class TagService {
 
   @Transactional
   public Tag findOrCreate(TagGroupType group, String name) {
+    Objects.requireNonNull(group);
+    Objects.requireNonNull(name);
+    Objects.requireNonNull(StringUtils.isBlank(name) ? null : name.trim());
+    
     return repository.findByGroupAndName(group.name(), name)
         .orElseGet(() -> save(
                 Tag.builder()
                     .group(group)
-                    .name(name)
+                    .alias1(name)
                     .build()
             )
         );
-
   }
 }
 

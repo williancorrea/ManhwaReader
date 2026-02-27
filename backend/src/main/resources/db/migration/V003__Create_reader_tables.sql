@@ -9,14 +9,15 @@ CREATE TABLE work (
     disabled BOOLEAN DEFAULT FALSE,
     chapter_numbers_reset_on_new_volume BOOLEAN DEFAULT FALSE,
     type VARCHAR(20) NOT NULL,
-    publication_demographic VARCHAR(30),
+    publication_demographic VARCHAR(30) NOT NULL,
     release_year INT,
     status VARCHAR(20)NOT NULL,
-    content_rating VARCHAR(20)NOT NULL,
-    bucket VARCHAR(200) NOT NULL,
+    content_rating VARCHAR(20),
+    slug VARCHAR(200) NOT NULL UNIQUE,
     cover_high VARCHAR(100),
     cover_medium VARCHAR(100),
     cover_low VARCHAR(100),
+    cover_custom VARCHAR(100),
     publisher_id CHAR(36),
     original_language_id CHAR(36),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -30,6 +31,7 @@ CREATE TABLE work_synchronization (
     work_id CHAR(36) NOT NULL,
     origin VARCHAR(50) NOT NULL,
     external_id VARCHAR(255) NOT NULL UNIQUE,
+    external_slug VARCHAR(255),
     FOREIGN KEY (work_id) REFERENCES work(id)
 );
 
@@ -82,10 +84,22 @@ CREATE TABLE work_title (
 CREATE TABLE tag(
     id        CHAR(36)     NOT NULL PRIMARY KEY,
     group_tag VARCHAR(50)  NOT NULL,
-    name      VARCHAR(100) NOT NULL,
+    name      VARCHAR(100),
     alias1    VARCHAR(100),
-    alias2    VARCHAR(100)
+    alias2    VARCHAR(100),
+    alias3    VARCHAR(100)
 );
+
+INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', 'Action','Ação',null, null);
+INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', 'Adventure','Aventura',null, null);
+INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', 'Fantasy','Fantasia',null, null);
+INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', null,'Drama', null, null);
+INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', 'Reincarnation','Reencarnação',null, null);
+INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', null,'Horror',null, null);
+INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', 'Monsters','Monstros',null, null);
+INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', 'Mystery','Mistério',null, null);
+INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', null,'Shounen',null, null);
+INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', null,'Shoujo',null, null);
 
 CREATE TABLE work_tag(
     id      CHAR(36)     NOT NULL PRIMARY KEY,
@@ -105,7 +119,7 @@ CREATE TABLE author
     twitter    VARCHAR(255),
     pixiv      VARCHAR(255),
     melon_book VARCHAR(255),
-    fan_box     VARCHAR(255),
+    fan_box    VARCHAR(255),
     booth      VARCHAR(255),
     namicomi   VARCHAR(255),
     nico_video VARCHAR(255),
@@ -137,9 +151,16 @@ CREATE TABLE work_author
 -- Scanlators
 CREATE TABLE scanlator (
     id CHAR(36) NOT NULL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    website VARCHAR(255)
+    name VARCHAR(255) NOT NULL,    
+    code VARCHAR(20) NOT NULL UNIQUE,
+    website VARCHAR(255),
+    synchronization VARCHAR(255) NOT NULL UNIQUE
 );
+
+INSERT INTO scanlator (id, name, code, website, synchronization) VALUES (UUID(), 'MangaDex', 'MD', 'https://mangadex.org', 'MANGADEX');
+INSERT INTO scanlator (id, name, code, website, synchronization) VALUES (UUID(), 'Lycantoons', 'LT', 'https://lycantoons.com', 'LYCANTOONS');
+INSERT INTO scanlator (id, name, code, website, synchronization) VALUES (UUID(), 'Mangotoons', 'MT', 'https://mangotoons.com/', 'MANGOTOONS');
+INSERT INTO scanlator (id, name, code, website, synchronization) VALUES (UUID(), 'Mediocrescan', 'MS', 'https://mediocrescan.com//', 'MEDIOCRESCAN');
 
 -- Estrutura de Capítulos
 CREATE TABLE volume (
@@ -170,10 +191,21 @@ CREATE TABLE page (
     id CHAR(36) NOT NULL PRIMARY KEY,
     chapter_id CHAR(36) NOT NULL,
     page_number INT NOT NULL,
-    image_file_id CHAR(36) NOT NULL,
-    FOREIGN KEY (chapter_id) REFERENCES chapter(id),
-    FOREIGN KEY (image_file_id) REFERENCES file(id)
+    file_name VARCHAR(255) NOT NULL,
+    disabled BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (chapter_id) REFERENCES chapter(id)
 );
+
+CREATE TABLE chapter_notify (
+    id CHAR(36) NOT NULL PRIMARY KEY,
+    chapter_id CHAR(36) NOT NULL,
+    notify BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (chapter_id) REFERENCES chapter(id)
+);
+
+
 
 -- Usuários e Funcionalidades
 CREATE TABLE user (

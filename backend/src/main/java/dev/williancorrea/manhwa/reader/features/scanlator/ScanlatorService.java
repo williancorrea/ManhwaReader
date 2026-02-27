@@ -1,8 +1,9 @@
 package dev.williancorrea.manhwa.reader.features.scanlator;
 
-import java.util.List;
+import java.math.BigDecimal;
 import java.util.Optional;
-import java.util.UUID;
+import dev.williancorrea.manhwa.reader.features.work.Work;
+import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -17,23 +18,11 @@ public class ScanlatorService {
     this.repository = repository;
   }
 
-  public List<Scanlator> findAll() {
-    return repository.findAll();
+  public Optional<Scanlator> findBySynchronization(SynchronizationOriginType synchronization) {
+    return repository.findBySynchronization(synchronization.name());
   }
-
-  public Optional<Scanlator> findById(UUID id) {
-    return repository.findById(id);
-  }
-
-  public Scanlator save(Scanlator entity) {
-    return repository.save(entity);
-  }
-
-  public boolean existsById(UUID id) {
-    return repository.existsById(id);
-  }
-
-  public void deleteById(UUID id) {
-    repository.deleteById(id);
+  
+  public Optional<BigDecimal> getLastChapterNumber(Work work) {
+    return repository.getLastChapterNumber(work.getId());
   }
 }

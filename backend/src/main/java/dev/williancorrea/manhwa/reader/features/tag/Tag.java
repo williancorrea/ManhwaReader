@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,13 +27,13 @@ public class Tag implements Serializable {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
+  @NotNull
   @Column(name = "group_tag")
   @Enumerated(EnumType.STRING)
   private TagGroupType group;
 
-  @Column(nullable = false)
   private String name;
-
   private String alias1;
   private String alias2;
+  private String alias3;
 }

@@ -6,9 +6,11 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.author.AuthorType;
+import dev.williancorrea.manhwa.reader.features.chapter.Chapter;
 import dev.williancorrea.manhwa.reader.features.language.Language;
 import dev.williancorrea.manhwa.reader.features.publisher.Publisher;
 import dev.williancorrea.manhwa.reader.features.tag.TagGroupType;
+import dev.williancorrea.manhwa.reader.features.volume.Volume;
 import dev.williancorrea.manhwa.reader.features.work.link.SiteType;
 import dev.williancorrea.manhwa.reader.features.work.link.WorkLink;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
@@ -75,9 +77,12 @@ public class Work implements Serializable {
 
   @Column(name = "cover_medium")
   private String coverMedium;
-  
+
   @Column(name = "cover_low")
   private String coverLow;
+
+  @Column(name = "cover_custom")
+  private String coverCustom;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "publisher_id")
@@ -88,7 +93,9 @@ public class Work implements Serializable {
   private Language originalLanguage;
 
   private Boolean disabled;
-  private String bucket;
+
+  @Column(name = "slug", unique = true)
+  private String slug;
 
   @Column(name = "chapter_numbers_reset_on_new_volume")
   private Boolean chapterNumbersResetOnNewVolume;
@@ -121,6 +128,12 @@ public class Work implements Serializable {
   @OneToMany(mappedBy = "work", orphanRemoval = true, cascade = CascadeType.ALL)
   private List<WorkAuthor> authors;
 
+  @OneToMany(mappedBy = "work", orphanRemoval = true, cascade = CascadeType.ALL)
+  private List<Chapter> chapters;
+
+  @OneToMany(mappedBy = "work", orphanRemoval = true, cascade = CascadeType.ALL)
+  private List<Volume> volumes;
+
   public boolean getSynchronizationsContains(SynchronizationOriginType origin) {
     return synchronizations.stream()
         .anyMatch(synchronization -> synchronization.getOrigin() == origin);
@@ -133,7 +146,13 @@ public class Work implements Serializable {
 
   public boolean getTagsContains(TagGroupType group, String name) {
     return tags.stream()
-        .anyMatch(tag -> tag.getTag().getGroup() == group && tag.getTag().getName().equals(name));
+        .anyMatch(tag -> tag.getTag().getGroup() == group
+            && (
+            (tag.getTag().getName() != null && tag.getTag().getName().equals(name))
+                || (tag.getTag().getAlias1() != null && tag.getTag().getAlias1().equals(name))
+                || (tag.getTag().getAlias2() != null && tag.getTag().getAlias2().equals(name))
+                || (tag.getTag().getAlias3() != null && tag.getTag().getAlias3().equals(name))
+        ));
   }
 
   public boolean getAuthorsContains(AuthorType type, String name) {

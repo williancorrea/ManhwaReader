@@ -96,7 +96,7 @@ class SystemConfigurationResourceTest {
       when(systemConfigurationService.findAllByGroup(group)).thenReturn(Collections.emptyList());
 
       // Act
-      ResponseEntity<List<SystemConfigurationOutput>> response = systemConfigurationResource.findAllByGroup(group);
+      ResponseEntity<List<SystemConfigurationOutput>> response = systemConfigurationResource.findAllByGroup(group.getId());
 
       // Assert
       assertNotNull(response);
@@ -128,7 +128,7 @@ class SystemConfigurationResourceTest {
       when(systemConfigurationService.findAllByGroup(group)).thenReturn(List.of(entity1, entity2));
 
       // Act
-      ResponseEntity<List<SystemConfigurationOutput>> response = systemConfigurationResource.findAllByGroup(group);
+      ResponseEntity<List<SystemConfigurationOutput>> response = systemConfigurationResource.findAllByGroup(group.getId());
 
       // Assert
       assertNotNull(response);

@@ -41,18 +41,44 @@ spring:
   output:
     ansi:
       enabled: always
-
+  
+  cloud:
+    openfeign:
+      client:
+        
+        default:
+          connectTimeout: 5000
+          readTimeout: 30000
+          loggerLevel: basic
+        config:
+          mediocrescan-client:
+            loggerLevel: full
+            connectTimeout: 5000
+            readTimeout: 5000
+    
 # Feign Client configuration
-feign:
-  client:
-    config:
-      default:
-        connectTimeout: 5000
-        readTimeout: 30000
-        loggerLevel: basic
-  httpclient:
-    enabled: true
-
+#feign:
+#  client:
+#    config:
+#      default:
+#        connectTimeout: 5000
+#        readTimeout: 30000
+#        loggerLevel: basic
+#      
+#  httpclient:
+#    enabled: true
+  
+synchronization:
+  mediocrescan: 
+    api:
+#      url: "${MEDIOCRESCAN_API_URL:https://api.mediocretoons.site}"
+      url: "http://localhost:3000"
+      username: ${MEDIOCRESCAN_API_USERNAME:admin}
+      password: ${MEDIOCRESCAN_API_PASSWORD:admin}
+    cdn:
+      url: "https://cdn.mediocrescan.com"
+      
+      
 #Actuator
 management:
   endpoint:

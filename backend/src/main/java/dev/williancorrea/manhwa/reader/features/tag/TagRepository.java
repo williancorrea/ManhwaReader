@@ -9,7 +9,7 @@ public interface TagRepository extends JpaRepository<Tag, UUID> {
 
   @Query(
       nativeQuery = true,
-      value = "select t.* from tag t where t.group_tag = :group and t.name = :name"
+      value = "select t.* from tag t where t.group_tag = :group and (t.name = :name or t.alias1 = :name or t.alias2 = :name or t.alias3 = :name)"
   )
   Optional<Tag> findByGroupAndName(String group, String name);
 }

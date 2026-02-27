@@ -15,12 +15,10 @@ public class PageOutput implements Serializable {
   private UUID id;
   private UUID chapterId;
   private Integer pageNumber;
-  private UUID imageFileId;
 
   public PageOutput(Page page) {
     this.id = page.getId();
     this.chapterId = page.getChapter() != null ? page.getChapter().getId() : null;
     this.pageNumber = page.getPageNumber();
-    this.imageFileId = page.getImageFile() != null ? page.getImageFile().getId() : null;
   }
 }
