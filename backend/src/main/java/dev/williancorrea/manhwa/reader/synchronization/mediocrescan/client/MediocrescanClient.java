@@ -42,8 +42,10 @@ public interface MediocrescanClient {
   @GetMapping("/capitulos")
   Mediocrescan_CapitulosResponse listarCapitulos(
       @RequestHeader("Authorization") String bearerToken,
-      @RequestParam(value = "page", required = false) Integer page,
-      @RequestParam(value = "per_page", required = false) Integer perPage
+      @RequestParam(value = "obr_id") Long id,
+      @RequestParam(value = "page") Integer page,
+      @RequestParam(value = "limite") Integer perPage,
+      @RequestParam(value = "order") String order
   );
 
   @GetMapping("/capitulo/{id}")

@@ -71,13 +71,15 @@ spring:
 synchronization:
   mediocrescan: 
     api:
-#      url: "${MEDIOCRESCAN_API_URL:https://api.mediocretoons.site}"
+#      url: "https://api.mediocretoons.site"
       url: "http://localhost:3000"
       username: ${MEDIOCRESCAN_API_USERNAME:admin}
       password: ${MEDIOCRESCAN_API_PASSWORD:admin}
     cdn:
       url: "https://cdn.mediocrescan.com"
-      
+  mangadex:
+    api:
+      url: "https://api.mangadex.org"
       
 #Actuator
 management:

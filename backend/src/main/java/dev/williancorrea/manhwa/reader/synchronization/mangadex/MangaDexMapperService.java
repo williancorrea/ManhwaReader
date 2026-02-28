@@ -35,6 +35,7 @@ import dev.williancorrea.manhwa.reader.utils.RemoveAccentuationUtils;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -49,7 +50,8 @@ public class MangaDexMapperService {
   public final AuthorService authorService;
   public final ExternalFileService externalFileService;
 
-  private static final String MANDADEX_URL_COVERS = "https://mangadex.org/covers/";
+  @Value("${synchronization.mangadex.api.url}")
+  private String MANDADEX_URL_COVERS;
 
   public Work toEntity(MangaDexData dto) {
     try {
@@ -359,10 +361,12 @@ public class MangaDexMapperService {
     work.setOriginalLanguage(
         languageService.findOrCreate(dto.getAttributes().getOriginalLanguage(), SynchronizationOriginType.MANGADEX));
     work.setReleaseYear(dto.getAttributes().getYear());
+
     if (dto.getAttributes().getPublicationDemographic() != null) {
       work.setPublicationDemographic(
           WorkPublicationDemographic.valueOf(dto.getAttributes().getPublicationDemographic().toUpperCase()));
     }
+
     if (dto.getAttributes().getContentRating() != null) {
       work.setContentRating(WorkContentRating.valueOf(dto.getAttributes().getContentRating().toUpperCase()));
     }
@@ -389,27 +393,27 @@ public class MangaDexMapperService {
         if (work.getCoverMedium() != null && !work.getCoverMedium().isEmpty()) {
           work.setCoverMedium("cover_512" + extension);
           externalFileService.downloadWithAuthAndUpload(
-              MANDADEX_URL_COVERS + dto.getId() + "/" + cover.getAttributes().getFileName() + ".512.jpg",
+              MANDADEX_URL_COVERS + "/covers/" + dto.getId() + "/" + cover.getAttributes().getFileName() + ".512.jpg",
               work.getCoverMedium(),
-              work.getSlug()
+              work.getPublicationDemographic().name().toLowerCase() + "/" + work.getSlug()
           );
         }
 
         if (work.getCoverLow() != null && !work.getCoverLow().isEmpty()) {
           work.setCoverLow("cover_256" + extension);
           externalFileService.downloadWithAuthAndUpload(
-              MANDADEX_URL_COVERS + dto.getId() + "/" + cover.getAttributes().getFileName() + ".256.jpg",
+              MANDADEX_URL_COVERS + "/covers/" + dto.getId() + "/" + cover.getAttributes().getFileName() + ".256.jpg",
               work.getCoverLow(),
-              work.getSlug()
+              work.getPublicationDemographic().name().toLowerCase() + "/" + work.getSlug()
           );
         }
 
         if (work.getCoverHigh() != null && !work.getCoverHigh().isEmpty()) {
           work.setCoverHigh("cover" + extension);
           externalFileService.downloadWithAuthAndUpload(
-              MANDADEX_URL_COVERS + dto.getId() + "/" + cover.getAttributes().getFileName(),
+              MANDADEX_URL_COVERS + "/covers/" + dto.getId() + "/" + cover.getAttributes().getFileName(),
               work.getCoverHigh(),
-              work.getSlug()
+              work.getPublicationDemographic().name().toLowerCase() + "/" + work.getSlug()
           );
         }
       } catch (Exception e) {

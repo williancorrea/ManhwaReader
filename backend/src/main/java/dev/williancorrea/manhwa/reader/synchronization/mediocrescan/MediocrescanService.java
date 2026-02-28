@@ -1,12 +1,16 @@
 package dev.williancorrea.manhwa.reader.synchronization.mediocrescan;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import dev.williancorrea.manhwa.reader.features.chapter.Chapter;
+import dev.williancorrea.manhwa.reader.features.chapter.ChapterService;
 import dev.williancorrea.manhwa.reader.features.language.LanguageService;
+import dev.williancorrea.manhwa.reader.features.scanlator.ScanlatorService;
 import dev.williancorrea.manhwa.reader.features.tag.TagGroupType;
 import dev.williancorrea.manhwa.reader.features.tag.TagService;
 import dev.williancorrea.manhwa.reader.features.work.Work;
@@ -30,6 +34,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +48,8 @@ public class MediocrescanService {
   public final LanguageService languageService;
   public final TagService tagService;
   public final ExternalFileService externalFileService;
+  public final ChapterService chapterService;
+  public final ScanlatorService scanlatorService;
 
   @Value("${synchronization.mediocrescan.cdn.url}")
   private String mediocreScanUrlCDN;
@@ -82,7 +89,7 @@ public class MediocrescanService {
     for (int i = 0; i < totalPages; i++) {
       log.warn("--> [MediocrescanService] Synchronizing page {} of {}", i + 1, totalPages);
       var obras = mediocrescanClient.listarObras(getToken(), 24, i + 1, "criada_em_desc");
-      totalPages = obras.getPagination().getTotalPages();
+//      totalPages = obras.getPagination().getTotalPages();
       obras.getData().forEach(this::synchronizeWork);
       waitForNextQuery();
     }
@@ -112,7 +119,9 @@ public class MediocrescanService {
       syncCover(work, obra);
 
       work.setUpdatedAt(OffsetDateTime.now());
-      workService.save(work);
+      work = workService.save(work);
+
+      syncChapters(work, obra);
 
       log.info("<-- [MediocrescanService] Synchronization completed: {}", obra.getNome().trim());
     } catch (Exception e) {
@@ -372,4 +381,48 @@ public class MediocrescanService {
 //      }
 //    });
   }
+
+  private void syncChapters(Work work, Mediocrescan_ObraDTO dto) {
+    if (dto.getTotalCapitulos() == null || dto.getTotalCapitulos() == 0) {
+      return;
+    }
+
+    var perPage = 100;
+    var totalPages = 1;
+    for (int i = 1; i <= totalPages; i++) {
+      var chapters = mediocrescanClient.listarCapitulos(
+          getToken(),
+          dto.getId(),
+          i,
+          perPage,
+          Direction.ASC.name().toLowerCase()
+      );
+
+      if (chapters.getData() == null || chapters.getData().isEmpty() || chapters.getPagination() == null) {
+        continue;
+      }
+      totalPages = chapters.getPagination().getTotalPages();
+
+      var scanlator = scanlatorService.findBySynchronization(SynchronizationOriginType.MEDIOCRESCAN).get();
+      chapters.getData().forEach(chapterDto -> {
+        log.info("--> [MediocrescanService][syncChapters] Syncing chapter {}", chapterDto.getNumero());
+
+        var chapter = chapterService.findByNumberAndWorkIdAndScanlatorId(chapterDto.getNumero(), work, scanlator);
+        var lang = dto.getFormato().getNome().equalsIgnoreCase("ENGLISH") ? "en" : "pt-BR";
+        if (chapter.isEmpty()) {
+          chapterService.save(Chapter.builder()
+              .work(work)
+              .number(BigDecimal.valueOf(chapterDto.getNumero()))
+              .title(chapterDto.getDescricao())
+              .scanlator(scanlator)
+              .language(languageService.findOrCreate(lang, SynchronizationOriginType.MEDIOCRESCAN))
+              .createdAt(OffsetDateTime.now())
+              .build()
+          );
+        }
+      });
+    }
+  }
+  
+
 }
