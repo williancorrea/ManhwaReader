@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Mediocrescan_PaginaResponse {
-  
+
   private Long id;
   private String nome;
   private String descricao;
@@ -34,5 +34,5 @@ public class Mediocrescan_PaginaResponse {
   private List<Mediocrescan_PaginaImagemDTO> paginas;
   private List<Object> paginas2;
   @JsonProperty("conteudo_texto")
-  private Object conteudoTexto;
+  private String conteudoTexto;
 }

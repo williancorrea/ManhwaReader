@@ -3,6 +3,7 @@ package dev.williancorrea.manhwa.reader.features.chapter;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import dev.williancorrea.manhwa.reader.features.language.Language;
 import dev.williancorrea.manhwa.reader.features.scanlator.Scanlator;
 import dev.williancorrea.manhwa.reader.features.work.Work;
 import org.springframework.context.annotation.Lazy;
@@ -43,8 +44,19 @@ public class ChapterService {
     return repository.findAllByWork_Id(workId);
   }
 
-  public Optional<Chapter> findByNumberAndWorkIdAndScanlatorId(float number, Work workId, Scanlator scanlator) {
-    return repository.findByNumberAndWorkIdAndScanlatorId(number, workId.getId(), scanlator.getId());
+  public Optional<Chapter> findByNumberAndWorkIdAndScanlatorId(float number,
+                                                               Work workId,
+                                                               Scanlator scanlator,
+                                                               Language language) {
+    return repository.findByNumberAndWorkIdAndScanlatorIdAndLanguageId(number, workId.getId(), scanlator.getId(),
+        language.getId());
+  }
+
+  public Integer countByWorkIdAndScanlatorIdAndLanguageId(Work workId,
+                                                          Scanlator scanlator,
+                                                          Language language) {
+    return repository.countByWorkIdAndScanlatorIdAndLanguageId(workId.getId(), scanlator.getId(),
+        language.getId());
   }
 }
 

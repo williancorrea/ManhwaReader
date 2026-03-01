@@ -34,5 +34,7 @@ public class Mediocrescan_ObraDTO {
   private Boolean vip;
   private Boolean desativada;
   @JsonProperty("obra_novel")
-  private Object obraNovel;
+  private Mediocrescan_ObraNovelDTO obraNovel;
+  @JsonProperty("obra_original")
+  private Mediocrescan_ObraOriginalDTO obraOriginal;
 }

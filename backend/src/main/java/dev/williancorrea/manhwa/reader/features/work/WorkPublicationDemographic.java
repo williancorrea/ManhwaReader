@@ -9,5 +9,6 @@ public enum WorkPublicationDemographic {
   YURI,    // Subgênero focado em relacionamentos amorosos entre personagens femininas, variando do romance leve ao conteúdo mais explícito.
   HENTAI,  // Categoria de anime ou mangá com conteúdo pornográfico explícito.
   COMIC,   // Termo amplo para histórias contadas em quadrinhos, incluindo produções ocidentais como as da Marvel e DC.
+  NOVEL,   // Histórias contadas em formato de livro, com narrativas mais longas e desenvolvimentos mais complexos.
   UNKNOWN  // Indica que o gênero ou a classificação da obra não foi identificada ou não se encaixa nas categorias conhecidas.
 }

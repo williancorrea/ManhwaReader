@@ -19,11 +19,13 @@ CREATE TABLE work (
     cover_low VARCHAR(100),
     cover_custom VARCHAR(100),
     publisher_id CHAR(36),
+    relationship_id CHAR(36),
     original_language_id CHAR(36),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (publisher_id) REFERENCES publisher(id),
-    FOREIGN KEY (original_language_id) REFERENCES language(id)
+    FOREIGN KEY (original_language_id) REFERENCES language(id),
+    FOREIGN KEY (relationship_id) REFERENCES work(id)
 );
 
 CREATE TABLE work_synchronization (
@@ -179,7 +181,7 @@ CREATE TABLE chapter (
     title VARCHAR(255),
     language_id CHAR(36) NOT NULL,
     release_date DATE,
-    scanlator_id CHAR(36),
+    scanlator_id CHAR(36) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (work_id) REFERENCES work(id),
     FOREIGN KEY (volume_id) REFERENCES volume(id),
@@ -191,7 +193,9 @@ CREATE TABLE page (
     id CHAR(36) NOT NULL PRIMARY KEY,
     chapter_id CHAR(36) NOT NULL,
     page_number INT NOT NULL,
-    file_name VARCHAR(255) NOT NULL,
+    page_type VARCHAR(30) NOT NULL,
+    file_name VARCHAR(255),
+    content TEXT,
     disabled BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (chapter_id) REFERENCES chapter(id)
 );

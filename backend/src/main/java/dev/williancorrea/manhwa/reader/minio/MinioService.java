@@ -204,13 +204,20 @@ public class MinioService implements FileUploaderInterface {
     Objects.requireNonNull(originalFolderName);
 
     String fileName = RemoveAccentuationUtils.normalize(originalFileName);
-    String folderName = RemoveAccentuationUtils.normalize(originalFolderName.split("/")[0]);
-    if (originalFolderName.split("/").length >= 1) {
-      folderName += "/" + RemoveAccentuationUtils.normalize(originalFolderName.split("/")[1]);
+
+    var folder = originalFolderName.split("/");
+    StringBuilder folderName = new StringBuilder();
+    for (String s : folder) {
+      if (!folderName.isEmpty()) {
+        folderName.append("/");
+      }
+      folderName.append(RemoveAccentuationUtils.normalize(s));
     }
 
     if (!folderName.isEmpty()) {
-      return folderName + "/" + fileName;
+      return folderName.append("/")
+          .append(fileName)
+          .toString();
     }
     return fileName;
   }

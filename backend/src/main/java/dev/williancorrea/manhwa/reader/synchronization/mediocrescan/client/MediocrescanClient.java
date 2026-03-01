@@ -6,10 +6,8 @@ import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Me
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Mediocrescan_RefreshTokenDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Mediocrescan_TokenDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Mediocrescan_TokenNewDTO;
-import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.obra.Mediocrescan_ObraDetalhadaResponse;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.obra.Mediocrescan_ObrasResponse;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.pagina.Mediocrescan_PaginaResponse;
-import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.recentes.Mediocrescan_RecentesResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,7 +34,8 @@ public interface MediocrescanClient {
       @RequestHeader("Authorization") String bearerToken,
       @RequestParam(value = "limite") Integer limite,
       @RequestParam(value = "pagina") Integer pagina,
-      @RequestParam(value = "ordenarPor", required = false) String ordenarPor
+      @RequestParam(value = "ordenarPor", required = false) String ordenarPor,
+      @RequestParam(value = "formato", required = false) String formato
   );
 
   @GetMapping("/capitulos")
@@ -48,22 +47,23 @@ public interface MediocrescanClient {
       @RequestParam(value = "order") String order
   );
 
-  @GetMapping("/capitulo/{id}")
+  @GetMapping("/capitulos/{id}")
   Mediocrescan_PaginaResponse obterCapitulo(
       @RequestHeader("Authorization") String bearerToken,
       @PathVariable("id") Long id
   );
 
-  @GetMapping("/obra/{id}")
-  Mediocrescan_ObraDetalhadaResponse obterObra(
-      @RequestHeader("Authorization") String bearerToken,
-      @PathVariable("id") Long id
-  );
 
-  @GetMapping("/recentes")
-  Mediocrescan_RecentesResponse listarRecentes(
-      @RequestHeader("Authorization") String bearerToken,
-      @RequestParam(value = "page", required = false) Integer page,
-      @RequestParam(value = "per_page", required = false) Integer perPage
-  );
+//  @GetMapping("/obra/{id}")
+//  Mediocrescan_ObraDetalhadaResponse obterObra(
+//      @RequestHeader("Authorization") String bearerToken,
+//      @PathVariable("id") Long id
+//  );
+//
+//  @GetMapping("/recentes")
+//  Mediocrescan_RecentesResponse listarRecentes(
+//      @RequestHeader("Authorization") String bearerToken,
+//      @RequestParam(value = "page", required = false) Integer page,
+//      @RequestParam(value = "per_page", required = false) Integer perPage
+//  );
 }

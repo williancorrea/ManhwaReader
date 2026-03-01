@@ -2,14 +2,19 @@ package dev.williancorrea.manhwa.reader.synchronization.mediocrescan;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import dev.williancorrea.manhwa.reader.features.chapter.Chapter;
 import dev.williancorrea.manhwa.reader.features.chapter.ChapterService;
 import dev.williancorrea.manhwa.reader.features.language.LanguageService;
+import dev.williancorrea.manhwa.reader.features.page.Page;
+import dev.williancorrea.manhwa.reader.features.page.PageService;
+import dev.williancorrea.manhwa.reader.features.page.PageType;
 import dev.williancorrea.manhwa.reader.features.scanlator.ScanlatorService;
 import dev.williancorrea.manhwa.reader.features.tag.TagGroupType;
 import dev.williancorrea.manhwa.reader.features.tag.TagService;
@@ -25,11 +30,13 @@ import dev.williancorrea.manhwa.reader.features.work.synchronization.Synchroniza
 import dev.williancorrea.manhwa.reader.features.work.synchronization.WorkSynchronization;
 import dev.williancorrea.manhwa.reader.minio.ExternalFileService;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.client.MediocrescanClient;
+import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.capitulo.Mediocrescan_CapituloDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Mediocrescan_LoginDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Mediocrescan_RefreshTokenDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Mediocrescan_TokenDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.obra.Mediocrescan_ObraDTO;
 import dev.williancorrea.manhwa.reader.utils.RemoveAccentuationUtils;
+import dev.williancorrea.manhwa.reader.utils.StringUtils;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +57,7 @@ public class MediocrescanService {
   public final ExternalFileService externalFileService;
   public final ChapterService chapterService;
   public final ScanlatorService scanlatorService;
+  public final PageService pageService;
 
   @Value("${synchronization.mediocrescan.cdn.url}")
   private String mediocreScanUrlCDN;
@@ -81,14 +89,33 @@ public class MediocrescanService {
   @PostConstruct
   @Transactional
   public void FindAllWorks() {
-    log.debug("--> [MediocrescanService] Finding all works 0 to ?");
-
     //TODO: Montar o loop para buscar as proximas paginas (Verificar no site se tem que fazer a conta para o numero de pagina)
-    log.warn("--> [MediocrescanService] Starting synchronization with Mediocrescan");
+    log.warn("--> [MediocrescanService][FindAllWorks] Starting synchronization with Mediocrescan");
     var totalPages = 1;
     for (int i = 0; i < totalPages; i++) {
-      log.warn("--> [MediocrescanService] Synchronizing page {} of {}", i + 1, totalPages);
-      var obras = mediocrescanClient.listarObras(getToken(), 24, i + 1, "criada_em_desc");
+      log.warn("--> [MediocrescanService][FindAllWorks] External synchronization page {} of {}", i + 1, totalPages);
+      
+      
+      /*
+      1 - ENGLISH
+      2 -
+      3 - NOVEL
+      4 - SHOUJO
+      5 - COMIC
+      6 -
+      7 -
+      8 - YAOI - G
+      9 - YURI - L
+      10- HENTAI
+       */
+      var obras = mediocrescanClient.listarObras(
+          getToken(),
+          1, //Padrao 24
+          i + 1,
+          "data_ultimo_cap",
+          "3");
+
+      //TODO: DESCOMENTAR
 //      totalPages = obras.getPagination().getTotalPages();
       obras.getData().forEach(this::synchronizeWork);
       waitForNextQuery();
@@ -97,7 +124,7 @@ public class MediocrescanService {
 
   private static void waitForNextQuery() {
     try {
-      log.debug("--> [MediocrescanService] Sleeping for 5 seconds to next query (listarObras)");
+      log.debug("--> [MediocrescanService][waitForNextQuery] Sleeping for 5 seconds to next query (listarObras)");
       Thread.sleep(5000);
     } catch (InterruptedException e) {
       log.error("Error sleeping for 5 seconds", e);
@@ -121,51 +148,27 @@ public class MediocrescanService {
       work.setUpdatedAt(OffsetDateTime.now());
       work = workService.save(work);
 
+      syncRelationship(work, obra);
       syncChapters(work, obra);
 
-      log.info("<-- [MediocrescanService] Synchronization completed: {}", obra.getNome().trim());
+
+      log.info("<-- [MediocrescanService][synchronizeWork] Synchronization completed: {}", obra.getNome().trim());
     } catch (Exception e) {
       //TODO: Notificar que deu ruim de alguma forma citar a obra quer deu ruim
-      log.error("Error synchronizing with Mediocrescan: ({}) {} - {}",
+      log.error("<-- [MediocrescanService][synchronizeWork] Error synchronizing with Mediocrescan: ({}) {} - {}",
           obra.getFormato().getNome().toUpperCase(),
           obra.getId(),
           obra.getNome(),
           e);
     }
-
-
-
-    /*
-    Fazer a busca Paginada das obras
-      iterar cada obra
-      validar a quantidade de paginas (para verificar se precisa sugar)
-      atualizar o status da obra (Completado, Hiato, ...)
-      Varificar o tipo da obra (Novel)
-      Atualizar o formato da obra (manwha, shoujo)
-      
-      Verificar se teve alteração na obra atraves do (data_ultimo_cap)
-      Verificar se teve alteração nos capitulos pela data de altualização
-     */
-
-
-    //Chamada da api contendo os nomes dos capitulos e a capa
-//    https://api.mediocretoons.site/capitulos/237559?_t=1772108798684
-
-
-//    https://cdn.mediocrescan.com/obras/2727/capitulos/222/5bc0a0045324d441ee0f0305f5e1b01cdad2f5a1.webp
-
-//    https://api.mediocretoons.site/capitulos?obr_id=2727&page=1&limite=50&order=desc
-
-//    Validar se é uma Novel
-
   }
 
   private Work findWork(Mediocrescan_ObraDTO dto) {
     Objects.requireNonNull(dto);
-    log.debug("--> [MediocrescanService] Finding work: {}", dto.getNome());
+    log.debug("--> [MediocrescanService][findWork] ({}) Finding work", dto.getNome());
     var work = workService.findBySynchronizationExternalID(dto.getId().toString()).orElse(null);
     if (work == null) {
-      log.debug("--> [MediocrescanService] Work not found, creating new work: {}", dto.getNome());
+      log.debug("--> [MediocrescanService][findWork] ({}) Work not found, creating new work", dto.getNome());
       work = workService.findByTitle(dto.getNome())
           .orElseGet(() -> Work.builder()
               .createdAt(OffsetDateTime.now())
@@ -175,11 +178,35 @@ public class MediocrescanService {
     return work;
   }
 
+  private void syncRelationship(Work work, Mediocrescan_ObraDTO dto) {
+    Objects.requireNonNull(work);
+    Objects.requireNonNull(dto);
+
+    if (work.getRelationship() == null) {
+      if (dto.getObraNovel() != null) {
+        var rel = workService.findBySynchronizationExternalID(dto.getObraNovel().getId().toString()).orElse(null);
+        if (rel != null) {
+          work.setRelationship(rel);
+          rel.setRelationship(work);
+          workService.save(rel);
+          workService.save(work);
+
+        }
+      } else if (dto.getObraOriginal() != null) {
+        var rel = workService.findBySynchronizationExternalID(dto.getObraOriginal().getId().toString()).orElse(null);
+        if (rel != null) {
+          work.setRelationship(rel);
+          rel.setRelationship(work);
+        }
+      }
+    }
+  }
+
   private void syncSynchronization(Work work, Mediocrescan_ObraDTO dto) {
     Objects.requireNonNull(work);
     Objects.requireNonNull(dto);
 
-    log.debug("--> [MediocrescanService] Syncing work: {}", dto.getNome());
+    log.debug("--> [MediocrescanService][syncSynchronization] ({}) Syncing work", dto.getNome());
     if (work.getSynchronizations() == null) {
       work.setSynchronizations(new ArrayList<>());
     }
@@ -204,7 +231,7 @@ public class MediocrescanService {
       work.setTitles(new ArrayList<>());
     }
 
-    log.debug("--> [MediocrescanService] Syncing title: {}", dto.getNome());
+    log.debug("--> [MediocrescanService][syncTitle] ({}) Syncing title", dto.getNome());
     AtomicBoolean found = new AtomicBoolean(false);
     work.getTitles().forEach(obj -> {
       if (obj.getTitle().equalsIgnoreCase(dto.getNome().trim())) {
@@ -229,7 +256,7 @@ public class MediocrescanService {
     Objects.requireNonNull(work);
     Objects.requireNonNull(dto);
 
-    log.debug("--> [MediocrescanService] Syncing attributes: {}", dto.getNome());
+    log.debug("--> [MediocrescanService][syncAttributes] ({}) Syncing attributes", dto.getNome());
     if (work.getType() == null) {
       work.setType(
           dto.getFormato().getNome().toUpperCase().contains("NOVEL")
@@ -252,6 +279,8 @@ public class MediocrescanService {
         work.setStatus(WorkStatus.CANCELLED);
         break;
       default:
+        log.error("--> [MediocrescanService][syncAttributes] ({}) Unknown status: {}", dto.getNome(),
+            dto.getStatus().getNome());
         throw new RuntimeException("Status not found: " + dto.getStatus().getNome());
     }
 
@@ -275,7 +304,7 @@ public class MediocrescanService {
     if (work.getSynopses() == null) {
       work.setSynopses(new ArrayList<>());
     }
-    log.debug("--> [MediocrescanService] Syncing synopses");
+    log.debug("--> [MediocrescanService][syncSynopses] ({}) Syncing synopses", dto.getNome());
     var lang = dto.getFormato().getNome().equalsIgnoreCase("ENGLISH") ? "en" : "pt-BR";
     AtomicBoolean found = new AtomicBoolean(false);
     work.getSynopses().forEach(obj -> {
@@ -303,7 +332,7 @@ public class MediocrescanService {
       work.setTags(new ArrayList<>());
     }
 
-    log.debug("--> [MediocrescanService] Syncing tags");
+    log.debug("--> [MediocrescanService][syncTags] ({}) Syncing tags", dto.getNome());
     if (dto.getTags() != null && !dto.getTags().isEmpty()) {
       dto.getTags().forEach(tag -> {
         var group = TagGroupType.GENRE;
@@ -324,13 +353,19 @@ public class MediocrescanService {
     Objects.requireNonNull(work);
     Objects.requireNonNull(dto);
 
-    log.debug("--> [MediocrescanService] Syncing cover");
+    log.debug("--> [MediocrescanService][syncCover] ({}) Syncing cover", dto.getNome());
     if (work.getSlug() == null || work.getSlug().isEmpty()) {
       var title = work.getTitles()
-          .stream().filter(title1 -> Boolean.TRUE.equals(title1.getIsOfficial()))
+          .stream()
           .map(WorkTitle::getTitle)
-          .findFirst().orElse("GENERATED" + UUID.randomUUID());
+          .findFirst().orElse(
+              "GENERATED" + UUID.randomUUID()
+          );
       title = RemoveAccentuationUtils.normalize(title).toLowerCase();
+
+      if (dto.getFormato().getNome().equalsIgnoreCase("NOVEL")) {
+        title = title + "__novel";
+      }
       work.setSlug(title);
     }
 
@@ -344,46 +379,21 @@ public class MediocrescanService {
           work.getPublicationDemographic().name().toLowerCase() + "/" + work.getSlug()
       );
     }
-//  https://cdn.mediocrescan.com/storage/obras/2727/26edbe0b8c2e44d935aa25bc09cb8dd4ceca5d2f.webp
-//  http://localhost:3000/storage/obras/2727/26edbe0b8c2e44d935aa25bc09cb8dd4ceca5d2f.webp  
-//  https://api.mediocretoons.site/storage/obras/2727/26edbe0b8c2e44d935aa25bc09cb8dd4ceca5d2f.webp
-
-
-//    dto.getRelationships().stream().filter(rel -> rel.getType().equals("cover_art")).findFirst().ifPresent(cover -> {
-//      var extension = "." + cover.getAttributes().getFileName().split("\\.")[1];
-//      try {
-//        work.setCoverMedium("cover_512" + extension);
-//        externalFileService.downloadWithAuthAndUpload(
-//            MANDADEX_URL_COVERS + dto.getId() + "/" + cover.getAttributes().getFileName() + ".512.jpg",
-//            "",
-//            work.getCoverMedium(),
-//            work.getSlug()
-//        );
-//
-//        work.setCoverLow("cover_256" + extension);
-//        externalFileService.downloadWithAuthAndUpload(
-//            MANDADEX_URL_COVERS + dto.getId() + "/" + cover.getAttributes().getFileName() + ".256.jpg",
-//            "",
-//            work.getCoverLow(),
-//            work.getSlug()
-//        );
-//
-//        work.setCoverHigh("cover" + extension);
-//        externalFileService.downloadWithAuthAndUpload(
-//            MANDADEX_URL_COVERS + dto.getId() + "/" + cover.getAttributes().getFileName(),
-//            "",
-//            work.getCoverHigh(),
-//            work.getSlug()
-//        );
-//
-//      } catch (Exception e) {
-//        throw new RuntimeException(e);
-//      }
-//    });
   }
 
-  private void syncChapters(Work work, Mediocrescan_ObraDTO dto) {
+  @Transactional
+  protected void syncChapters(Work work, Mediocrescan_ObraDTO dto) {
     if (dto.getTotalCapitulos() == null || dto.getTotalCapitulos() == 0) {
+      return;
+    }
+
+    var lang = dto.getFormato().getNome().equalsIgnoreCase("ENGLISH") ? "en" : "pt-BR";
+    var language = languageService.findOrCreate(lang, SynchronizationOriginType.MEDIOCRESCAN);
+    var scanlator = scanlatorService.findBySynchronization(SynchronizationOriginType.MEDIOCRESCAN).get();
+    var countChapter = chapterService.countByWorkIdAndScanlatorIdAndLanguageId(work, scanlator, language);
+
+    if (Objects.equals(countChapter, dto.getTotalCapitulos())) {
+      log.info("--> [MediocrescanService][syncChapters] ({}) All chapters already synchronized ", dto.getNome());
       return;
     }
 
@@ -403,26 +413,150 @@ public class MediocrescanService {
       }
       totalPages = chapters.getPagination().getTotalPages();
 
-      var scanlator = scanlatorService.findBySynchronization(SynchronizationOriginType.MEDIOCRESCAN).get();
-      chapters.getData().forEach(chapterDto -> {
-        log.info("--> [MediocrescanService][syncChapters] Syncing chapter {}", chapterDto.getNumero());
 
-        var chapter = chapterService.findByNumberAndWorkIdAndScanlatorId(chapterDto.getNumero(), work, scanlator);
-        var lang = dto.getFormato().getNome().equalsIgnoreCase("ENGLISH") ? "en" : "pt-BR";
-        if (chapter.isEmpty()) {
-          chapterService.save(Chapter.builder()
+      chapters.getData().forEach(chapterDto -> {
+        log.info("--> [MediocrescanService][syncChapters] ({}) Syncing chapter {}",
+            dto.getNome(),
+            chapterDto.getNumero()
+        );
+
+
+        var chapter =
+            chapterService.findByNumberAndWorkIdAndScanlatorId(chapterDto.getNumero(), work, scanlator, language)
+                .orElseGet(() -> null);
+
+        if (chapter == null) {
+          chapter = chapterService.save(Chapter.builder()
               .work(work)
-              .number(BigDecimal.valueOf(chapterDto.getNumero()))
+              .number(BigDecimal.valueOf(chapterDto.getNumero()).setScale(2, RoundingMode.HALF_UP))
               .title(chapterDto.getDescricao())
               .scanlator(scanlator)
-              .language(languageService.findOrCreate(lang, SynchronizationOriginType.MEDIOCRESCAN))
+              .language(language)
               .createdAt(OffsetDateTime.now())
               .build()
           );
         }
+
+        try {
+          syncPage(work, dto, chapter, chapterDto);
+        } catch (Exception e) {
+          log.error("[MediocrescanService][syncChapters] ({}) Error syncing chapter {}", dto.getNome(),
+              chapterDto.getNumero(), e);
+          //TODO: Notificar que deu ruim de alguma forma citar a obra quer deu ruim e o capitulo
+        }
       });
     }
   }
-  
 
+  @Transactional
+  protected void syncPage(Work work, Mediocrescan_ObraDTO dto, Chapter chapter, Mediocrescan_CapituloDTO chapterDto) {
+
+    if (Boolean.FALSE.equals(chapterDto.getTemPaginas())) {
+      syncPageNovel(work, dto, chapter, chapterDto);
+      return;
+    }
+
+    var pageDto = mediocrescanClient.obterCapitulo(getToken(), chapterDto.getId());
+
+    // Verifica se a quantidade de paginas é diferente
+    var pageCount = pageService.countByChapterNumber(chapter);
+
+    if (pageCount != pageDto.getPaginas().size()) {
+      log.info("--> [MediocrescanService][syncPage] ({}) Page count mismatch for chapter {}",
+          dto.getNome(),
+          chapterDto.getNumero());
+
+      AtomicInteger pageNumber = new AtomicInteger();
+      pageDto.getPaginas().forEach(file -> {
+        pageNumber.addAndGet(1);
+        var page = pageService.findByNumberNotDisabled(chapter, pageDto.getNumero());
+        if (page == null || page.getDisabled()) {
+          page = Page.builder()
+              .chapter(chapter)
+              .pageNumber(pageNumber.get())
+              .type(PageType.IMAGE)
+              .content(null)
+              .disabled(false)
+              .build();
+        }
+
+        var toRemove = "";
+        if (page.getFileName() != null && page.getFileName().equalsIgnoreCase(file.getSrc())) {
+          toRemove = page.getFileName();
+        }
+
+        page.setFileName(
+            StringUtils.completeWithZeroZeroToLeft(page.getPageNumber().toString(), 4) + "__" + file.getSrc()
+        );
+
+        var fileSrc = mediocreScanUrlCDN
+            + "/obras/" + dto.getId()
+            + "/capitulos/" + chapterDto.getNumero()
+            + "/" + file.getSrc();
+
+        try {
+          externalFileService.downloadWithAuthAndUpload(
+              fileSrc,
+              page.getFileName(),
+              work.getPublicationDemographic().name().toLowerCase()
+                  + "/" + work.getSlug()
+                  + "/" + chapter.getNumber()
+                  + "/" + chapter.getScanlator().getCode().toLowerCase()
+                  + "/" + chapter.getLanguage().getCode().toLowerCase()
+          );
+
+          pageService.save(page);
+
+          //TODO: remover a antiga imagem, caso o sinc verifique que mudou
+//        if (toRemove != null) {
+//          minioService.deleteFile(work.getPublicationDemographic().name().toLowerCase() + "/" + work.getSlug() + "/" +
+//              chapter.getScanlator().getCode().toLowerCase(), toRemove);
+//        }
+        } catch (Exception e) {
+          log.error("--> [MediocrescanService][syncPage] ({}) Error downloading file: {}",
+              chapterDto.getObra().getObraNome(),
+              fileSrc, e);
+        }
+      });
+    }
+  }
+
+  @Transactional
+  protected void syncPageNovel(Work work, Mediocrescan_ObraDTO dto, Chapter chapter,
+                               Mediocrescan_CapituloDTO chapterDto) {
+
+    if (Boolean.TRUE.equals(chapterDto.getTemPaginas())) {
+      return;
+    }
+
+    var pageCount = pageService.countByChapterNumber(chapter);
+    if (pageCount == dto.getTotalCapitulos()) {
+      log.info("--> [MediocrescanService][syncPageNovel] ({}) All pages already synchronized for chapter {}",
+          dto.getNome(), chapterDto.getNumero());
+      return;
+    }
+
+    var page = pageService.findByNumberNotDisabled(chapter, 1);
+    if (page != null) {
+      log.debug("--> [MediocrescanService][syncPageNovel] ({}) Page found for chapter: {}, not need sync",
+          chapterDto.getObra().getObraNome(), chapterDto.getNumero());
+      return;
+    }
+
+    var pageDto = mediocrescanClient.obterCapitulo(getToken(), chapterDto.getId());
+
+    if (chapterDto.getTipo() != null
+        && chapterDto.getTipo().equalsIgnoreCase("markdown")
+        && pageDto.getConteudoTexto() != null
+        && !pageDto.getConteudoTexto().isEmpty()) {
+      var pageNovel = Page.builder()
+          .chapter(chapter)
+          .pageNumber(1)
+          .type(PageType.MARKDOWN)
+          .content(pageDto.getConteudoTexto())
+          .disabled(false)
+          .build();
+      pageService.save(pageNovel);
+    }
+  }
 }

@@ -103,6 +103,10 @@ public class Work implements Serializable {
   @Enumerated(EnumType.STRING)
   @Column(name = "publication_demographic")
   private WorkPublicationDemographic publicationDemographic;
+  
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "relationship_id")
+  private Work relationship;
 
   @Column(name = "created_at")
   private OffsetDateTime createdAt;

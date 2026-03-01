@@ -55,7 +55,7 @@ public class Chapter implements Serializable {
   private Volume volume;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "scanlator_id")
+  @JoinColumn(name = "scanlator_id", nullable = false)
   private Scanlator scanlator;
 
   @Column(name = "created_at")
