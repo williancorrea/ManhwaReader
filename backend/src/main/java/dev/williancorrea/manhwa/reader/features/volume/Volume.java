@@ -3,7 +3,6 @@ package dev.williancorrea.manhwa.reader.features.volume;
 import java.io.Serializable;
 import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.work.Work;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -32,7 +31,6 @@ public class Volume implements Serializable {
   @JoinColumn(name = "work_id", nullable = false)
   private Work work;
 
-  @Column(nullable = false)
   private Integer number;
 
   private String title;

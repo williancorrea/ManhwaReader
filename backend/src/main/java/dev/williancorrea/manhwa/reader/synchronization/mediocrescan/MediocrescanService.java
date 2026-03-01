@@ -18,6 +18,7 @@ import dev.williancorrea.manhwa.reader.features.page.PageType;
 import dev.williancorrea.manhwa.reader.features.scanlator.ScanlatorService;
 import dev.williancorrea.manhwa.reader.features.tag.TagGroupType;
 import dev.williancorrea.manhwa.reader.features.tag.TagService;
+import dev.williancorrea.manhwa.reader.features.volume.VolumeService;
 import dev.williancorrea.manhwa.reader.features.work.Work;
 import dev.williancorrea.manhwa.reader.features.work.WorkPublicationDemographic;
 import dev.williancorrea.manhwa.reader.features.work.WorkService;
@@ -58,6 +59,7 @@ public class MediocrescanService {
   public final ChapterService chapterService;
   public final ScanlatorService scanlatorService;
   public final PageService pageService;
+  public final VolumeService volumeService;
 
   @Value("${synchronization.mediocrescan.cdn.url}")
   private String mediocreScanUrlCDN;
@@ -390,28 +392,28 @@ public class MediocrescanService {
     var lang = dto.getFormato().getNome().equalsIgnoreCase("ENGLISH") ? "en" : "pt-BR";
     var language = languageService.findOrCreate(lang, SynchronizationOriginType.MEDIOCRESCAN);
     var scanlator = scanlatorService.findBySynchronization(SynchronizationOriginType.MEDIOCRESCAN).get();
-    var countChapter = chapterService.countByWorkIdAndScanlatorIdAndLanguageId(work, scanlator, language);
-
-    if (Objects.equals(countChapter, dto.getTotalCapitulos())) {
-      log.info("--> [MediocrescanService][syncChapters] ({}) All chapters already synchronized ", dto.getNome());
-      return;
-    }
 
     var perPage = 100;
     var totalPages = 1;
     for (int i = 1; i <= totalPages; i++) {
+      var countChapter = chapterService.countByWorkIdAndScanlatorIdAndLanguageId(work, scanlator, language);
+      if (Objects.equals(countChapter, dto.getTotalCapitulos())) {
+        log.info("--> [MediocrescanService][syncChapters] ({}) All chapters already synchronized ", dto.getNome());
+        continue;
+      }
+
       var chapters = mediocrescanClient.listarCapitulos(
           getToken(),
           dto.getId(),
           i,
           perPage,
-          Direction.ASC.name().toLowerCase()
+          Direction.DESC.name().toLowerCase()
       );
 
       if (chapters.getData() == null || chapters.getData().isEmpty() || chapters.getPagination() == null) {
         continue;
       }
-      totalPages = chapters.getPagination().getTotalPages();
+      totalPages = chapters.getPagination().getTotalPages(); // Update count to FOR
 
 
       chapters.getData().forEach(chapterDto -> {
@@ -420,29 +422,30 @@ public class MediocrescanService {
             chapterDto.getNumero()
         );
 
-
         var chapter =
             chapterService.findByNumberAndWorkIdAndScanlatorId(chapterDto.getNumero(), work, scanlator, language)
                 .orElseGet(() -> null);
 
         if (chapter == null) {
+          var volumeName = chapterDto.getVolume() != null ? chapterDto.getVolume() : null;
           chapter = chapterService.save(Chapter.builder()
               .work(work)
               .number(BigDecimal.valueOf(chapterDto.getNumero()).setScale(2, RoundingMode.HALF_UP))
               .title(chapterDto.getDescricao())
               .scanlator(scanlator)
               .language(language)
+              .volume(volumeName == null ? null : volumeService.findOrCreate(work, volumeName, null))
               .createdAt(OffsetDateTime.now())
               .build()
           );
-        }
 
-        try {
-          syncPage(work, dto, chapter, chapterDto);
-        } catch (Exception e) {
-          log.error("[MediocrescanService][syncChapters] ({}) Error syncing chapter {}", dto.getNome(),
-              chapterDto.getNumero(), e);
-          //TODO: Notificar que deu ruim de alguma forma citar a obra quer deu ruim e o capitulo
+          try {
+            syncPage(work, dto, chapter, chapterDto);
+          } catch (Exception e) {
+            log.error("[MediocrescanService][syncChapters] ({}) Error syncing chapter {}", dto.getNome(),
+                chapterDto.getNumero(), e);
+            //TODO: Notificar que deu ruim de alguma forma citar a obra quer deu ruim e o capitulo
+          }
         }
       });
     }
@@ -480,11 +483,6 @@ public class MediocrescanService {
               .build();
         }
 
-        var toRemove = "";
-        if (page.getFileName() != null && page.getFileName().equalsIgnoreCase(file.getSrc())) {
-          toRemove = page.getFileName();
-        }
-
         page.setFileName(
             StringUtils.completeWithZeroZeroToLeft(page.getPageNumber().toString(), 4) + "__" + file.getSrc()
         );
@@ -494,24 +492,20 @@ public class MediocrescanService {
             + "/capitulos/" + chapterDto.getNumero()
             + "/" + file.getSrc();
 
+        var path = work.getPublicationDemographic().name().toLowerCase()
+            + "/" + work.getSlug()
+            + "/" + chapter.getNumber()
+            + "/" + chapter.getScanlator().getCode().toLowerCase()
+            + "/" + chapter.getLanguage().getCode().toLowerCase();
+
         try {
           externalFileService.downloadWithAuthAndUpload(
               fileSrc,
               page.getFileName(),
-              work.getPublicationDemographic().name().toLowerCase()
-                  + "/" + work.getSlug()
-                  + "/" + chapter.getNumber()
-                  + "/" + chapter.getScanlator().getCode().toLowerCase()
-                  + "/" + chapter.getLanguage().getCode().toLowerCase()
+              path
           );
 
           pageService.save(page);
-
-          //TODO: remover a antiga imagem, caso o sinc verifique que mudou
-//        if (toRemove != null) {
-//          minioService.deleteFile(work.getPublicationDemographic().name().toLowerCase() + "/" + work.getSlug() + "/" +
-//              chapter.getScanlator().getCode().toLowerCase(), toRemove);
-//        }
         } catch (Exception e) {
           log.error("--> [MediocrescanService][syncPage] ({}) Error downloading file: {}",
               chapterDto.getObra().getObraNome(),

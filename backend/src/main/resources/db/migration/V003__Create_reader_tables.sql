@@ -168,7 +168,7 @@ INSERT INTO scanlator (id, name, code, website, synchronization) VALUES (UUID(),
 CREATE TABLE volume (
     id CHAR(36) NOT NULL PRIMARY KEY,
     work_id CHAR(36) NOT NULL,
-    number INT NOT NULL,
+    number INT,
     title VARCHAR(255),
     FOREIGN KEY (work_id) REFERENCES work(id)
 );
@@ -199,17 +199,6 @@ CREATE TABLE page (
     disabled BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (chapter_id) REFERENCES chapter(id)
 );
-
-CREATE TABLE chapter_notify (
-    id CHAR(36) NOT NULL PRIMARY KEY,
-    chapter_id CHAR(36) NOT NULL,
-    notify BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (chapter_id) REFERENCES chapter(id)
-);
-
-
 
 -- Usuários e Funcionalidades
 CREATE TABLE user (

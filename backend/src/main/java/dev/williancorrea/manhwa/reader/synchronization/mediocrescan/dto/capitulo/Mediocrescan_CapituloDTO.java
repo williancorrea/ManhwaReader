@@ -17,7 +17,7 @@ public class Mediocrescan_CapituloDTO {
   private String nome;
   private String descricao;
   private Integer numero;
-  private Object volume; // Pode ser null
+  private String volume;
   @JsonProperty("lancado_em")
   private OffsetDateTime lancadoEm;
   @JsonProperty("criado_em")

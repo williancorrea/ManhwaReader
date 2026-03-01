@@ -1,10 +1,11 @@
 package dev.williancorrea.manhwa.reader.features.volume;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.Objects;
+import dev.williancorrea.manhwa.reader.features.work.Work;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
@@ -17,27 +18,24 @@ public class VolumeService {
     this.repository = repository;
   }
 
-  public List<Volume> findAll() {
-    return repository.findAll();
-  }
+  @Transactional
+  public Volume findOrCreate(Work work, String title, Integer number) {
+    Objects.requireNonNull(work);
+    Objects.requireNonNull(title);
+    Objects.requireNonNull(StringUtils.isBlank(title) ? null : title.trim());
 
-  public Optional<Volume> findById(UUID id) {
-    return repository.findById(id);
+    return repository.findByWorkAndTitle(work.getId(), title)
+        .orElseGet(() -> save(
+                Volume.builder()
+                    .work(work)
+                    .number(number)
+                    .title(title)
+                    .build()
+            )
+        );
   }
 
   public Volume save(Volume entity) {
     return repository.save(entity);
-  }
-
-  public boolean existsById(UUID id) {
-    return repository.existsById(id);
-  }
-
-  public void deleteById(UUID id) {
-    repository.deleteById(id);
-  }
-
-  public List<Volume> findAllByWorkId(UUID workId) {
-    return repository.findAllByWork_Id(workId);
   }
 }
