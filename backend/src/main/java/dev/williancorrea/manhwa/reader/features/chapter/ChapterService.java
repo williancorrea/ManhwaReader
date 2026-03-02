@@ -52,10 +52,10 @@ public class ChapterService {
         language.getId());
   }
 
-  public Integer countByWorkIdAndScanlatorIdAndLanguageId(Work workId,
-                                                          Scanlator scanlator,
-                                                          Language language) {
-    return repository.countByWorkIdAndScanlatorIdAndLanguageId(workId.getId(), scanlator.getId(),
+  public Integer countByWorkIdAndScanlatorIdAndLanguageIdAndSynced(Work workId,
+                                                                   Scanlator scanlator,
+                                                                   Language language) {
+    return repository.countByWorkIdAndScanlatorIdAndLanguageIdAndSynched(workId.getId(), scanlator.getId(),
         language.getId());
   }
 }

@@ -24,7 +24,8 @@ public interface ChapterRepository extends JpaRepository<Chapter, UUID> {
           select count(*) from chapter where work_id = :workId
             and scanlator_id = :scanlatorId
             and language_id = :languageId
+            and synched = true
           """)
-  Integer countByWorkIdAndScanlatorIdAndLanguageId(UUID workId, UUID scanlatorId, UUID languageId);
+  Integer countByWorkIdAndScanlatorIdAndLanguageIdAndSynched(UUID workId, UUID scanlatorId, UUID languageId);
 }
 

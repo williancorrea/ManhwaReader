@@ -181,6 +181,7 @@ CREATE TABLE chapter (
     title VARCHAR(255),
     language_id CHAR(36) NOT NULL,
     release_date DATE,
+    synched BOOLEAN DEFAULT FALSE,
     scanlator_id CHAR(36) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (work_id) REFERENCES work(id),

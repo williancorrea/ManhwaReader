@@ -58,6 +58,11 @@ public class Chapter implements Serializable {
   @JoinColumn(name = "scanlator_id", nullable = false)
   private Scanlator scanlator;
 
+  /**
+   * Used to indicate whether the chapter was successfully synchronized.
+   */
+  private Boolean synched;
+
   @Column(name = "created_at")
   private OffsetDateTime createdAt;
 }
