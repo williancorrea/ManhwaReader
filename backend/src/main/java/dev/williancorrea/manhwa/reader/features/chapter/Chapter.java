@@ -30,22 +30,22 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Chapter implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "work_id", nullable = false)
-    private Work work;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "work_id", nullable = false)
+  private Work work;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal number;
+  @Column(nullable = false, precision = 10, scale = 1)
+  private BigDecimal number;
 
-    private String title;
+  private String title;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "language_id", nullable = false)
-    private Language language;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "language_id", nullable = false)
+  private Language language;
 
   @Column(name = "release_date")
   private LocalDate releaseDate;
@@ -61,7 +61,9 @@ public class Chapter implements Serializable {
   /**
    * Used to indicate whether the chapter was successfully synchronized.
    */
-  private Boolean synched;
+  private Boolean synced;
+
+  private Boolean disabled;
 
   @Column(name = "created_at")
   private OffsetDateTime createdAt;

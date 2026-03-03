@@ -1,8 +1,6 @@
 package dev.williancorrea.manhwa.reader.synchronization.mediocrescan;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -116,12 +114,18 @@ public class MediocrescanService {
       9 - YURI - L
       10- HENTAI
        */
+
+//      var titulo = "Cavaleiro em eterna regressão";
+      var titulo = "Reencarnei no Corpo de um Príncipe Canalha";
+
       var obras = mediocrescanClient.listarObras(
           getToken(),
           1, //Padrao 24
           i + 1,
           "data_ultimo_cap",
-          "5");
+          "5",
+          titulo
+      );
 
       //TODO: DESCOMENTAR
 //      totalPages = obras.getPagination().getTotalPages();
@@ -408,7 +412,6 @@ public class MediocrescanService {
         continue;
       }
 
-      log.info("--> X <-- [MediocrescanService][syncChapters] ({}) Syncing chapters", dto.getNome());
       var chapters = mediocrescanClient.listarCapitulos(
           getToken(),
           dto.getId(),
@@ -420,8 +423,7 @@ public class MediocrescanService {
       if (chapters.getData() == null || chapters.getData().isEmpty() || chapters.getPagination() == null) {
         continue;
       }
-      totalPages = chapters.getPagination().getTotalPages(); // Update count to FOR
-
+      totalPages = chapters.getPagination().getTotalPages(); // Update the total number of pages for the loop.
 
       chapters.getData().forEach(chapterDto -> {
         log.info("--> [MediocrescanService][syncChapters] ({}) Syncing chapter {}",
@@ -430,7 +432,8 @@ public class MediocrescanService {
         );
 
         var chapter =
-            chapterService.findByNumberAndWorkIdAndScanlatorId(chapterDto.getNumero(), work, scanlator, language)
+            chapterService.findByNumberAndWorkIdAndScanlatorId(chapterDto.getNumeroWithScale(), work, scanlator,
+                    language)
                 .orElseGet(() -> null);
 
         var toNotifyNew = false;
@@ -438,19 +441,20 @@ public class MediocrescanService {
           var volumeName = chapterDto.getVolume() != null ? chapterDto.getVolume() : null;
           chapter = chapterService.save(Chapter.builder()
               .work(work)
-              .number(BigDecimal.valueOf(chapterDto.getNumero()).setScale(2, RoundingMode.HALF_UP))
+              .number(chapterDto.getNumeroWithScale())
               .title(chapterDto.getDescricao())
               .scanlator(scanlator)
               .language(language)
-              .synched(false)
+              .synced(false)
               .volume(volumeName == null ? null : volumeService.findOrCreate(work, volumeName, null))
               .createdAt(OffsetDateTime.now())
+              .disabled(false)
               .build()
           );
           toNotifyNew = true;
         }
 
-        if (Boolean.TRUE.equals(chapter.getSynched())) {
+        if (Boolean.TRUE.equals(chapter.getSynced())) {
           log.info("--> [MediocrescanService][syncChapters] ({}) Chapter {} already synchronized", dto.getNome(),
               chapterDto.getNumero());
           return;
@@ -459,7 +463,7 @@ public class MediocrescanService {
         try {
           syncPage(work, dto, chapter, chapterDto);
 
-          chapter.setSynched(true);
+          chapter.setSynced(true);
           chapterService.save(chapter);
           chapterNotifyService.save(ChapterNotify.builder()
               .chapter(chapter)
@@ -468,7 +472,13 @@ public class MediocrescanService {
         } catch (Exception e) {
           log.error("[MediocrescanService][syncChapters] ({}) Error syncing chapter {}", dto.getNome(),
               chapterDto.getNumero(), e);
-          //TODO: Notificar que deu ruim de alguma forma citar a obra quer deu ruim e o capitulo
+
+          chapter.setSynced(false);
+          chapterService.save(chapter);
+          chapterNotifyService.save(ChapterNotify.builder()
+              .chapter(chapter)
+              .status(ChapterNotifyType.ERROR)
+              .build());
         }
       });
     }
@@ -542,7 +552,7 @@ public class MediocrescanService {
             fileSrc, e);
       }
     }
-    
+
   }
 
   @Transactional

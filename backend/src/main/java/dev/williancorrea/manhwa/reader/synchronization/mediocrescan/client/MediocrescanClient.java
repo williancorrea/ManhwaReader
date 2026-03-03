@@ -35,7 +35,8 @@ public interface MediocrescanClient {
       @RequestParam(value = "limite") Integer limite,
       @RequestParam(value = "pagina") Integer pagina,
       @RequestParam(value = "ordenarPor", required = false) String ordenarPor,
-      @RequestParam(value = "formato", required = false) String formato
+      @RequestParam(value = "formato", required = false) String formato,
+      @RequestParam(value = "string", required = false) String titulo
   );
 
   @GetMapping("/capitulos")

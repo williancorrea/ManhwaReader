@@ -1,5 +1,6 @@
 package dev.williancorrea.manhwa.reader.features.chapter;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -44,7 +45,7 @@ public class ChapterService {
     return repository.findAllByWork_Id(workId);
   }
 
-  public Optional<Chapter> findByNumberAndWorkIdAndScanlatorId(float number,
+  public Optional<Chapter> findByNumberAndWorkIdAndScanlatorId(BigDecimal number,
                                                                Work workId,
                                                                Scanlator scanlator,
                                                                Language language) {

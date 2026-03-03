@@ -1,5 +1,6 @@
 package dev.williancorrea.manhwa.reader.features.chapter;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,8 +16,9 @@ public interface ChapterRepository extends JpaRepository<Chapter, UUID> {
             and work_id = :workId
             and scanlator_id = :scanlatorId
             and language_id = :languageId
+            and disabled = false
           """)
-  Optional<Chapter> findByNumberAndWorkIdAndScanlatorIdAndLanguageId(float number, UUID workId, UUID scanlatorId,
+  Optional<Chapter> findByNumberAndWorkIdAndScanlatorIdAndLanguageId(BigDecimal number, UUID workId, UUID scanlatorId,
                                                                      UUID languageId);
 
   @Query(nativeQuery = true,
@@ -24,7 +26,8 @@ public interface ChapterRepository extends JpaRepository<Chapter, UUID> {
           select count(*) from chapter where work_id = :workId
             and scanlator_id = :scanlatorId
             and language_id = :languageId
-            and synched = true
+            and synced = true
+            and disabled = false
           """)
   Integer countByWorkIdAndScanlatorIdAndLanguageIdAndSynched(UUID workId, UUID scanlatorId, UUID languageId);
 }
