@@ -10,6 +10,9 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import dev.williancorrea.manhwa.reader.features.chapter.Chapter;
 import dev.williancorrea.manhwa.reader.features.chapter.ChapterService;
+import dev.williancorrea.manhwa.reader.features.chapter.notify.ChapterNotify;
+import dev.williancorrea.manhwa.reader.features.chapter.notify.ChapterNotifyService;
+import dev.williancorrea.manhwa.reader.features.chapter.notify.ChapterNotifyType;
 import dev.williancorrea.manhwa.reader.features.language.LanguageService;
 import dev.williancorrea.manhwa.reader.features.page.Page;
 import dev.williancorrea.manhwa.reader.features.page.PageService;
@@ -59,6 +62,9 @@ public class MediocrescanService {
   public final ScanlatorService scanlatorService;
   public final PageService pageService;
   public final VolumeService volumeService;
+  public final ChapterNotifyService chapterNotifyService;
+
+  private static final String[] IMAGE_EXTENSION = {".jpg", ".png", ".jpeg", ".webp"};
 
   @Value("${synchronization.mediocrescan.cdn.url}")
   private String mediocreScanUrlCDN;
@@ -427,6 +433,7 @@ public class MediocrescanService {
             chapterService.findByNumberAndWorkIdAndScanlatorId(chapterDto.getNumero(), work, scanlator, language)
                 .orElseGet(() -> null);
 
+        var toNotifyNew = false;
         if (chapter == null) {
           var volumeName = chapterDto.getVolume() != null ? chapterDto.getVolume() : null;
           chapter = chapterService.save(Chapter.builder()
@@ -440,6 +447,7 @@ public class MediocrescanService {
               .createdAt(OffsetDateTime.now())
               .build()
           );
+          toNotifyNew = true;
         }
 
         if (Boolean.TRUE.equals(chapter.getSynched())) {
@@ -453,6 +461,10 @@ public class MediocrescanService {
 
           chapter.setSynched(true);
           chapterService.save(chapter);
+          chapterNotifyService.save(ChapterNotify.builder()
+              .chapter(chapter)
+              .status(toNotifyNew ? ChapterNotifyType.NEW : ChapterNotifyType.UPDATED)
+              .build());
         } catch (Exception e) {
           log.error("[MediocrescanService][syncChapters] ({}) Error syncing chapter {}", dto.getNome(),
               chapterDto.getNumero(), e);
@@ -530,9 +542,7 @@ public class MediocrescanService {
             fileSrc, e);
       }
     }
-    pageDto.getPaginas().forEach(file -> {
-
-    });
+    
   }
 
   @Transactional

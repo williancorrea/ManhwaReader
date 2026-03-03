@@ -190,6 +190,13 @@ CREATE TABLE chapter (
     FOREIGN KEY (language_id) REFERENCES language(id)
 );
 
+CREATE TABLE chapter_notify (
+    id CHAR(36) NOT NULL PRIMARY KEY,
+    chapter_id CHAR(36) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    FOREIGN KEY (chapter_id) REFERENCES chapter(id)
+);
+
 CREATE TABLE page (
     id CHAR(36) NOT NULL PRIMARY KEY,
     chapter_id CHAR(36) NOT NULL,
