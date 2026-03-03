@@ -18,6 +18,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -62,7 +65,11 @@ public class Chapter implements Serializable {
    * Used to indicate whether the chapter was successfully synchronized.
    */
   private Boolean synced;
-
+  
+  @NotNull
+  @NotEmpty
+  @Size(min = 2, max = 15)
+  private String version; 
   private Boolean disabled;
 
   @Column(name = "created_at")

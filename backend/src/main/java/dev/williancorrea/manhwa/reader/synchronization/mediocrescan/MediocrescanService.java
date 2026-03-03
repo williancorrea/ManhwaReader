@@ -1,6 +1,8 @@
 package dev.williancorrea.manhwa.reader.synchronization.mediocrescan;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -115,8 +117,8 @@ public class MediocrescanService {
       10- HENTAI
        */
 
-//      var titulo = "Cavaleiro em eterna regressão";
-      var titulo = "Reencarnei no Corpo de um Príncipe Canalha";
+//      var titulo = "Cavaleiro em eterna regressão"; //COMIC
+      var titulo = "Reencarnei no Corpo de um Príncipe Canalha"; //COMIC
 
       var obras = mediocrescanClient.listarObras(
           getToken(),
@@ -439,10 +441,18 @@ public class MediocrescanService {
         var toNotifyNew = false;
         if (chapter == null) {
           var volumeName = chapterDto.getVolume() != null ? chapterDto.getVolume() : null;
+
+          BigDecimal decimal = chapterDto.getNumero().remainder(BigDecimal.ONE);
+
+          var version = decimal.scale() > 0
+              ? decimal.movePointRight(decimal.scale()).abs().toPlainString()
+              : "0";
+
           chapter = chapterService.save(Chapter.builder()
               .work(work)
               .number(chapterDto.getNumeroWithScale())
-              .title(chapterDto.getDescricao())
+              .version("v" + StringUtils.completeWithZeroZeroToLeft(version,2))
+              .title(chapterDto.getNumero().setScale(0, RoundingMode.FLOOR).toPlainString())
               .scanlator(scanlator)
               .language(language)
               .synced(false)
@@ -534,9 +544,10 @@ public class MediocrescanService {
       var path = work.getPublicationDemographic().name().toLowerCase()
           + "/" + work.getSlug()
           + "/chapters"
-          + "/" + chapter.getNumber()
+          + "/" + chapter.getTitle()
           + "/" + chapter.getScanlator().getCode().toLowerCase()
-          + "/" + chapter.getLanguage().getCode().toLowerCase();
+          + "/" + chapter.getLanguage().getCode().toLowerCase()
+          + "/" + chapter.getVersion();
 
       try {
         externalFileService.downloadWithAuthAndUpload(
