@@ -26,5 +26,7 @@ public interface WorkRepository extends JpaRepository<Work, UUID> {
       , nativeQuery = true
   )
   Optional<Work> findByTitle(String title);
+
+  Optional<Work> findBySlug(String slug);
 }
 

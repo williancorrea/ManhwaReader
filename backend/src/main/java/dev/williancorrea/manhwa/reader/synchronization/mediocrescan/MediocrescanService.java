@@ -96,7 +96,6 @@ public class MediocrescanService {
   @PostConstruct
   @Transactional
   public void FindAllWorks() {
-    //TODO: Montar o loop para buscar as proximas paginas (Verificar no site se tem que fazer a conta para o numero de pagina)
     log.warn("--> [MediocrescanService][FindAllWorks] Starting synchronization with Mediocrescan");
     var totalPages = 1;
     for (int i = 0; i < totalPages; i++) {
@@ -129,8 +128,7 @@ public class MediocrescanService {
           titulo
       );
 
-      //TODO: DESCOMENTAR
-//      totalPages = obras.getPagination().getTotalPages();
+      totalPages = obras.getPagination().getTotalPages();
       obras.getData().forEach(this::synchronizeWork);
       waitForNextQuery();
     }
@@ -306,9 +304,35 @@ public class MediocrescanService {
       work.setPublicationDemographic(WorkPublicationDemographic.valueOf(demographic));
     }
 
+    log.debug("--> [MediocrescanService][syncCover] ({}) Syncing cover", dto.getNome());
     if (work.getSlug() == null || work.getSlug().isEmpty()) {
-      work.setSlug(dto.getSlug());
+      var isNovel = dto.getFormato().getNome().equalsIgnoreCase("NOVEL");
+      if (validateSlugUniqueFree(dto.getSlug(), isNovel)) {
+        work.setSlug(dto.getSlug());
+      } else {
+
+        var title = work.getTitles()
+            .stream()
+            .map(WorkTitle::getTitle)
+            .findAny().get();
+        title = RemoveAccentuationUtils.normalize(title).toLowerCase();
+
+        if (validateSlugUniqueFree(title, isNovel)) {
+          work.setSlug(title);
+        } else {
+          var random = "GENERATED" + UUID.randomUUID();
+          work.setSlug(isNovel ? random + "__novel" : random);
+        }
+        work.setSlug(title);
+      }
     }
+  }
+
+  private boolean validateSlugUniqueFree(String slug, Boolean isNovel) {
+    if (slug == null || slug.isEmpty()) {
+      return false;
+    }
+    return workService.findBySlug(Boolean.TRUE.equals(isNovel) ? slug + "__novel" : slug).isEmpty();
   }
 
   private void syncSynopses(Work work, Mediocrescan_ObraDTO dto) {
@@ -368,21 +392,6 @@ public class MediocrescanService {
     Objects.requireNonNull(dto);
 
     log.debug("--> [MediocrescanService][syncCover] ({}) Syncing cover", dto.getNome());
-    if (work.getSlug() == null || work.getSlug().isEmpty()) {
-      var title = work.getTitles()
-          .stream()
-          .map(WorkTitle::getTitle)
-          .findFirst().orElse(
-              "GENERATED" + UUID.randomUUID()
-          );
-      title = RemoveAccentuationUtils.normalize(title).toLowerCase();
-
-      if (dto.getFormato().getNome().equalsIgnoreCase("NOVEL")) {
-        title = title + "__novel";
-      }
-      work.setSlug(title);
-    }
-
     if (work.getCoverCustom() == null || work.getCoverCustom().isEmpty()) {
       var coverUrl = mediocreScanUrlAPI + "/storage/obras/" + dto.getId() + "/" + dto.getImagem();
       work.setCoverCustom("cover_custom." + dto.getImagem().split("\\.")[1]);
@@ -408,12 +417,6 @@ public class MediocrescanService {
     var perPage = 100;
     var totalPages = 1;
     for (int i = 1; i <= totalPages; i++) {
-      var countChapter = chapterService.countByWorkIdAndScanlatorIdAndLanguageIdAndSynced(work, scanlator, language);
-      if (Objects.equals(countChapter, dto.getTotalCapitulos())) {
-        log.info("--> [MediocrescanService][syncChapters] ({}) All chapters already synchronized ", dto.getNome());
-        continue;
-      }
-
       var chapters = mediocrescanClient.listarCapitulos(
           getToken(),
           dto.getId(),
@@ -451,7 +454,7 @@ public class MediocrescanService {
           chapter = chapterService.save(Chapter.builder()
               .work(work)
               .number(chapterDto.getNumeroWithScale())
-              .version("v" + StringUtils.completeWithZeroZeroToLeft(version,2))
+              .version("v" + StringUtils.completeWithZeroZeroToLeft(version, 2))
               .title(chapterDto.getNumero().setScale(0, RoundingMode.FLOOR).toPlainString())
               .scanlator(scanlator)
               .language(language)

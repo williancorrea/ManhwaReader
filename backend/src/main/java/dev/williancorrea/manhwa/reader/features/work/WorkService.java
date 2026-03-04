@@ -55,6 +55,10 @@ public class WorkService {
   public Optional<Work> findBySynchronizationExternalID(String externalId) {
     return repository.findBySynchronizationExternalID(externalId);
   }
+  
+  public Optional<Work> findBySlug(String slug) {
+    return repository.findBySlug(slug);
+  }
 
 }
 
