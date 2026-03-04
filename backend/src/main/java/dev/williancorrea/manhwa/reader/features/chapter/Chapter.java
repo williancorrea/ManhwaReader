@@ -9,6 +9,7 @@ import dev.williancorrea.manhwa.reader.features.language.Language;
 import dev.williancorrea.manhwa.reader.features.scanlator.Scanlator;
 import dev.williancorrea.manhwa.reader.features.volume.Volume;
 import dev.williancorrea.manhwa.reader.features.work.Work;
+import dev.williancorrea.manhwa.reader.utils.StringUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -44,6 +45,12 @@ public class Chapter implements Serializable {
   @Column(nullable = false, precision = 10, scale = 1)
   private BigDecimal number;
 
+  @NotNull
+  @NotEmpty
+  @Size(min = 4)
+  @Column(name = "number_formatted", nullable = false)
+  private String numberFormatted;
+
   private String title;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -65,13 +72,22 @@ public class Chapter implements Serializable {
    * Used to indicate whether the chapter was successfully synchronized.
    */
   private Boolean synced;
-  
+
   @NotNull
   @NotEmpty
   @Size(min = 2, max = 15)
-  private String version; 
+  private String version;
   private Boolean disabled;
 
   @Column(name = "created_at")
   private OffsetDateTime createdAt;
+
+
+  public void setNumberFormatted(String numberFormatted) {
+    this.numberFormatted = StringUtils.completeWithZeroZeroToLeft(numberFormatted, 4);
+  }
+
+  public String getNumberFormatted() {
+    return StringUtils.completeWithZeroZeroToLeft(numberFormatted, 4);
+  }
 }

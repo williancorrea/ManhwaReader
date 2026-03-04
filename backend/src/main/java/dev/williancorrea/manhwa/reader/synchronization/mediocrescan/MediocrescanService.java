@@ -132,6 +132,8 @@ public class MediocrescanService {
 
       totalPages = obras.getPagination().getTotalPages();
       obras.getData().forEach(this::synchronizeWork);
+
+      //TODO: Disparar o envio de mensgem/notificação da obra contendo os novos capitulos
       waitForNextQuery();
     }
   }
@@ -183,11 +185,10 @@ public class MediocrescanService {
     var work = workService.findBySynchronizationExternalID(dto.getId().toString()).orElse(null);
     if (work == null) {
       log.debug("--> [MediocrescanService][findWork] ({}) Work not found, creating new work", dto.getNome());
-      work = workService.findByTitle(dto.getNome())
-          .orElseGet(() -> Work.builder()
-              .createdAt(OffsetDateTime.now())
-              .disabled(false)
-              .build());
+      work = Work.builder()
+          .createdAt(OffsetDateTime.now())
+          .disabled(false)
+          .build();
     }
     return work;
   }
@@ -303,11 +304,11 @@ public class MediocrescanService {
       if (demographic.isEmpty()) {
         demographic = WorkPublicationDemographic.UNKNOWN.name();
       }
-      
+
       if (demographic.equalsIgnoreCase("ENGLISH")) {
         demographic = WorkPublicationDemographic.COMIC.name();
       }
-      
+
       work.setPublicationDemographic(WorkPublicationDemographic.valueOf(demographic));
     }
 
@@ -461,8 +462,10 @@ public class MediocrescanService {
           chapter = chapterService.save(Chapter.builder()
               .work(work)
               .number(chapterDto.getNumeroWithScale())
+              .numberFormatted(StringUtils.completeWithZeroZeroToLeft(
+                  chapterDto.getNumero().setScale(0, RoundingMode.FLOOR).toPlainString(), 4)
+              )
               .version("v" + StringUtils.completeWithZeroZeroToLeft(version, 2))
-              .title(chapterDto.getNumero().setScale(0, RoundingMode.FLOOR).toPlainString())
               .scanlator(scanlator)
               .language(language)
               .synced(false)
@@ -554,7 +557,7 @@ public class MediocrescanService {
       var path = work.getPublicationDemographic().name().toLowerCase()
           + "/" + work.getSlug()
           + "/chapters"
-          + "/" + chapter.getTitle()
+          + "/" + chapter.getNumberFormatted()
           + "/" + chapter.getScanlator().getCode().toLowerCase()
           + "/" + chapter.getLanguage().getCode().toLowerCase()
           + "/" + chapter.getVersion();
