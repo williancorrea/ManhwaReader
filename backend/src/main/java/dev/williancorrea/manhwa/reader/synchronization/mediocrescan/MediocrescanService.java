@@ -117,14 +117,16 @@ public class MediocrescanService {
        */
 
 //      var titulo = "Cavaleiro em eterna regressão"; //COMIC
-      var titulo = "Reencarnei no Corpo de um Príncipe Canalha"; //COMIC
+//      var titulo = "Reencarnei no Corpo de um Príncipe Canalha"; //COMIC
+      var titulo = "I Became a Munchkin Skill Thief"; // ENGLISH
+//      var titulo = "Necromante! Eu Sou Um Desastre"; //COMIC e NOVEL
 
       var obras = mediocrescanClient.listarObras(
           getToken(),
           1, //Padrao 24
           i + 1,
           "data_ultimo_cap",
-          "5",
+          "1",
           titulo
       );
 
@@ -301,6 +303,11 @@ public class MediocrescanService {
       if (demographic.isEmpty()) {
         demographic = WorkPublicationDemographic.UNKNOWN.name();
       }
+      
+      if (demographic.equalsIgnoreCase("ENGLISH")) {
+        demographic = WorkPublicationDemographic.COMIC.name();
+      }
+      
       work.setPublicationDemographic(WorkPublicationDemographic.valueOf(demographic));
     }
 
