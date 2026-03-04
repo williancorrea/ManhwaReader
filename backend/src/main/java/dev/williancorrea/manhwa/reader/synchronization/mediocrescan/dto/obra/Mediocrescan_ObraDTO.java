@@ -18,6 +18,8 @@ public class Mediocrescan_ObraDTO {
   private Long id;
   private String nome;
   private String descricao;
+  @JsonProperty("titulos_alternativos")
+  private List<String> tituloAlternativo;
   private String imagem;
   private String banner;
   private String slug;

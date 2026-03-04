@@ -143,20 +143,22 @@ CREATE TABLE work_author
     FOREIGN KEY (author_id) REFERENCES author (id)
 );
 
-
-
-
-
-
-
-
--- Scanlators
 CREATE TABLE scanlator (
     id CHAR(36) NOT NULL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,    
     code VARCHAR(20) NOT NULL UNIQUE,
     website VARCHAR(255),
     synchronization VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE scanlator_synchronization_error (
+    id CHAR(36) NOT NULL PRIMARY KEY,
+    scanlator_id CHAR(36) NOT NULL,
+    work_id VARCHAR(255),
+    external_work_id VARCHAR(255) NOT NULL,
+    external_work_name VARCHAR(255) NOT NULL,
+    error_message TEXT,
+    FOREIGN KEY (scanlator_id) REFERENCES scanlator(id)
 );
 
 INSERT INTO scanlator (id, name, code, website, synchronization) VALUES (UUID(), 'MangaDex', 'MD', 'https://mangadex.org', 'MANGADEX');

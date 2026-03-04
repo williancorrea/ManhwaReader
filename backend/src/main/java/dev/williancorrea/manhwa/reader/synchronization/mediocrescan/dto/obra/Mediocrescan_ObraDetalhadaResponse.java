@@ -18,7 +18,7 @@ public class Mediocrescan_ObraDetalhadaResponse {
   private Long id;
   private String nome;
   @JsonProperty("titulos_alternativos")
-  private List<Object> titulosAlternativos;
+  private List<String> titulosAlternativos;
   private String descricao;
   private String imagem;
   private String banner;

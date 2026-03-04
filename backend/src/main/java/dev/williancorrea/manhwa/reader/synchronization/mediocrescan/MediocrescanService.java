@@ -18,6 +18,8 @@ import dev.williancorrea.manhwa.reader.features.page.Page;
 import dev.williancorrea.manhwa.reader.features.page.PageService;
 import dev.williancorrea.manhwa.reader.features.page.PageType;
 import dev.williancorrea.manhwa.reader.features.scanlator.ScanlatorService;
+import dev.williancorrea.manhwa.reader.features.scanlator.error.ScanlatorSynchronizationError;
+import dev.williancorrea.manhwa.reader.features.scanlator.error.ScanlatorSynchronizationErrorService;
 import dev.williancorrea.manhwa.reader.features.tag.TagGroupType;
 import dev.williancorrea.manhwa.reader.features.tag.TagService;
 import dev.williancorrea.manhwa.reader.features.volume.VolumeService;
@@ -63,8 +65,7 @@ public class MediocrescanService {
   public final PageService pageService;
   public final VolumeService volumeService;
   public final ChapterNotifyService chapterNotifyService;
-
-  private static final String[] IMAGE_EXTENSION = {".jpg", ".png", ".jpeg", ".webp"};
+  public final ScanlatorSynchronizationErrorService scanlatorSynchronizationErrorService;
 
   @Value("${synchronization.mediocrescan.cdn.url}")
   private String mediocreScanUrlCDN;
@@ -118,22 +119,22 @@ public class MediocrescanService {
 
 //      var titulo = "Cavaleiro em eterna regressão"; //COMIC
 //      var titulo = "Reencarnei no Corpo de um Príncipe Canalha"; //COMIC
-      var titulo = "I Became a Munchkin Skill Thief"; // ENGLISH
+//      var titulo = "I Became a Munchkin Skill Thief"; // ENGLISH
+//      var titulo = "Espada do Deus Dragão"; // ENGLISH - 2 Caps
 //      var titulo = "Necromante! Eu Sou Um Desastre"; //COMIC e NOVEL
+      var titulo = "O Gênio Que Lê O Mundo"; // COMIC - Testando titulos alternativos
 
       var obras = mediocrescanClient.listarObras(
           getToken(),
           1, //Padrao 24
           i + 1,
           "data_ultimo_cap",
-          "1",
+          "5",  // 1,3,4
           titulo
       );
 
       totalPages = obras.getPagination().getTotalPages();
       obras.getData().forEach(this::synchronizeWork);
-
-      //TODO: Disparar o envio de mensgem/notificação da obra contendo os novos capitulos
       waitForNextQuery();
     }
   }
@@ -148,15 +149,15 @@ public class MediocrescanService {
     }
   }
 
-
   @Transactional
   public void synchronizeWork(Mediocrescan_ObraDTO obra) {
+    Work work = null;
     try {
-      var work = findWork(obra);
+      work = findWork(obra);
 
+      syncTitle(work, obra);
       syncAttributes(work, obra);
       syncSynchronization(work, obra);
-      syncTitle(work, obra);
       syncSynopses(work, obra);
       syncTags(work, obra);
       syncCover(work, obra);
@@ -170,7 +171,17 @@ public class MediocrescanService {
 
       log.info("<-- [MediocrescanService][synchronizeWork] Synchronization completed: {}", obra.getNome().trim());
     } catch (Exception e) {
-      //TODO: Notificar que deu ruim de alguma forma citar a obra quer deu ruim
+      scanlatorSynchronizationErrorService.save(
+          ScanlatorSynchronizationError.builder()
+              .scanlator(scanlatorService.findBySynchronization(SynchronizationOriginType.MEDIOCRESCAN)
+                  .orElseGet(() -> null))
+              .workId(work != null && work.getId() == null ? null : Objects.requireNonNull(work).getId().toString())
+              .externalWorkId(obra.getId().toString())
+              .externalWorkName(obra.getNome())
+              .errorMessage(e.getMessage())
+              .build()
+      );
+
       log.error("<-- [MediocrescanService][synchronizeWork] Error synchronizing with Mediocrescan: ({}) {} - {}",
           obra.getFormato().getNome().toUpperCase(),
           obra.getId(),

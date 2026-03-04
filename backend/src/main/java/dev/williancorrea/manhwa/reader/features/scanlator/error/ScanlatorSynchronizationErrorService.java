@@ -1,0 +1,22 @@
+package dev.williancorrea.manhwa.reader.features.scanlator.error;
+
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+
+@Validated
+@Service
+public class ScanlatorSynchronizationErrorService {
+
+  private final ScanlatorSynchronizationErrorRepository repository;
+
+  public ScanlatorSynchronizationErrorService(@Lazy ScanlatorSynchronizationErrorRepository repository) {
+    this.repository = repository;
+  }
+
+  public ScanlatorSynchronizationError save(ScanlatorSynchronizationError entity) {
+    //TODO: Apos salvar notificar que deu zica por algum dos canais(Email, Discord, etc...)
+    return repository.save(entity);
+  }
+
+}
