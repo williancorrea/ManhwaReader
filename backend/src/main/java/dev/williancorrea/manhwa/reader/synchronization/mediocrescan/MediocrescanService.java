@@ -96,7 +96,7 @@ public class MediocrescanService {
 
   @PostConstruct
   @Transactional
-  public void FindAllWorks() {
+  public void findAllWorks() {
     log.warn("--> [MediocrescanService][FindAllWorks] Starting synchronization with Mediocrescan");
     var totalPages = 1;
     for (int i = 0; i < totalPages; i++) {
