@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +24,11 @@ public class MangaDexResource {
   @GetMapping
   public void searchMangaFromExternalApi(@RequestParam @NotNull @NotEmpty String title) {
     mangaDexApiService.searchMangaFromExternalApi(title, Pageable.ofSize(5));
+  }
+
+  @GetMapping("/{uuid}")
+  public void searchMangaByIdFromExternalApi(@PathVariable @NotNull @NotEmpty String uuid) {
+    mangaDexApiService.searchMangaByIDFromExternalApi(uuid);
   }
 }
 

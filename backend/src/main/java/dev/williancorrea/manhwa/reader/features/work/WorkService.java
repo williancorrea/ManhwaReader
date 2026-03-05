@@ -3,6 +3,7 @@ package dev.williancorrea.manhwa.reader.features.work;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,8 +53,8 @@ public class WorkService {
     return repository.findByTitle(title);
   }
 
-  public Optional<Work> findBySynchronizationExternalID(String externalId) {
-    return repository.findBySynchronizationExternalID(externalId);
+  public Optional<Work> findBySynchronizationExternalID(String externalId, SynchronizationOriginType origin) {
+    return repository.findBySynchronizationExternalID(externalId, origin.name());
   }
   
   public Optional<Work> findBySlug(String slug) {

@@ -80,6 +80,8 @@ synchronization:
   mangadex:
     api:
       url: "https://api.mangadex.org"
+    site:
+      url: "https://mangadex.org"
       
 #Actuator
 management:

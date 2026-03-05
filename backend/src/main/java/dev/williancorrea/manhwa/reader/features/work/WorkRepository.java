@@ -15,8 +15,9 @@ public interface WorkRepository extends JpaRepository<Work, UUID> {
       select w.* from work_synchronization ws
         inner join work w on ws.work_id = w.id
       where ws.external_id = :externalId
+            and ws.origin = :origin
       """, nativeQuery = true)
-  Optional<Work> findBySynchronizationExternalID(String externalId);
+  Optional<Work> findBySynchronizationExternalID(String externalId, String origin);
 
   @Query(value = """
       select w.* from work_title wt

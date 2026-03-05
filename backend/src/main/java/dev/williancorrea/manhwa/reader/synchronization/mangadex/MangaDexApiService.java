@@ -5,7 +5,8 @@ import dev.williancorrea.manhwa.reader.features.work.Work;
 import dev.williancorrea.manhwa.reader.features.work.WorkService;
 import dev.williancorrea.manhwa.reader.synchronization.mangadex.client.MangaDexClient;
 import dev.williancorrea.manhwa.reader.synchronization.mangadex.dto.MangaDexData;
-import dev.williancorrea.manhwa.reader.synchronization.mangadex.dto.MangaDexResponse;
+import dev.williancorrea.manhwa.reader.synchronization.mangadex.dto.MangaDexResponseData;
+import dev.williancorrea.manhwa.reader.synchronization.mangadex.dto.MangaDexResponseList;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,7 @@ public class MangaDexApiService {
   public void searchMangaFromExternalApi(String title, Pageable pageable) {
     try {
       log.info("--> Searching manga from MangaDex API - ({})", title.toUpperCase());
-      MangaDexResponse response = mangaDexClient.searchManga(
+      MangaDexResponseList response = mangaDexClient.searchManga(
           title,
           pageable.getPageSize(),
           pageable.getPageNumber() * pageable.getPageSize(),
@@ -36,6 +37,27 @@ public class MangaDexApiService {
       if ("ok".equals(response.getResult()) && response.getData() != null) {
         log.info("--> Found {} manga from MangaDex API", response.getData().size());
         response.getData().forEach(this::startSynchronization);
+      } else {
+        log.warn("--> No manga found from MangaDex API");
+      }
+      log.info("<-- Finished search manga from MangaDex API");
+    } catch (FeignException e) {
+      log.error("Error searchMangaFromExternalApi manga from MangaDex API: {}", e.getMessage());
+      //TODO: Implementar um tratamento mais adequado de exceções
+      throw new RuntimeException("Failed to search manga from MangaDex API", e);
+    }
+  }
+
+  @Transactional
+  public void searchMangaByIDFromExternalApi(String uuid) {
+    try {
+      MangaDexResponseData response = mangaDexClient.getMangaById(
+          uuid,
+          List.of("artist", "author", "cover_art")
+      );
+
+      if ("ok".equals(response.getResult()) && response.getData() != null) {
+        startSynchronization(response.getData());
       } else {
         log.warn("--> No manga found from MangaDex API");
       }

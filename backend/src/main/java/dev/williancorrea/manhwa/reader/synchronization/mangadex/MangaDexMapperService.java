@@ -50,7 +50,7 @@ public class MangaDexMapperService {
   public final AuthorService authorService;
   public final ExternalFileService externalFileService;
 
-  @Value("${synchronization.mangadex.api.url}")
+  @Value("${synchronization.mangadex.site.url}")
   private String MANDADEX_URL_COVERS;
 
   public Work toEntity(MangaDexData dto) {
@@ -77,16 +77,13 @@ public class MangaDexMapperService {
 
   private Work findWork(MangaDexData dto) {
     Objects.requireNonNull(dto);
-    var work = workService.findBySynchronizationExternalID(dto.getId()).orElse(null);
+    var work =
+        workService.findBySynchronizationExternalID(dto.getId(), SynchronizationOriginType.MANGADEX).orElse(null);
     if (work == null) {
-      var tittle = dto.getAttributes().getTitle().values().stream().findAny().orElse(null);
-      if (tittle != null) {
-        work = workService.findByTitle(tittle).orElse(Work.builder()
-            .createdAt(OffsetDateTime.now())
-            .disabled(false)
-            .build());
-      }
-      return work;
+      work = Work.builder()
+          .createdAt(OffsetDateTime.now())
+          .disabled(false)
+          .build();
     }
     return work;
   }
@@ -357,15 +354,25 @@ public class MangaDexMapperService {
     Objects.requireNonNull(dto);
 
     work.setType(WorkType.valueOf(dto.getType().toUpperCase()));
+
     work.setStatus(WorkStatus.valueOf(dto.getAttributes().getStatus().toUpperCase()));
+
     work.setOriginalLanguage(
         languageService.findOrCreate(dto.getAttributes().getOriginalLanguage(), SynchronizationOriginType.MANGADEX));
+
     work.setReleaseYear(dto.getAttributes().getYear());
 
-    if (dto.getAttributes().getPublicationDemographic() != null) {
+    if (work.getPublicationDemographic() == null
+        && (dto.getAttributes().getPublicationDemographic() != null
+        || !dto.getAttributes().getPublicationDemographic().isEmpty())) {
       work.setPublicationDemographic(
           WorkPublicationDemographic.valueOf(dto.getAttributes().getPublicationDemographic().toUpperCase()));
+    } else if (work.getPublicationDemographic() == null
+        && (dto.getAttributes().getPublicationDemographic() == null
+        || dto.getAttributes().getPublicationDemographic().isEmpty())) {
+      work.setPublicationDemographic(WorkPublicationDemographic.UNKNOWN);
     }
+
 
     if (dto.getAttributes().getContentRating() != null) {
       work.setContentRating(WorkContentRating.valueOf(dto.getAttributes().getContentRating().toUpperCase()));
@@ -390,7 +397,7 @@ public class MangaDexMapperService {
       var extension = "." + cover.getAttributes().getFileName().split("\\.")[1];
       try {
 
-        if (work.getCoverMedium() != null && !work.getCoverMedium().isEmpty()) {
+        if (work.getCoverMedium() == null) {
           work.setCoverMedium("cover_512" + extension);
           externalFileService.downloadWithAuthAndUpload(
               MANDADEX_URL_COVERS + "/covers/" + dto.getId() + "/" + cover.getAttributes().getFileName() + ".512.jpg",
@@ -399,7 +406,7 @@ public class MangaDexMapperService {
           );
         }
 
-        if (work.getCoverLow() != null && !work.getCoverLow().isEmpty()) {
+        if (work.getCoverLow() == null) {
           work.setCoverLow("cover_256" + extension);
           externalFileService.downloadWithAuthAndUpload(
               MANDADEX_URL_COVERS + "/covers/" + dto.getId() + "/" + cover.getAttributes().getFileName() + ".256.jpg",
@@ -408,7 +415,7 @@ public class MangaDexMapperService {
           );
         }
 
-        if (work.getCoverHigh() != null && !work.getCoverHigh().isEmpty()) {
+        if (work.getCoverHigh() == null) {
           work.setCoverHigh("cover" + extension);
           externalFileService.downloadWithAuthAndUpload(
               MANDADEX_URL_COVERS + "/covers/" + dto.getId() + "/" + cover.getAttributes().getFileName(),

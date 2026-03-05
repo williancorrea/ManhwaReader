@@ -42,7 +42,6 @@ import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Me
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.obra.Mediocrescan_ObraDTO;
 import dev.williancorrea.manhwa.reader.utils.RemoveAccentuationUtils;
 import dev.williancorrea.manhwa.reader.utils.StringUtils;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -94,7 +93,7 @@ public class MediocrescanService {
     ).getAccessToken();
   }
 
-  @PostConstruct
+  //  @PostConstruct
   @Transactional
   public void findAllWorks() {
     log.warn("--> [MediocrescanService][FindAllWorks] Starting synchronization with Mediocrescan");
@@ -193,7 +192,9 @@ public class MediocrescanService {
   private Work findWork(Mediocrescan_ObraDTO dto) {
     Objects.requireNonNull(dto);
     log.debug("--> [MediocrescanService][findWork] ({}) Finding work", dto.getNome());
-    var work = workService.findBySynchronizationExternalID(dto.getId().toString()).orElse(null);
+    var work =
+        workService.findBySynchronizationExternalID(dto.getId().toString(), SynchronizationOriginType.MEDIOCRESCAN)
+            .orElse(null);
     if (work == null) {
       log.debug("--> [MediocrescanService][findWork] ({}) Work not found, creating new work", dto.getNome());
       work = Work.builder()
@@ -210,7 +211,10 @@ public class MediocrescanService {
 
     if (work.getRelationship() == null) {
       if (dto.getObraNovel() != null) {
-        var rel = workService.findBySynchronizationExternalID(dto.getObraNovel().getId().toString()).orElse(null);
+        var rel = workService.findBySynchronizationExternalID(
+                dto.getObraNovel().getId().toString(),
+                SynchronizationOriginType.MEDIOCRESCAN)
+            .orElse(null);
         if (rel != null) {
           work.setRelationship(rel);
           rel.setRelationship(work);
@@ -219,7 +223,10 @@ public class MediocrescanService {
 
         }
       } else if (dto.getObraOriginal() != null) {
-        var rel = workService.findBySynchronizationExternalID(dto.getObraOriginal().getId().toString()).orElse(null);
+        var rel = workService.findBySynchronizationExternalID(
+                dto.getObraOriginal().getId().toString(),
+                SynchronizationOriginType.MEDIOCRESCAN)
+            .orElse(null);
         if (rel != null) {
           work.setRelationship(rel);
           rel.setRelationship(work);

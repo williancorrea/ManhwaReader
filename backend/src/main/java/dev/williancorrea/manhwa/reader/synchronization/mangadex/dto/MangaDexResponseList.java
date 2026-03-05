@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class MangaDexResponse {
+public class MangaDexResponseList {
   private String result;
   private String response;
   private List<MangaDexData> data;
