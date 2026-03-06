@@ -152,16 +152,16 @@ public class Work implements Serializable {
     return tags.stream()
         .anyMatch(tag -> tag.getTag().getGroup() == group
             && (
-            (tag.getTag().getName() != null && tag.getTag().getName().equals(name))
-                || (tag.getTag().getAlias1() != null && tag.getTag().getAlias1().equals(name))
-                || (tag.getTag().getAlias2() != null && tag.getTag().getAlias2().equals(name))
-                || (tag.getTag().getAlias3() != null && tag.getTag().getAlias3().equals(name))
+            (tag.getTag().getName() != null && tag.getTag().getName().equalsIgnoreCase(name))
+                || (tag.getTag().getAlias1() != null && tag.getTag().getAlias1().equalsIgnoreCase(name))
+                || (tag.getTag().getAlias2() != null && tag.getTag().getAlias2().equalsIgnoreCase(name))
+                || (tag.getTag().getAlias3() != null && tag.getTag().getAlias3().equalsIgnoreCase(name))
         ));
   }
 
   public boolean getAuthorsContains(AuthorType type, String name) {
     return authors.stream()
-        .anyMatch(author -> author.getAuthor().getType() == type && author.getAuthor().getName().equals(name));
+        .anyMatch(author -> author.getAuthor().getType() == type && author.getAuthor().getName().equalsIgnoreCase(name));
   }
 
   @PrePersist

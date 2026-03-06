@@ -60,7 +60,7 @@ public class MediocrescanService extends SynchronizationBase implements Synchron
   public final ScanlatorSynchronizationErrorService scanlatorSynchronizationErrorService;
   public final ScanlatorService scanlatorService;
   public final WorkLinkRepository workLinkRepository;
-  
+
 
   public final TagService tagService;
   public final ExternalFileService externalFileService;
@@ -347,12 +347,11 @@ public class MediocrescanService extends SynchronizationBase implements Synchron
 
     log.debug("--> [MediocrescanService][syncSynopses] ({}) Syncing synopses", dto.getNome());
 
-    var lang = dto.getFormato().getNome().equalsIgnoreCase("ENGLISH") ? "en" : "pt-BR";
     List<SynchronizationSynopses> synopses = new ArrayList<>();
     synopses.add(SynchronizationSynopses.builder()
-            .language(lang)
-            .description(dto.getDescricao())
-            .origin(SynchronizationOriginType.MEDIOCRESCAN)
+        .language("xx-XX") // The site doesn't have a standard.
+        .description(dto.getDescricao())
+        .origin(SynchronizationOriginType.MEDIOCRESCAN)
         .build()
     );
 
