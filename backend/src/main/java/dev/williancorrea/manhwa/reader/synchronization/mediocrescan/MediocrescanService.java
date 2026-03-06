@@ -5,9 +5,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import dev.williancorrea.manhwa.reader.features.chapter.Chapter;
 import dev.williancorrea.manhwa.reader.features.chapter.ChapterService;
 import dev.williancorrea.manhwa.reader.features.chapter.notify.ChapterNotify;
@@ -18,7 +17,6 @@ import dev.williancorrea.manhwa.reader.features.page.Page;
 import dev.williancorrea.manhwa.reader.features.page.PageService;
 import dev.williancorrea.manhwa.reader.features.page.PageType;
 import dev.williancorrea.manhwa.reader.features.scanlator.ScanlatorService;
-import dev.williancorrea.manhwa.reader.features.scanlator.error.ScanlatorSynchronizationError;
 import dev.williancorrea.manhwa.reader.features.scanlator.error.ScanlatorSynchronizationErrorService;
 import dev.williancorrea.manhwa.reader.features.tag.TagGroupType;
 import dev.williancorrea.manhwa.reader.features.tag.TagService;
@@ -27,44 +25,88 @@ import dev.williancorrea.manhwa.reader.features.work.Work;
 import dev.williancorrea.manhwa.reader.features.work.WorkPublicationDemographic;
 import dev.williancorrea.manhwa.reader.features.work.WorkService;
 import dev.williancorrea.manhwa.reader.features.work.WorkStatus;
-import dev.williancorrea.manhwa.reader.features.work.WorkSynopsis;
 import dev.williancorrea.manhwa.reader.features.work.WorkTag;
-import dev.williancorrea.manhwa.reader.features.work.WorkTitle;
 import dev.williancorrea.manhwa.reader.features.work.WorkType;
+import dev.williancorrea.manhwa.reader.features.work.link.WorkLinkRepository;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
-import dev.williancorrea.manhwa.reader.features.work.synchronization.WorkSynchronization;
 import dev.williancorrea.manhwa.reader.minio.ExternalFileService;
+import dev.williancorrea.manhwa.reader.synchronization.base.Synchronization;
+import dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationBase;
+import dev.williancorrea.manhwa.reader.synchronization.base.input.SynchronizationSynopses;
+import dev.williancorrea.manhwa.reader.synchronization.base.input.SynchronizationTitle;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.client.MediocrescanClient;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.capitulo.Mediocrescan_CapituloDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Mediocrescan_LoginDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Mediocrescan_RefreshTokenDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Mediocrescan_TokenDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.obra.Mediocrescan_ObraDTO;
-import dev.williancorrea.manhwa.reader.utils.RemoveAccentuationUtils;
 import dev.williancorrea.manhwa.reader.utils.StringUtils;
-import lombok.RequiredArgsConstructor;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
-public class MediocrescanService {
+public class MediocrescanService extends SynchronizationBase implements Synchronization<Mediocrescan_ObraDTO> {
 
   public final MediocrescanClient mediocrescanClient;
+
   public final WorkService workService;
   public final LanguageService languageService;
+  public final ScanlatorSynchronizationErrorService scanlatorSynchronizationErrorService;
+  public final ScanlatorService scanlatorService;
+  public final WorkLinkRepository workLinkRepository;
+  
+
   public final TagService tagService;
   public final ExternalFileService externalFileService;
   public final ChapterService chapterService;
-  public final ScanlatorService scanlatorService;
+
   public final PageService pageService;
   public final VolumeService volumeService;
   public final ChapterNotifyService chapterNotifyService;
-  public final ScanlatorSynchronizationErrorService scanlatorSynchronizationErrorService;
+
+
+  public MediocrescanService(@Lazy WorkService workService,
+                             @Lazy LanguageService languageService,
+                             @Lazy ScanlatorSynchronizationErrorService scanlatorSynchronizationErrorService,
+                             @Lazy ScanlatorService scanlatorService,
+                             @Lazy WorkLinkRepository workLinkRepository,
+
+                             @Lazy MediocrescanClient mediocrescanClient,
+                             @Lazy TagService tagService,
+                             @Lazy ExternalFileService externalFileService,
+                             @Lazy ChapterService chapterService,
+                             @Lazy PageService pageService,
+                             @Lazy VolumeService volumeService,
+                             @Lazy ChapterNotifyService chapterNotifyService
+  ) {
+    super(workService,
+        languageService,
+        scanlatorSynchronizationErrorService,
+        scanlatorService,
+        workLinkRepository
+    );
+
+    this.workService = workService;
+    this.languageService = languageService;
+    this.scanlatorSynchronizationErrorService = scanlatorSynchronizationErrorService;
+    this.scanlatorService = scanlatorService;
+    this.workLinkRepository = workLinkRepository;
+
+    this.mediocrescanClient = mediocrescanClient;
+    this.tagService = tagService;
+    this.externalFileService = externalFileService;
+    this.chapterService = chapterService;
+    this.pageService = pageService;
+    this.volumeService = volumeService;
+    this.chapterNotifyService = chapterNotifyService;
+
+  }
 
   @Value("${synchronization.mediocrescan.cdn.url}")
   private String mediocreScanUrlCDN;
@@ -93,13 +135,16 @@ public class MediocrescanService {
     ).getAccessToken();
   }
 
-  //  @PostConstruct
+  @PostConstruct
   @Transactional
-  public void findAllWorks() {
-    log.warn("--> [MediocrescanService][FindAllWorks] Starting synchronization with Mediocrescan");
+  @Override
+  public void ScheduledSynchronization() {
+    log.info("--> [MediocrescanService][ScheduledSynchronization] Starting synchronization with Mediocrescan");
+
     var totalPages = 1;
     for (int i = 0; i < totalPages; i++) {
-      log.warn("--> X <-- [MediocrescanService][FindAllWorks] External synchronization page {} of {}", i + 1,
+      log.warn("--> X <-- [MediocrescanService][ScheduledSynchronization] External synchronization page {} of {}",
+          i + 1,
           totalPages);
       
       
@@ -119,90 +164,138 @@ public class MediocrescanService {
 //      var titulo = "Cavaleiro em eterna regressão"; //COMIC
 //      var titulo = "Reencarnei no Corpo de um Príncipe Canalha"; //COMIC
 //      var titulo = "I Became a Munchkin Skill Thief"; // ENGLISH
-//      var titulo = "Espada do Deus Dragão"; // ENGLISH - 2 Caps
+      var titulo = "Irmãs Ki"; // ENGLISH - 1 Caps
 //      var titulo = "Necromante! Eu Sou Um Desastre"; //COMIC e NOVEL
-      var titulo = "O Gênio Que Lê O Mundo"; // COMIC - Testando titulos alternativos
+//      var titulo = "O Gênio Que Lê O Mundo"; // COMIC - Testando titulos alternativos
 
       var obras = mediocrescanClient.listarObras(
           getToken(),
           1, //Padrao 24
           i + 1,
           "data_ultimo_cap",
-          "5",  // 1,3,4
+          "1,5",  // 1,3,4
           titulo
       );
 
       totalPages = obras.getPagination().getTotalPages();
-      obras.getData().forEach(this::synchronizeWork);
-      waitForNextQuery();
-    }
-  }
-
-  private static void waitForNextQuery() {
-    try {
-      log.debug("--> [MediocrescanService][waitForNextQuery] Sleeping for 5 seconds to next query (listarObras)");
-      Thread.sleep(5000);
-    } catch (InterruptedException e) {
-      log.error("Error sleeping for 5 seconds", e);
-      Thread.currentThread().interrupt();
+      obras.getData().forEach(this::synchronizeByExternalId);
+      this.sleep(5000);
     }
   }
 
   @Transactional
-  public void synchronizeWork(Mediocrescan_ObraDTO obra) {
+  @Override
+  public void synchronizeByWork(Work work) {
+    log.info("--> [MediocrescanService][synchronizeByWork] Starting synchronization with Mediocrescan for work: {}",
+        work.getTitles().getFirst().getTitle());
+  }
+
+  @Transactional
+  @Override
+  public void synchronizeByExternalId(Mediocrescan_ObraDTO obra) {
+    log.info(
+        "--> [MediocrescanService][synchronizeByExternalId] Starting synchronization with Mediocrescan for obra: {} - {}",
+        obra.getId(), obra.getNome());
+
     Work work = null;
     try {
-      work = findWork(obra);
+      work = this.findWorkOrCreate(obra.getId().toString(), SynchronizationOriginType.MEDIOCRESCAN);
 
-      syncTitle(work, obra);
-      syncAttributes(work, obra);
-      syncSynchronization(work, obra);
-      syncSynopses(work, obra);
+      prepareSyncTitle(work, obra);
+      prepareSyncAttributes(work, obra);
+
+      prepareSynchronization(work, obra);
+      prepareSyncSynopses(work, obra);
       syncTags(work, obra);
       syncCover(work, obra);
 
       work.setUpdatedAt(OffsetDateTime.now());
       work = workService.save(work);
 
-      syncRelationship(work, obra);
-      syncChapters(work, obra);
+//      syncRelationship(work, obra);
+//      syncChapters(work, obra);
 
 
-      log.info("<-- [MediocrescanService][synchronizeWork] Synchronization completed: {}", obra.getNome().trim());
+      log.info("<-- [MediocrescanService][synchronizeByExternalId] Synchronization completed: {}",
+          obra.getNome().trim());
     } catch (Exception e) {
-      scanlatorSynchronizationErrorService.save(
-          ScanlatorSynchronizationError.builder()
-              .scanlator(scanlatorService.findBySynchronization(SynchronizationOriginType.MEDIOCRESCAN)
-                  .orElseGet(() -> null))
-              .workId(work != null && work.getId() == null ? null : Objects.requireNonNull(work).getId().toString())
-              .externalWorkId(obra.getId().toString())
-              .externalWorkName(obra.getNome())
-              .errorMessage(e.getMessage())
-              .build()
-      );
-
-      log.error("<-- [MediocrescanService][synchronizeWork] Error synchronizing with Mediocrescan: ({}) {} - {}",
-          obra.getFormato().getNome().toUpperCase(),
-          obra.getId(),
+      this.syncWorkError(
+          SynchronizationOriginType.MEDIOCRESCAN,
+          work != null && work.getId() == null ? null : Objects.requireNonNull(work).getId().toString(),
+          obra.getId().toString(),
           obra.getNome(),
-          e);
+          e.getMessage()
+      );
     }
   }
 
-  private Work findWork(Mediocrescan_ObraDTO dto) {
+  @Override
+  public void prepareSyncTitle(Work work, Mediocrescan_ObraDTO dto) {
+    Objects.requireNonNull(work);
     Objects.requireNonNull(dto);
-    log.debug("--> [MediocrescanService][findWork] ({}) Finding work", dto.getNome());
-    var work =
-        workService.findBySynchronizationExternalID(dto.getId().toString(), SynchronizationOriginType.MEDIOCRESCAN)
-            .orElse(null);
-    if (work == null) {
-      log.debug("--> [MediocrescanService][findWork] ({}) Work not found, creating new work", dto.getNome());
-      work = Work.builder()
-          .createdAt(OffsetDateTime.now())
-          .disabled(false)
-          .build();
+
+    var titles = new ArrayList<SynchronizationTitle>();
+    titles.add(SynchronizationTitle.builder()
+        .title(dto.getNome().trim())
+        .language(dto.getFormato().getNome().equalsIgnoreCase("ENGLISH") ? "en" : "pt-BR")
+        .origin(SynchronizationOriginType.MEDIOCRESCAN)
+        .build()
+    );
+    this.syncTitle(work, titles);
+  }
+
+  private WorkStatus getWorkStatus(Mediocrescan_ObraDTO dto) {
+    log.debug("--> [MediocrescanService][syncAttributes] ({}) Syncing status", dto.getNome());
+    return switch (dto.getStatus().getNome()) {
+      case "Em Andamento", "Ativo" -> WorkStatus.ONGOING;
+      case "Concluído" -> WorkStatus.COMPLETED;
+      case "Hiato" -> WorkStatus.HIATUS;
+      case "Cancelada" -> WorkStatus.CANCELLED;
+      default -> {
+        log.error("--> [MediocrescanService][syncAttributes] ({}) Unknown status: {}",
+            dto.getNome(),
+            dto.getStatus().getNome());
+        throw new RuntimeException("Status not found: " + dto.getStatus().getNome());
+      }
+    };
+  }
+
+  private WorkPublicationDemographic getWorkPublicationDemographic(Mediocrescan_ObraDTO dto) {
+    log.debug("--> [MediocrescanService][syncAttributes] ({}) Syncing demographic", dto.getNome());
+
+    var demographic = dto.getFormato().getNome().toUpperCase();
+    if (demographic.isEmpty()) {
+      demographic = WorkPublicationDemographic.UNKNOWN.name();
     }
-    return work;
+    if (demographic.equalsIgnoreCase("ENGLISH")) {
+      demographic = WorkPublicationDemographic.COMIC.name();
+    }
+    return WorkPublicationDemographic.valueOf(demographic);
+  }
+
+  @Override
+  public void prepareSyncAttributes(Work work, Mediocrescan_ObraDTO dto) {
+    Objects.requireNonNull(work);
+    Objects.requireNonNull(dto);
+
+    log.debug("--> [MediocrescanService][syncAttributes] ({}) Syncing attributes", dto.getNome());
+
+    var workType = dto.getFormato().getNome().toUpperCase().contains("NOVEL")
+        ? WorkType.NOVEL
+        : WorkType.MANHWA;
+
+    syncAttributes(
+        work,
+        getWorkPublicationDemographic(dto),
+        workType,
+        getWorkStatus(dto),
+        dto.getSlug() == null || dto.getSlug().isBlank() ? dto.getNome() : dto.getSlug(),
+        dto.getFormato().getNome().equalsIgnoreCase("NOVEL"),
+        null,
+        null,
+        null,
+        null
+    );
   }
 
   private void syncRelationship(Work work, Mediocrescan_ObraDTO dto) {
@@ -220,7 +313,6 @@ public class MediocrescanService {
           rel.setRelationship(work);
           workService.save(rel);
           workService.save(work);
-
         }
       } else if (dto.getObraOriginal() != null) {
         var rel = workService.findBySynchronizationExternalID(
@@ -235,157 +327,38 @@ public class MediocrescanService {
     }
   }
 
-  private void syncSynchronization(Work work, Mediocrescan_ObraDTO dto) {
+  @Override
+  public void prepareSynchronization(Work work, Mediocrescan_ObraDTO dto) {
     Objects.requireNonNull(work);
     Objects.requireNonNull(dto);
 
-    log.debug("--> [MediocrescanService][syncSynchronization] ({}) Syncing work", dto.getNome());
-    if (work.getSynchronizations() == null) {
-      work.setSynchronizations(new ArrayList<>());
-    }
-
-    if (!work.getSynchronizationsContains(SynchronizationOriginType.MEDIOCRESCAN)) {
-      work.getSynchronizations().add(
-          WorkSynchronization.builder()
-              .externalId(dto.getId().toString())
-              .origin(SynchronizationOriginType.MEDIOCRESCAN)
-              .work(work)
-              .externalSlug(dto.getSlug())
-              .build());
-    }
+    this.syncSynchronization(
+        work,
+        dto.getId().toString(),
+        SynchronizationOriginType.MEDIOCRESCAN,
+        dto.getSlug()
+    );
   }
 
-  private void syncTitle(Work work, Mediocrescan_ObraDTO dto) {
+  @Override
+  public void prepareSyncSynopses(Work work, Mediocrescan_ObraDTO dto) {
     Objects.requireNonNull(work);
     Objects.requireNonNull(dto);
 
-
-    if (work.getTitles() == null) {
-      work.setTitles(new ArrayList<>());
-    }
-
-    log.debug("--> [MediocrescanService][syncTitle] ({}) Syncing title", dto.getNome());
-    AtomicBoolean found = new AtomicBoolean(false);
-    work.getTitles().forEach(obj -> {
-      if (obj.getTitle().equalsIgnoreCase(dto.getNome().trim())) {
-        found.set(true);
-      }
-    });
-
-    if (!found.get()) {
-      var lang = dto.getFormato().getNome().equalsIgnoreCase("ENGLISH") ? "en" : "pt-BR";
-      work.getTitles().add(
-          WorkTitle.builder()
-              .work(work)
-              .language(languageService.findOrCreate(lang, SynchronizationOriginType.MEDIOCRESCAN))
-              .isOfficial(false)
-              .title(dto.getNome().trim())
-              .build()
-      );
-    }
-  }
-
-  private void syncAttributes(Work work, Mediocrescan_ObraDTO dto) {
-    Objects.requireNonNull(work);
-    Objects.requireNonNull(dto);
-
-    log.debug("--> [MediocrescanService][syncAttributes] ({}) Syncing attributes", dto.getNome());
-    if (work.getType() == null) {
-      work.setType(
-          dto.getFormato().getNome().toUpperCase().contains("NOVEL")
-              ? WorkType.NOVEL
-              : WorkType.MANHWA
-      );
-    }
-
-    switch (dto.getStatus().getNome()) {
-      case "Em Andamento", "Ativo":
-        work.setStatus(WorkStatus.ONGOING);
-        break;
-      case "Concluído":
-        work.setStatus(WorkStatus.COMPLETED);
-        break;
-      case "Hiato":
-        work.setStatus(WorkStatus.HIATUS);
-        break;
-      case "Cancelada":
-        work.setStatus(WorkStatus.CANCELLED);
-        break;
-      default:
-        log.error("--> [MediocrescanService][syncAttributes] ({}) Unknown status: {}", dto.getNome(),
-            dto.getStatus().getNome());
-        throw new RuntimeException("Status not found: " + dto.getStatus().getNome());
-    }
-
-    if (work.getPublicationDemographic() == null) {
-      var demographic = dto.getFormato().getNome().toUpperCase();
-      if (demographic.isEmpty()) {
-        demographic = WorkPublicationDemographic.UNKNOWN.name();
-      }
-
-      if (demographic.equalsIgnoreCase("ENGLISH")) {
-        demographic = WorkPublicationDemographic.COMIC.name();
-      }
-
-      work.setPublicationDemographic(WorkPublicationDemographic.valueOf(demographic));
-    }
-
-    log.debug("--> [MediocrescanService][syncCover] ({}) Syncing cover", dto.getNome());
-    if (work.getSlug() == null || work.getSlug().isEmpty()) {
-      var isNovel = dto.getFormato().getNome().equalsIgnoreCase("NOVEL");
-      if (validateSlugUniqueFree(dto.getSlug(), isNovel)) {
-        work.setSlug(dto.getSlug());
-      } else {
-
-        var title = work.getTitles()
-            .stream()
-            .map(WorkTitle::getTitle)
-            .findAny().get();
-        title = RemoveAccentuationUtils.normalize(title).toLowerCase();
-
-        if (validateSlugUniqueFree(title, isNovel)) {
-          work.setSlug(title);
-        } else {
-          var random = "GENERATED" + UUID.randomUUID();
-          work.setSlug(isNovel ? random + "__novel" : random);
-        }
-        work.setSlug(title);
-      }
-    }
-  }
-
-  private boolean validateSlugUniqueFree(String slug, Boolean isNovel) {
-    if (slug == null || slug.isEmpty()) {
-      return false;
-    }
-    return workService.findBySlug(Boolean.TRUE.equals(isNovel) ? slug + "__novel" : slug).isEmpty();
-  }
-
-  private void syncSynopses(Work work, Mediocrescan_ObraDTO dto) {
-    Objects.requireNonNull(work);
-    Objects.requireNonNull(dto);
-
-    if (work.getSynopses() == null) {
-      work.setSynopses(new ArrayList<>());
-    }
     log.debug("--> [MediocrescanService][syncSynopses] ({}) Syncing synopses", dto.getNome());
-    var lang = dto.getFormato().getNome().equalsIgnoreCase("ENGLISH") ? "en" : "pt-BR";
-    AtomicBoolean found = new AtomicBoolean(false);
-    work.getSynopses().forEach(obj -> {
-      if (obj.getLanguage().getCode().equalsIgnoreCase(lang)) {
-        found.set(true);
-      }
-    });
-    if (!found.get()) {
-      work.getSynopses().add(
-          WorkSynopsis.builder()
-              .work(work)
-              .language(languageService.findOrCreate(lang, SynchronizationOriginType.MEDIOCRESCAN))
-              .description(dto.getDescricao())
-              .build()
-      );
-    }
 
+    var lang = dto.getFormato().getNome().equalsIgnoreCase("ENGLISH") ? "en" : "pt-BR";
+    List<SynchronizationSynopses> synopses = new ArrayList<>();
+    synopses.add(SynchronizationSynopses.builder()
+            .language(lang)
+            .description(dto.getDescricao())
+            .origin(SynchronizationOriginType.MEDIOCRESCAN)
+        .build()
+    );
+
+    this.syncSynopses(
+        work,
+        synopses);
   }
 
   private void syncTags(Work work, Mediocrescan_ObraDTO dto) {
@@ -595,6 +568,11 @@ public class MediocrescanService {
       }
     }
 
+  }
+
+  @Override
+  public void prepareSyncLinks(Work work, Mediocrescan_ObraDTO workDto) {
+    log.debug("--> [MediocrescanService][prepareSyncLinks] ({}) Syncing links", workDto.getNome());
   }
 
   @Transactional

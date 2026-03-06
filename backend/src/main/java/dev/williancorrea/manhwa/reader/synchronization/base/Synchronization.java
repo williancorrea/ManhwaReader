@@ -1,0 +1,17 @@
+package dev.williancorrea.manhwa.reader.synchronization.base;
+
+import dev.williancorrea.manhwa.reader.features.work.Work;
+
+public interface Synchronization<T> {
+
+  void ScheduledSynchronization();
+
+  void synchronizeByExternalId(T workDto);
+  void synchronizeByWork(Work work);
+
+  void prepareSyncTitle(Work work, T workDto);
+  void prepareSyncAttributes(Work work, T workDto);
+  void prepareSynchronization(Work work, T workDto);
+  void prepareSyncSynopses(Work work, T workDto);
+  void prepareSyncLinks(Work work, T workDto);
+}

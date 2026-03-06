@@ -75,7 +75,7 @@ CREATE TABLE work_synopsis(
 CREATE TABLE work_title (
     id CHAR(36) NOT NULL PRIMARY KEY,
     work_id CHAR(36) NOT NULL,
-    language_id CHAR(36) NOT NULL,
+    language_id CHAR(36),
     title TEXT NOT NULL,
     is_official BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (work_id) REFERENCES work(id),

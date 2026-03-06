@@ -34,7 +34,7 @@ public class WorkTitle implements Serializable {
   private Work work;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "language_id", nullable = false)
+  @JoinColumn(name = "language_id")
   private Language language;
 
   @Lob
