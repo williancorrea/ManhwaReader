@@ -9,23 +9,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 import dev.williancorrea.manhwa.reader.features.author.Author;
 import dev.williancorrea.manhwa.reader.features.author.AuthorService;
 import dev.williancorrea.manhwa.reader.features.author.AuthorType;
 import dev.williancorrea.manhwa.reader.features.language.LanguageService;
-import dev.williancorrea.manhwa.reader.features.scanlator.ScanlatorService;
-import dev.williancorrea.manhwa.reader.features.scanlator.error.ScanlatorSynchronizationErrorService;
 import dev.williancorrea.manhwa.reader.features.tag.TagGroupType;
-import dev.williancorrea.manhwa.reader.features.tag.TagService;
 import dev.williancorrea.manhwa.reader.features.work.Work;
 import dev.williancorrea.manhwa.reader.features.work.WorkAuthor;
 import dev.williancorrea.manhwa.reader.features.work.WorkContentRating;
 import dev.williancorrea.manhwa.reader.features.work.WorkPublicationDemographic;
 import dev.williancorrea.manhwa.reader.features.work.WorkService;
 import dev.williancorrea.manhwa.reader.features.work.WorkStatus;
-import dev.williancorrea.manhwa.reader.features.work.WorkTag;
-import dev.williancorrea.manhwa.reader.features.work.WorkTitle;
 import dev.williancorrea.manhwa.reader.features.work.WorkType;
 import dev.williancorrea.manhwa.reader.features.work.link.SiteType;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
@@ -34,6 +28,8 @@ import dev.williancorrea.manhwa.reader.synchronization.base.Synchronization;
 import dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationBase;
 import dev.williancorrea.manhwa.reader.synchronization.base.input.SynchronizationLinks;
 import dev.williancorrea.manhwa.reader.synchronization.base.input.SynchronizationSynopses;
+import dev.williancorrea.manhwa.reader.synchronization.base.input.SynchronizationTags;
+import dev.williancorrea.manhwa.reader.synchronization.base.input.SynchronizationTitle;
 import dev.williancorrea.manhwa.reader.synchronization.mangadex.dto.MangaDexData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,20 +43,14 @@ public class MangaDexMapperService implements Synchronization<MangaDexData> {
   public final WorkService workService;
   public final SynchronizationBase synchronizationBase;
   public final LanguageService languageService;
-  public final ScanlatorSynchronizationErrorService scanlatorSynchronizationErrorService;
-  public final ScanlatorService scanlatorService;
 
-  public final TagService tagService;
   public final AuthorService authorService;
   public final ExternalFileService externalFileService;
 
   public MangaDexMapperService(@Lazy WorkService workService,
                                @Lazy SynchronizationBase synchronizationBase,
                                @Lazy LanguageService languageService,
-                               @Lazy ScanlatorSynchronizationErrorService scanlatorSynchronizationErrorService,
-                               @Lazy ScanlatorService scanlatorService,
 
-                               @Lazy TagService tagService,
                                @Lazy AuthorService authorService,
                                @Lazy ExternalFileService externalFileService) {
 
@@ -68,10 +58,7 @@ public class MangaDexMapperService implements Synchronization<MangaDexData> {
     this.workService = workService;
     this.synchronizationBase = synchronizationBase;
     this.languageService = languageService;
-    this.scanlatorSynchronizationErrorService = scanlatorSynchronizationErrorService;
-    this.scanlatorService = scanlatorService;
 
-    this.tagService = tagService;
     this.authorService = authorService;
     this.externalFileService = externalFileService;
   }
@@ -80,6 +67,8 @@ public class MangaDexMapperService implements Synchronization<MangaDexData> {
   private String MANDADEX_URL_COVERS;
 
   public Work toEntity(MangaDexData dto) {
+    log.info("--> [MangaDexMapperService][toEntity] Mapping MangaDex data to Work: {}",
+        dto.getAttributes().getTitle().values().stream().findAny().orElse(""));
     Work work = null;
     try {
       work = synchronizationBase.findWorkOrCreate(dto.getId(), SynchronizationOriginType.MANGADEX);
@@ -90,15 +79,15 @@ public class MangaDexMapperService implements Synchronization<MangaDexData> {
       prepareSyncSynopses(work, dto);
       prepareSyncLinks(work, dto);
       prepareSyncAttributes(work, dto);
-      syncTags(work, dto);
-      syncAuthors(work, dto);
+      prepareSyncTags(work, dto);
+      prepareSyncAuthors(work, dto);
       syncCover(work, dto);
 
       work.setUpdatedAt(OffsetDateTime.now());
       return work;
     } catch (Exception e) {
       synchronizationBase.syncWorkError(
-          SynchronizationOriginType.MEDIOCRESCAN,
+          SynchronizationOriginType.MANGADEX,
           work != null && work.getId() == null ? null : Objects.requireNonNull(work).getId().toString(),
           dto.getId(),
           dto.getAttributes().getTitle().values().stream().findAny().orElse(""),
@@ -135,40 +124,29 @@ public class MangaDexMapperService implements Synchronization<MangaDexData> {
       work.setTitles(new ArrayList<>());
     }
 
-    List<WorkTitle> titles = new ArrayList<>();
+    var titles = new ArrayList<SynchronizationTitle>();
 
     // Title
-    dto.getAttributes().getTitle().forEach((key, value) -> titles.add(WorkTitle.builder()
-        .work(work)
-        .language(languageService.findOrCreate(key, SynchronizationOriginType.MANGADEX))
-        .isOfficial(false)
-        .title(value)
-        .build()));
+    dto.getAttributes().getTitle().forEach((key, value) -> titles.add(
+        SynchronizationTitle.builder()
+            .title(value)
+            .language(key)
+            .origin(SynchronizationOriginType.MANGADEX)
+            .build()
+    ));
 
     //Alt-Titles
     dto.getAttributes()
         .getAltTitles()
-        .forEach(item -> item.forEach((key, value) -> titles.add(WorkTitle.builder()
-            .work(work)
-            .language(languageService.findOrCreate(key, SynchronizationOriginType.MANGADEX))
-            .isOfficial(false)
-            .title(value)
-            .build())));
+        .forEach(item -> item.forEach((key, value) -> titles.add(
+            SynchronizationTitle.builder()
+                .title(value)
+                .language(key)
+                .origin(SynchronizationOriginType.MANGADEX)
+                .build()
+        )));
 
-    titles.forEach(item -> {
-      AtomicBoolean found = new AtomicBoolean(false);
-      work.getTitles().forEach(obj -> {
-        if (obj.getTitle().equalsIgnoreCase(item.getTitle())) {
-          found.set(true);
-        }
-      });
-      if (!found.get()) {
-        if (work.getTitles().isEmpty()) {
-          item.setIsOfficial(true);
-        }
-        work.getTitles().add(item);
-      }
-    });
+    synchronizationBase.syncTitle(work, titles);
   }
 
   @Override
@@ -210,30 +188,26 @@ public class MangaDexMapperService implements Synchronization<MangaDexData> {
     synchronizationBase.syncLinks(work, links);
   }
 
-  private void syncTags(Work work, MangaDexData dto) {
-    Objects.requireNonNull(work);
-    Objects.requireNonNull(dto);
+  @Override
+  public void prepareSyncTags(Work work, MangaDexData dto) {
+    Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
+    Objects.requireNonNull(dto, VALIDATION_ERROR_EXTERNAL_WORK_IS_NULL);
 
-    if (work.getTags() == null) {
-      work.setTags(new ArrayList<>());
-    }
-
+    log.debug("--> [MangaDexMapperService][syncTags] Syncing tags");
+    var tags = new ArrayList<SynchronizationTags>();
     dto.getAttributes().getTags().forEach(tag -> {
-
       var group = TagGroupType.valueOf(tag.getAttributes().getGroup().toUpperCase());
       var name = tag.getAttributes().getName().values().stream().findAny().orElse("");
-
-      if (!work.getTagsContains(group, name) && !name.isBlank()) {
-        work.getTags().add(
-            WorkTag.builder()
-                .tag(tagService.findOrCreate(group, name))
-                .work(work)
-                .build());
-      }
+      tags.add(SynchronizationTags.builder()
+          .group(group)
+          .name(name)
+          .build());
     });
+    synchronizationBase.syncTags(work, tags);
   }
 
-  private void syncAuthors(Work work, MangaDexData dto) {
+  @Override
+  public void prepareSyncAuthors(Work work, MangaDexData dto) {
     Objects.requireNonNull(work);
     Objects.requireNonNull(dto);
 

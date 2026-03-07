@@ -1,10 +1,5 @@
 package dev.williancorrea.manhwa.reader.synchronization.base;
 
-import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.CONSTRUCTOR_LANGUAGE_SERVICE_IS_NULL;
-import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.CONSTRUCTOR_SCANLATOR_SERVICE_IS_NULL;
-import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.CONSTRUCTOR_SCANLATOR_SYNCHRONIZATION_ERROR_SERVICE_IS_NULL;
-import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.CONSTRUCTOR_WORK_LINK_REPOSITORY_IS_NULL;
-import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.CONSTRUCTOR_WORK_SERVICE_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_EXTERNAL_WORK_ID_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_EXTERNAL_WORK_NAME_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_MESSAGE_IS_NULL;
@@ -12,6 +7,7 @@ import static dev.williancorrea.manhwa.reader.synchronization.base.Synchronizati
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_SYNCHRONIZATION_ORIGIN_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_SYNOPSES_IS_BLANK;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_SYNOPSES_LIST_IS_NULL;
+import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_TAG_LIST_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_TITLE_IS_BLANK;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_TITLE_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_TITLE_LIST_IS_NULL;
@@ -32,12 +28,14 @@ import dev.williancorrea.manhwa.reader.features.language.LanguageService;
 import dev.williancorrea.manhwa.reader.features.scanlator.ScanlatorService;
 import dev.williancorrea.manhwa.reader.features.scanlator.error.ScanlatorSynchronizationError;
 import dev.williancorrea.manhwa.reader.features.scanlator.error.ScanlatorSynchronizationErrorService;
+import dev.williancorrea.manhwa.reader.features.tag.TagService;
 import dev.williancorrea.manhwa.reader.features.work.Work;
 import dev.williancorrea.manhwa.reader.features.work.WorkContentRating;
 import dev.williancorrea.manhwa.reader.features.work.WorkPublicationDemographic;
 import dev.williancorrea.manhwa.reader.features.work.WorkService;
 import dev.williancorrea.manhwa.reader.features.work.WorkStatus;
 import dev.williancorrea.manhwa.reader.features.work.WorkSynopsis;
+import dev.williancorrea.manhwa.reader.features.work.WorkTag;
 import dev.williancorrea.manhwa.reader.features.work.WorkTitle;
 import dev.williancorrea.manhwa.reader.features.work.WorkType;
 import dev.williancorrea.manhwa.reader.features.work.link.WorkLink;
@@ -46,6 +44,7 @@ import dev.williancorrea.manhwa.reader.features.work.synchronization.Synchroniza
 import dev.williancorrea.manhwa.reader.features.work.synchronization.WorkSynchronization;
 import dev.williancorrea.manhwa.reader.synchronization.base.input.SynchronizationLinks;
 import dev.williancorrea.manhwa.reader.synchronization.base.input.SynchronizationSynopses;
+import dev.williancorrea.manhwa.reader.synchronization.base.input.SynchronizationTags;
 import dev.williancorrea.manhwa.reader.synchronization.base.input.SynchronizationTitle;
 import dev.williancorrea.manhwa.reader.utils.RemoveAccentuationUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -60,28 +59,23 @@ public class SynchronizationBase {
   public final ScanlatorSynchronizationErrorService scanlatorSynchronizationErrorService;
   public final ScanlatorService scanlatorService;
   public final WorkLinkRepository workLinkRepository;
+  public final TagService tagService;
 
   public SynchronizationBase(@Lazy WorkService workService,
                              @Lazy LanguageService languageService,
                              @Lazy ScanlatorSynchronizationErrorService scanlatorSynchronizationErrorService,
                              @Lazy ScanlatorService scanlatorService,
-                             @Lazy WorkLinkRepository workLinkRepository
-  ) {
-    Objects.requireNonNull(workService, CONSTRUCTOR_WORK_SERVICE_IS_NULL);
-    Objects.requireNonNull(languageService, CONSTRUCTOR_LANGUAGE_SERVICE_IS_NULL);
-    Objects.requireNonNull(scanlatorSynchronizationErrorService,
-        CONSTRUCTOR_SCANLATOR_SYNCHRONIZATION_ERROR_SERVICE_IS_NULL);
-    Objects.requireNonNull(scanlatorService, CONSTRUCTOR_SCANLATOR_SERVICE_IS_NULL);
-    Objects.requireNonNull(workLinkRepository, CONSTRUCTOR_WORK_LINK_REPOSITORY_IS_NULL);
-
+                             @Lazy WorkLinkRepository workLinkRepository,
+                             @Lazy TagService tagService) {
     this.workService = workService;
     this.languageService = languageService;
     this.scanlatorSynchronizationErrorService = scanlatorSynchronizationErrorService;
     this.scanlatorService = scanlatorService;
     this.workLinkRepository = workLinkRepository;
+    this.tagService = tagService;
   }
 
-  protected void sleep(long millis) {
+  public void sleep(long millis) {
     try {
       log.debug("--> [SynchronizationBase][sleep] Sleeping for ({}) seconds", millis);
       Thread.sleep(millis);
@@ -340,4 +334,30 @@ public class SynchronizationBase {
       }
     });
   }
+
+  public void syncTags(Work work, List<SynchronizationTags> tags) {
+    Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
+    Objects.requireNonNull(tags, VALIDATION_ERROR_TAG_LIST_IS_NULL);
+
+    log.debug("--> [SynchronizationBase][syncTags] Syncing tags");
+    if (work.getTags() == null) {
+      work.setTags(new ArrayList<>());
+    }
+
+    tags.forEach(tag -> {
+      if (tag.getGroup() == null || tag.getName() == null || tag.getName().isBlank()) {
+        return;
+      }
+
+      if (!work.getTagsContains(tag.getGroup(), tag.getName())) {
+        work.getTags().add(
+            WorkTag.builder()
+                .tag(tagService.findOrCreate(tag.getGroup(), tag.getName()))
+                .work(work)
+                .build());
+      }
+    });
+  }
+  
+  
 }

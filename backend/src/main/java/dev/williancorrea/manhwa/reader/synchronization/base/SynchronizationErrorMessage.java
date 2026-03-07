@@ -21,6 +21,12 @@ public class SynchronizationErrorMessage {
   public static final String VALIDATION_ERROR_SITE_TYPE_IS_NULL = "Site type cannot be null";
   public static final String VALIDATION_ERROR_SITE_LINK_IS_BLANK = "Site link cannot be empty";
   public static final String VALIDATION_ERROR_SITE_LINK_IS_NULL = "Site link cannot be null";
+  public static final String VALIDATION_ERROR_SCANLATOR_IS_NULL = "Scanlator cannot be null";
+  
+  public static final String VALIDATION_ERROR_TAG_LIST_IS_NULL = "Tag list cannot be null";
+  public static final String VALIDATION_ERROR_TAG_GROUP_IS_NULL = "Tag group cannot be null";
+  public static final String VALIDATION_ERROR_TAG_NAME_IS_BLANK = "Tag name cannot be blank";
+  public static final String VALIDATION_ERROR_TAG_NAME_IS_NULL = "Tag name cannot be null";
   
   public static final String VALIDATION_ERROR_MESSAGE_IS_NULL = "Message cannot be null";
   

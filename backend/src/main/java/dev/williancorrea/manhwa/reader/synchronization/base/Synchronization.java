@@ -14,4 +14,6 @@ public interface Synchronization<T> {
   void prepareSynchronization(Work work, T workDto);
   void prepareSyncSynopses(Work work, T workDto);
   void prepareSyncLinks(Work work, T workDto);
+  void prepareSyncTags(Work work, T workDto);
+  void prepareSyncAuthors(Work work, T workDto);
 }

@@ -1,5 +1,8 @@
 package dev.williancorrea.manhwa.reader.synchronization.mediocrescan;
 
+import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_EXTERNAL_WORK_IS_NULL;
+import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_WORK_IS_NULL;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -17,22 +20,19 @@ import dev.williancorrea.manhwa.reader.features.page.Page;
 import dev.williancorrea.manhwa.reader.features.page.PageService;
 import dev.williancorrea.manhwa.reader.features.page.PageType;
 import dev.williancorrea.manhwa.reader.features.scanlator.ScanlatorService;
-import dev.williancorrea.manhwa.reader.features.scanlator.error.ScanlatorSynchronizationErrorService;
 import dev.williancorrea.manhwa.reader.features.tag.TagGroupType;
-import dev.williancorrea.manhwa.reader.features.tag.TagService;
 import dev.williancorrea.manhwa.reader.features.volume.VolumeService;
 import dev.williancorrea.manhwa.reader.features.work.Work;
 import dev.williancorrea.manhwa.reader.features.work.WorkPublicationDemographic;
 import dev.williancorrea.manhwa.reader.features.work.WorkService;
 import dev.williancorrea.manhwa.reader.features.work.WorkStatus;
-import dev.williancorrea.manhwa.reader.features.work.WorkTag;
 import dev.williancorrea.manhwa.reader.features.work.WorkType;
-import dev.williancorrea.manhwa.reader.features.work.link.WorkLinkRepository;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
 import dev.williancorrea.manhwa.reader.minio.ExternalFileService;
 import dev.williancorrea.manhwa.reader.synchronization.base.Synchronization;
 import dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationBase;
 import dev.williancorrea.manhwa.reader.synchronization.base.input.SynchronizationSynopses;
+import dev.williancorrea.manhwa.reader.synchronization.base.input.SynchronizationTags;
 import dev.williancorrea.manhwa.reader.synchronization.base.input.SynchronizationTitle;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.client.MediocrescanClient;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.capitulo.Mediocrescan_CapituloDTO;
@@ -41,7 +41,6 @@ import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Me
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Mediocrescan_TokenDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.obra.Mediocrescan_ObraDTO;
 import dev.williancorrea.manhwa.reader.utils.StringUtils;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -51,18 +50,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-public class MediocrescanService extends SynchronizationBase implements Synchronization<Mediocrescan_ObraDTO> {
+public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO> {
 
   public final MediocrescanClient mediocrescanClient;
 
   public final WorkService workService;
+  public final SynchronizationBase synchronizationBase;
   public final LanguageService languageService;
-  public final ScanlatorSynchronizationErrorService scanlatorSynchronizationErrorService;
   public final ScanlatorService scanlatorService;
-  public final WorkLinkRepository workLinkRepository;
 
 
-  public final TagService tagService;
   public final ExternalFileService externalFileService;
   public final ChapterService chapterService;
 
@@ -72,34 +69,23 @@ public class MediocrescanService extends SynchronizationBase implements Synchron
 
 
   public MediocrescanService(@Lazy WorkService workService,
+                             @Lazy SynchronizationBase synchronizationBase,
                              @Lazy LanguageService languageService,
-                             @Lazy ScanlatorSynchronizationErrorService scanlatorSynchronizationErrorService,
                              @Lazy ScanlatorService scanlatorService,
-                             @Lazy WorkLinkRepository workLinkRepository,
 
                              @Lazy MediocrescanClient mediocrescanClient,
-                             @Lazy TagService tagService,
                              @Lazy ExternalFileService externalFileService,
                              @Lazy ChapterService chapterService,
                              @Lazy PageService pageService,
                              @Lazy VolumeService volumeService,
-                             @Lazy ChapterNotifyService chapterNotifyService
-  ) {
-    super(workService,
-        languageService,
-        scanlatorSynchronizationErrorService,
-        scanlatorService,
-        workLinkRepository
-    );
+                             @Lazy ChapterNotifyService chapterNotifyService) {
 
     this.workService = workService;
+    this.synchronizationBase = synchronizationBase;
     this.languageService = languageService;
-    this.scanlatorSynchronizationErrorService = scanlatorSynchronizationErrorService;
     this.scanlatorService = scanlatorService;
-    this.workLinkRepository = workLinkRepository;
 
     this.mediocrescanClient = mediocrescanClient;
-    this.tagService = tagService;
     this.externalFileService = externalFileService;
     this.chapterService = chapterService;
     this.pageService = pageService;
@@ -135,7 +121,7 @@ public class MediocrescanService extends SynchronizationBase implements Synchron
     ).getAccessToken();
   }
 
-  @PostConstruct
+//  @PostConstruct
   @Transactional
   @Override
   public void ScheduledSynchronization() {
@@ -179,7 +165,7 @@ public class MediocrescanService extends SynchronizationBase implements Synchron
 
       totalPages = obras.getPagination().getTotalPages();
       obras.getData().forEach(this::synchronizeByExternalId);
-      this.sleep(5000);
+      synchronizationBase.sleep(5000);
     }
   }
 
@@ -199,14 +185,14 @@ public class MediocrescanService extends SynchronizationBase implements Synchron
 
     Work work = null;
     try {
-      work = this.findWorkOrCreate(obra.getId().toString(), SynchronizationOriginType.MEDIOCRESCAN);
+      work = synchronizationBase.findWorkOrCreate(obra.getId().toString(), SynchronizationOriginType.MEDIOCRESCAN);
 
       prepareSyncTitle(work, obra);
       prepareSyncAttributes(work, obra);
 
       prepareSynchronization(work, obra);
       prepareSyncSynopses(work, obra);
-      syncTags(work, obra);
+      prepareSyncTags(work, obra);
       syncCover(work, obra);
 
       work.setUpdatedAt(OffsetDateTime.now());
@@ -219,7 +205,7 @@ public class MediocrescanService extends SynchronizationBase implements Synchron
       log.info("<-- [MediocrescanService][synchronizeByExternalId] Synchronization completed: {}",
           obra.getNome().trim());
     } catch (Exception e) {
-      this.syncWorkError(
+      synchronizationBase.syncWorkError(
           SynchronizationOriginType.MEDIOCRESCAN,
           work != null && work.getId() == null ? null : Objects.requireNonNull(work).getId().toString(),
           obra.getId().toString(),
@@ -241,7 +227,7 @@ public class MediocrescanService extends SynchronizationBase implements Synchron
         .origin(SynchronizationOriginType.MEDIOCRESCAN)
         .build()
     );
-    this.syncTitle(work, titles);
+    synchronizationBase.syncTitle(work, titles);
   }
 
   private WorkStatus getWorkStatus(Mediocrescan_ObraDTO dto) {
@@ -284,7 +270,7 @@ public class MediocrescanService extends SynchronizationBase implements Synchron
         ? WorkType.NOVEL
         : WorkType.MANHWA;
 
-    syncAttributes(
+    synchronizationBase.syncAttributes(
         work,
         getWorkPublicationDemographic(dto),
         workType,
@@ -332,7 +318,7 @@ public class MediocrescanService extends SynchronizationBase implements Synchron
     Objects.requireNonNull(work);
     Objects.requireNonNull(dto);
 
-    this.syncSynchronization(
+    synchronizationBase.syncSynchronization(
         work,
         dto.getId().toString(),
         SynchronizationOriginType.MEDIOCRESCAN,
@@ -355,34 +341,27 @@ public class MediocrescanService extends SynchronizationBase implements Synchron
         .build()
     );
 
-    this.syncSynopses(
+    synchronizationBase.syncSynopses(
         work,
         synopses);
   }
 
-  private void syncTags(Work work, Mediocrescan_ObraDTO dto) {
-    Objects.requireNonNull(work);
-    Objects.requireNonNull(dto);
-
-    if (work.getTags() == null) {
-      work.setTags(new ArrayList<>());
-    }
+  @Override
+  public void prepareSyncTags(Work work, Mediocrescan_ObraDTO dto) {
+    Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
+    Objects.requireNonNull(dto, VALIDATION_ERROR_EXTERNAL_WORK_IS_NULL);
 
     log.debug("--> [MediocrescanService][syncTags] ({}) Syncing tags", dto.getNome());
-    if (dto.getTags() != null && !dto.getTags().isEmpty()) {
-      dto.getTags().forEach(tag -> {
-        var group = TagGroupType.GENRE;
-        var name = tag.getNome();
-
-        if (!work.getTagsContains(group, name) && !name.isBlank()) {
-          work.getTags().add(
-              WorkTag.builder()
-                  .tag(tagService.findOrCreate(group, name))
-                  .work(work)
-                  .build());
-        }
-      });
+    var tags = new ArrayList<SynchronizationTags>();
+    if (dto.getTags() != null) {
+      dto.getTags().forEach(tag -> tags.add(
+          SynchronizationTags.builder()
+              .group(TagGroupType.GENRE)
+              .name(tag.getNome())
+              .build()
+      ));
     }
+    synchronizationBase.syncTags(work, tags);
   }
 
   private void syncCover(Work work, Mediocrescan_ObraDTO dto) throws IOException, InterruptedException {
@@ -572,6 +551,11 @@ public class MediocrescanService extends SynchronizationBase implements Synchron
   @Override
   public void prepareSyncLinks(Work work, Mediocrescan_ObraDTO workDto) {
     log.debug("--> [MediocrescanService][prepareSyncLinks] ({}) Syncing links", workDto.getNome());
+  }
+  
+  @Override
+  public void prepareSyncAuthors(Work work, Mediocrescan_ObraDTO workDto) {
+    log.debug("--> [MediocrescanService][prepareSyncAuthors] ({}) Syncing authors", workDto.getNome());
   }
 
   @Transactional

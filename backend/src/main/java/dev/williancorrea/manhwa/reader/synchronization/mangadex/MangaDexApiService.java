@@ -73,7 +73,6 @@ public class MangaDexApiService {
   protected void startSynchronization(MangaDexData data) {
     Work work = mapperService.toEntity(data);
     workService.save(work);
-    log.info("--> Manga imported success - {}", work.getTitles().getFirst().getTitle());
   }
 
 }
