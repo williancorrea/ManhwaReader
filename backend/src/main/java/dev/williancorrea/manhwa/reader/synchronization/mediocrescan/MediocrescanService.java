@@ -200,8 +200,7 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
       work = workService.save(work);
 
       prepareSyncRelationships(work, obra);
-//      syncChapters(work, obra);
-
+      prepareSyncChapters(work, obra);
 
       log.info("<-- [MediocrescanService][synchronizeByExternalId] Synchronization completed: {}",
           obra.getNome().trim());
@@ -378,8 +377,18 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
     }
   }
 
+  @Override
+  public void prepareSyncLinks(Work work, Mediocrescan_ObraDTO workDto) {
+    log.debug("--> [MediocrescanService][prepareSyncLinks] ({}) Syncing links", workDto.getNome());
+  }
+
+  @Override
+  public void prepareSyncAuthors(Work work, Mediocrescan_ObraDTO workDto) {
+    log.debug("--> [MediocrescanService][prepareSyncAuthors] ({}) Syncing authors", workDto.getNome());
+  }
+  
   @Transactional
-  protected void syncChapters(Work work, Mediocrescan_ObraDTO dto) {
+  public void prepareSyncChapters(Work work, Mediocrescan_ObraDTO dto) {
     if (dto.getTotalCapitulos() == null || dto.getTotalCapitulos() == 0) {
       return;
     }
@@ -543,16 +552,6 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
       }
     }
 
-  }
-
-  @Override
-  public void prepareSyncLinks(Work work, Mediocrescan_ObraDTO workDto) {
-    log.debug("--> [MediocrescanService][prepareSyncLinks] ({}) Syncing links", workDto.getNome());
-  }
-
-  @Override
-  public void prepareSyncAuthors(Work work, Mediocrescan_ObraDTO workDto) {
-    log.debug("--> [MediocrescanService][prepareSyncAuthors] ({}) Syncing authors", workDto.getNome());
   }
 
   @Transactional

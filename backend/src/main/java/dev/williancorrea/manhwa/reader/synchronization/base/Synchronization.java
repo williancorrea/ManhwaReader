@@ -19,4 +19,5 @@ public interface Synchronization<T> {
   void prepareSyncAuthors(Work work, T workDto);
   void prepareSyncCover(Work work, T workDto) throws IOException, InterruptedException;
   void prepareSyncRelationships(Work work, T workDto);
+  void prepareSyncChapters(Work work, T workDto);
 }

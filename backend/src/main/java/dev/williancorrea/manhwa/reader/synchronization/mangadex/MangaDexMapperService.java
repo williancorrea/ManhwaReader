@@ -338,6 +338,11 @@ public class MangaDexMapperService implements Synchronization<MangaDexData> {
   public void prepareSyncRelationships(Work work, MangaDexData workDto) {
     log.debug("--> [MangaDexMapperService][prepareSyncRelationships] Syncing relationships");
   }
+  
+  @Override
+  public void prepareSyncChapters(Work work, MangaDexData workDto) {
+    log.debug("--> [MangaDexMapperService][prepareSyncChapters] Syncing chapters");
+  }
 
   private WorkPublicationDemographic getWorkPublicationDemographic(MangaDexData dto) {
     WorkPublicationDemographic demographic = WorkPublicationDemographic.UNKNOWN;
