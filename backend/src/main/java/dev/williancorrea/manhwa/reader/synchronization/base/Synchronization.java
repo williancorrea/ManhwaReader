@@ -1,5 +1,6 @@
 package dev.williancorrea.manhwa.reader.synchronization.base;
 
+import java.io.IOException;
 import dev.williancorrea.manhwa.reader.features.work.Work;
 
 public interface Synchronization<T> {
@@ -16,4 +17,5 @@ public interface Synchronization<T> {
   void prepareSyncLinks(Work work, T workDto);
   void prepareSyncTags(Work work, T workDto);
   void prepareSyncAuthors(Work work, T workDto);
+  void prepareCover(Work work, T workDto) throws IOException, InterruptedException;
 }

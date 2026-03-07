@@ -18,6 +18,7 @@ import static dev.williancorrea.manhwa.reader.synchronization.base.Synchronizati
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_WORK_SLUG_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_WORK_TYPE_IS_NULL;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +47,7 @@ import dev.williancorrea.manhwa.reader.features.work.link.WorkLink;
 import dev.williancorrea.manhwa.reader.features.work.link.WorkLinkRepository;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.WorkSynchronization;
+import dev.williancorrea.manhwa.reader.minio.ExternalFileService;
 import dev.williancorrea.manhwa.reader.synchronization.base.input.SynchronizationLinks;
 import dev.williancorrea.manhwa.reader.synchronization.base.input.SynchronizationSynopses;
 import dev.williancorrea.manhwa.reader.synchronization.base.input.SynchronizationTags;
@@ -65,6 +67,7 @@ public class SynchronizationBase {
   public final WorkLinkRepository workLinkRepository;
   public final TagService tagService;
   public final AuthorService authorService;
+  public final ExternalFileService externalFileService;
 
   public SynchronizationBase(@Lazy WorkService workService,
                              @Lazy LanguageService languageService,
@@ -72,7 +75,8 @@ public class SynchronizationBase {
                              @Lazy ScanlatorService scanlatorService,
                              @Lazy WorkLinkRepository workLinkRepository,
                              @Lazy TagService tagService,
-                             @Lazy AuthorService authorService) {
+                             @Lazy AuthorService authorService,
+                             @Lazy ExternalFileService externalFileService) {
     this.workService = workService;
     this.languageService = languageService;
     this.scanlatorSynchronizationErrorService = scanlatorSynchronizationErrorService;
@@ -80,6 +84,7 @@ public class SynchronizationBase {
     this.workLinkRepository = workLinkRepository;
     this.tagService = tagService;
     this.authorService = authorService;
+    this.externalFileService = externalFileService;
   }
 
   public void sleep(long millis) {
@@ -92,7 +97,8 @@ public class SynchronizationBase {
     }
   }
 
-  public Work findWorkOrCreate(String externalID, SynchronizationOriginType origin) {
+  public Work findWorkOrCreate(String externalID,
+                               SynchronizationOriginType origin) {
     log.debug("--> [SynchronizationBase][findWorkOrCreate] Finding work with externalID: ({}) and origin ({})",
         externalID, origin);
 
@@ -113,7 +119,8 @@ public class SynchronizationBase {
     return work;
   }
 
-  public void syncTitle(Work work, List<SynchronizationTitle> titles) {
+  public void syncTitle(Work work,
+                        List<SynchronizationTitle> titles) {
     log.debug("--> [SynchronizationBase][syncTitle] Syncing title");
 
     Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
@@ -157,7 +164,8 @@ public class SynchronizationBase {
     });
   }
 
-  public void syncSynopses(Work work, List<SynchronizationSynopses> synopses) {
+  public void syncSynopses(Work work,
+                           List<SynchronizationSynopses> synopses) {
     log.debug("--> [SynchronizationBase][syncSynopses] Syncing synopses");
 
     Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
@@ -273,7 +281,8 @@ public class SynchronizationBase {
     }
   }
 
-  private String getWorkSlug(String name, Boolean isNovel) {
+  private String getWorkSlug(String name,
+                             Boolean isNovel) {
     log.debug("--> [SynchronizationBase][getWorkSlug] ({}) Generating slug", name);
 
     var workSlug = RemoveAccentuationUtils.normalize(name).toLowerCase();
@@ -285,7 +294,8 @@ public class SynchronizationBase {
     }
   }
 
-  private boolean validateSlugUniqueFree(String slug, Boolean isNovel) {
+  private boolean validateSlugUniqueFree(String slug,
+                                         Boolean isNovel) {
     if (slug == null || slug.isEmpty()) {
       return false;
     }
@@ -317,7 +327,8 @@ public class SynchronizationBase {
     }
   }
 
-  public void syncLinks(Work work, List<SynchronizationLinks> links) {
+  public void syncLinks(Work work,
+                        List<SynchronizationLinks> links) {
     log.debug("--> [SynchronizationBase][syncLinks] Syncing links");
 
     Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
@@ -348,7 +359,8 @@ public class SynchronizationBase {
     });
   }
 
-  public void syncTags(Work work, List<SynchronizationTags> tags) {
+  public void syncTags(Work work,
+                       List<SynchronizationTags> tags) {
     log.debug("--> [SynchronizationBase][syncTags] Syncing tags");
 
     Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
@@ -373,7 +385,8 @@ public class SynchronizationBase {
     });
   }
 
-  public void syncAuthors(Work work, List<Author> authors) {
+  public void syncAuthors(Work work,
+                          List<Author> authors) {
     log.debug("--> [SynchronizationBase][syncAuthors] Syncing authors");
 
     Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
@@ -392,5 +405,59 @@ public class SynchronizationBase {
                 .build());
       }
     });
+  }
+
+  public void syncCover(Work work,
+                        String url,
+                        String filename,
+                        Boolean isHigh,
+                        Boolean isMedium,
+                        Boolean islow,
+                        Boolean isCustom
+  ) throws IOException, InterruptedException {
+    log.debug("--> [SynchronizationBase][syncCover] Syncing cover");
+
+    Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
+
+    var extension = "." + filename.split("\\.")[1];
+    var slug = work.getPublicationDemographic().name().toLowerCase() + "/covers/" + work.getSlug();
+
+    if (Boolean.TRUE.equals(isHigh) && work.getCoverHigh() == null) {
+      work.setCoverHigh("cover" + extension);
+      externalFileService.downloadWithAuthAndUpload(
+          url,
+          work.getCoverHigh(),
+          slug
+      );
+    }
+
+    if (Boolean.TRUE.equals(isMedium) && work.getCoverMedium() == null) {
+      work.setCoverMedium("cover_512" + extension);
+      externalFileService.downloadWithAuthAndUpload(
+          url,
+          work.getCoverMedium(),
+          slug
+      );
+    }
+
+    if (Boolean.TRUE.equals(islow) && work.getCoverLow() == null) {
+      work.setCoverLow("cover_256" + extension);
+      externalFileService.downloadWithAuthAndUpload(
+          url,
+          work.getCoverLow(),
+          slug
+      );
+    }
+
+    if (Boolean.TRUE.equals(isCustom) && work.getCoverCustom() == null) {
+      work.setCoverCustom("cover_custom" + extension);
+      externalFileService.downloadWithAuthAndUpload(
+          url,
+          work.getCoverCustom(),
+          slug
+      );
+    }
+
+
   }
 }

@@ -80,7 +80,7 @@ public class MangaDexMapperService implements Synchronization<MangaDexData> {
       prepareSyncAttributes(work, dto);
       prepareSyncTags(work, dto);
       prepareSyncAuthors(work, dto);
-      syncCover(work, dto);
+      prepareCover(work, dto);
 
       work.setUpdatedAt(OffsetDateTime.now());
       return work;
@@ -298,40 +298,36 @@ public class MangaDexMapperService implements Synchronization<MangaDexData> {
     );
   }
 
-  private void syncCover(Work work, MangaDexData dto) {
+  @Override
+  public void prepareCover(Work work, MangaDexData dto) {
     Objects.requireNonNull(work);
     Objects.requireNonNull(dto);
 
     dto.getRelationships().stream().filter(rel -> rel.getType().equals("cover_art")).findFirst().ifPresent(cover -> {
-      var extension = "." + cover.getAttributes().getFileName().split("\\.")[1];
       try {
+        synchronizationBase.syncCover(work,
+            MANDADEX_URL_COVERS + "/covers/" + dto.getId() + "/" + cover.getAttributes().getFileName(),
+            cover.getAttributes().getFileName(),
+            true,
+            false,
+            false,
+            false);
 
-        if (work.getCoverMedium() == null) {
-          work.setCoverMedium("cover_512" + extension);
-          externalFileService.downloadWithAuthAndUpload(
-              MANDADEX_URL_COVERS + "/covers/" + dto.getId() + "/" + cover.getAttributes().getFileName() + ".512.jpg",
-              work.getCoverMedium(),
-              work.getPublicationDemographic().name().toLowerCase() + "/" + work.getSlug()
-          );
-        }
+        synchronizationBase.syncCover(work,
+            MANDADEX_URL_COVERS + "/covers/" + dto.getId() + "/" + cover.getAttributes().getFileName() + ".512.jpg",
+            cover.getAttributes().getFileName(),
+            false,
+            true,
+            false,
+            false);
 
-        if (work.getCoverLow() == null) {
-          work.setCoverLow("cover_256" + extension);
-          externalFileService.downloadWithAuthAndUpload(
-              MANDADEX_URL_COVERS + "/covers/" + dto.getId() + "/" + cover.getAttributes().getFileName() + ".256.jpg",
-              work.getCoverLow(),
-              work.getPublicationDemographic().name().toLowerCase() + "/" + work.getSlug()
-          );
-        }
-
-        if (work.getCoverHigh() == null) {
-          work.setCoverHigh("cover" + extension);
-          externalFileService.downloadWithAuthAndUpload(
-              MANDADEX_URL_COVERS + "/covers/" + dto.getId() + "/" + cover.getAttributes().getFileName(),
-              work.getCoverHigh(),
-              work.getPublicationDemographic().name().toLowerCase() + "/" + work.getSlug()
-          );
-        }
+        synchronizationBase.syncCover(work,
+            MANDADEX_URL_COVERS + "/covers/" + dto.getId() + "/" + cover.getAttributes().getFileName() + ".256.jpg",
+            cover.getAttributes().getFileName(),
+            false,
+            false,
+            true,
+            false);
       } catch (Exception e) {
         throw new RuntimeException(e);
       }

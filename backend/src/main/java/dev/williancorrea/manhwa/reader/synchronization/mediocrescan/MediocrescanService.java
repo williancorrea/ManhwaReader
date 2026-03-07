@@ -41,6 +41,7 @@ import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Me
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Mediocrescan_TokenDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.obra.Mediocrescan_ObraDTO;
 import dev.williancorrea.manhwa.reader.utils.StringUtils;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -121,7 +122,7 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
     ).getAccessToken();
   }
 
-//  @PostConstruct
+  @PostConstruct
   @Transactional
   @Override
   public void ScheduledSynchronization() {
@@ -193,12 +194,12 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
       prepareSynchronization(work, obra);
       prepareSyncSynopses(work, obra);
       prepareSyncTags(work, obra);
-      syncCover(work, obra);
+      prepareCover(work, obra);
 
       work.setUpdatedAt(OffsetDateTime.now());
       work = workService.save(work);
 
-//      syncRelationship(work, obra);
+      syncRelationship(work, obra);
 //      syncChapters(work, obra);
 
 
@@ -364,20 +365,24 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
     synchronizationBase.syncTags(work, tags);
   }
 
-  private void syncCover(Work work, Mediocrescan_ObraDTO dto) throws IOException, InterruptedException {
+  @Override
+  public void prepareCover(Work work, Mediocrescan_ObraDTO dto) throws IOException, InterruptedException {
     Objects.requireNonNull(work);
     Objects.requireNonNull(dto);
 
     log.debug("--> [MediocrescanService][syncCover] ({}) Syncing cover", dto.getNome());
-    if (work.getCoverCustom() == null || work.getCoverCustom().isEmpty()) {
-      var coverUrl = mediocreScanUrlAPI + "/storage/obras/" + dto.getId() + "/" + dto.getImagem();
-      work.setCoverCustom("cover_custom." + dto.getImagem().split("\\.")[1]);
+    try {
+      synchronizationBase.syncCover(work,
+          mediocreScanUrlAPI + "/storage/obras/" + dto.getId() + "/" + dto.getImagem(),
+          dto.getImagem(),
+          false,
+          false,
+          false,
+          true);
 
-      externalFileService.downloadWithAuthAndUpload(
-          coverUrl,
-          work.getCoverCustom(),
-          work.getPublicationDemographic().name().toLowerCase() + "/" + work.getSlug()
-      );
+    } catch (Exception e) {
+      log.error("[MediocrescanService][syncCover] Error syncing cover for work {} from MediocreScan", dto.getNome(), e);
+      throw e;
     }
   }
 
@@ -552,7 +557,7 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
   public void prepareSyncLinks(Work work, Mediocrescan_ObraDTO workDto) {
     log.debug("--> [MediocrescanService][prepareSyncLinks] ({}) Syncing links", workDto.getNome());
   }
-  
+
   @Override
   public void prepareSyncAuthors(Work work, Mediocrescan_ObraDTO workDto) {
     log.debug("--> [MediocrescanService][prepareSyncAuthors] ({}) Syncing authors", workDto.getNome());
