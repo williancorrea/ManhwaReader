@@ -28,6 +28,8 @@ public class SynchronizationErrorMessage {
   public static final String VALIDATION_ERROR_TAG_NAME_IS_BLANK = "Tag name cannot be blank";
   public static final String VALIDATION_ERROR_TAG_NAME_IS_NULL = "Tag name cannot be null";
   
+  public static final String VALIDATION_ERROR_AUTHOR_LIST_IS_NULL = "Author list cannot be null";
+  
   public static final String VALIDATION_ERROR_MESSAGE_IS_NULL = "Message cannot be null";
   
   public static final String CONSTRUCTOR_WORK_SERVICE_IS_NULL = "Work service cannot be null";

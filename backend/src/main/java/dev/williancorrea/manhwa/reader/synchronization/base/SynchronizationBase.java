@@ -1,5 +1,6 @@
 package dev.williancorrea.manhwa.reader.synchronization.base;
 
+import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_AUTHOR_LIST_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_EXTERNAL_WORK_ID_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_EXTERNAL_WORK_NAME_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_MESSAGE_IS_NULL;
@@ -23,6 +24,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import dev.williancorrea.manhwa.reader.features.author.Author;
+import dev.williancorrea.manhwa.reader.features.author.AuthorService;
 import dev.williancorrea.manhwa.reader.features.language.Language;
 import dev.williancorrea.manhwa.reader.features.language.LanguageService;
 import dev.williancorrea.manhwa.reader.features.scanlator.ScanlatorService;
@@ -30,6 +33,7 @@ import dev.williancorrea.manhwa.reader.features.scanlator.error.ScanlatorSynchro
 import dev.williancorrea.manhwa.reader.features.scanlator.error.ScanlatorSynchronizationErrorService;
 import dev.williancorrea.manhwa.reader.features.tag.TagService;
 import dev.williancorrea.manhwa.reader.features.work.Work;
+import dev.williancorrea.manhwa.reader.features.work.WorkAuthor;
 import dev.williancorrea.manhwa.reader.features.work.WorkContentRating;
 import dev.williancorrea.manhwa.reader.features.work.WorkPublicationDemographic;
 import dev.williancorrea.manhwa.reader.features.work.WorkService;
@@ -60,19 +64,22 @@ public class SynchronizationBase {
   public final ScanlatorService scanlatorService;
   public final WorkLinkRepository workLinkRepository;
   public final TagService tagService;
+  public final AuthorService authorService;
 
   public SynchronizationBase(@Lazy WorkService workService,
                              @Lazy LanguageService languageService,
                              @Lazy ScanlatorSynchronizationErrorService scanlatorSynchronizationErrorService,
                              @Lazy ScanlatorService scanlatorService,
                              @Lazy WorkLinkRepository workLinkRepository,
-                             @Lazy TagService tagService) {
+                             @Lazy TagService tagService,
+                             @Lazy AuthorService authorService) {
     this.workService = workService;
     this.languageService = languageService;
     this.scanlatorSynchronizationErrorService = scanlatorSynchronizationErrorService;
     this.scanlatorService = scanlatorService;
     this.workLinkRepository = workLinkRepository;
     this.tagService = tagService;
+    this.authorService = authorService;
   }
 
   public void sleep(long millis) {
@@ -86,10 +93,12 @@ public class SynchronizationBase {
   }
 
   public Work findWorkOrCreate(String externalID, SynchronizationOriginType origin) {
-    Objects.requireNonNull(externalID);
-    Objects.requireNonNull(origin);
     log.debug("--> [SynchronizationBase][findWorkOrCreate] Finding work with externalID: ({}) and origin ({})",
         externalID, origin);
+
+    Objects.requireNonNull(externalID);
+    Objects.requireNonNull(origin);
+
     var work = workService.findBySynchronizationExternalID(externalID, origin).orElse(null);
 
     if (work == null) {
@@ -105,6 +114,8 @@ public class SynchronizationBase {
   }
 
   public void syncTitle(Work work, List<SynchronizationTitle> titles) {
+    log.debug("--> [SynchronizationBase][syncTitle] Syncing title");
+
     Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
     Objects.requireNonNull(titles, VALIDATION_ERROR_TITLE_LIST_IS_NULL);
 
@@ -147,10 +158,10 @@ public class SynchronizationBase {
   }
 
   public void syncSynopses(Work work, List<SynchronizationSynopses> synopses) {
+    log.debug("--> [SynchronizationBase][syncSynopses] Syncing synopses");
+
     Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
     Objects.requireNonNull(synopses, VALIDATION_ERROR_SYNOPSES_LIST_IS_NULL);
-
-    log.debug("--> [SynchronizationBase][syncSynopses] Syncing synopses");
 
     if (work.getSynopses() == null) {
       work.setSynopses(new ArrayList<>());
@@ -185,14 +196,12 @@ public class SynchronizationBase {
                             String externalWorkId,
                             String externalWorkName,
                             String errorMessage) {
+    log.error("--> [SynchronizationBase][syncWorkError] Error syncing work");
+
     Objects.requireNonNull(scan, VALIDATION_ERROR_SYNCHRONIZATION_ORIGIN_IS_NULL);
     Objects.requireNonNull(externalWorkId, VALIDATION_ERROR_EXTERNAL_WORK_ID_IS_NULL);
     Objects.requireNonNull(externalWorkName, VALIDATION_ERROR_EXTERNAL_WORK_NAME_IS_NULL);
     Objects.requireNonNull(externalWorkName, VALIDATION_ERROR_MESSAGE_IS_NULL);
-
-    log.error("--> [SynchronizationBase][syncWorkError] Error syncing work for " +
-            "scan: {}, workId: {}, externalWorkId: {}, externalWorkName: {}, errorMessage: {}",
-        scan, workId, externalWorkId, externalWorkName, errorMessage);
 
     scanlatorSynchronizationErrorService.save(
         ScanlatorSynchronizationError.builder()
@@ -217,6 +226,7 @@ public class SynchronizationBase {
                              WorkContentRating contentRating,
                              Boolean chapterNumbersResetOnNewVolume) {
     log.debug("--> [SynchronizationBase][syncAttributes] Syncing attributes");
+
     Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
     Objects.requireNonNull(publicationDemographic, VALIDATION_ERROR_WORK_PUBLICATION_DEMOGRAPHIC_IS_NULL);
     Objects.requireNonNull(workType, VALIDATION_ERROR_WORK_TYPE_IS_NULL);
@@ -265,6 +275,7 @@ public class SynchronizationBase {
 
   private String getWorkSlug(String name, Boolean isNovel) {
     log.debug("--> [SynchronizationBase][getWorkSlug] ({}) Generating slug", name);
+
     var workSlug = RemoveAccentuationUtils.normalize(name).toLowerCase();
     if (validateSlugUniqueFree(workSlug, isNovel)) {
       return workSlug;
@@ -285,11 +296,12 @@ public class SynchronizationBase {
                                   String externalId,
                                   SynchronizationOriginType origem,
                                   String externalSlug) {
+    log.debug("--> [SynchronizationBase][syncSynchronization] Syncing synchronization");
+
     Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
     Objects.requireNonNull(externalId, VALIDATION_ERROR_EXTERNAL_WORK_ID_IS_NULL);
     Objects.requireNonNull(origem, VALIDATION_ERROR_SYNCHRONIZATION_ORIGIN_IS_NULL);
 
-    log.debug("--> [SynchronizationBase][syncSynchronization] Syncing synchronization");
     if (work.getSynchronizations() == null) {
       work.setSynchronizations(new ArrayList<>());
     }
@@ -306,10 +318,11 @@ public class SynchronizationBase {
   }
 
   public void syncLinks(Work work, List<SynchronizationLinks> links) {
+    log.debug("--> [SynchronizationBase][syncLinks] Syncing links");
+
     Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
     Objects.requireNonNull(links, VALIDATION_ERROR_TITLE_LIST_IS_NULL);
 
-    log.debug("--> [SynchronizationBase][syncLinks] Syncing links");
     if (work.getLinks() == null) {
       work.setLinks(new ArrayList<>());
     }
@@ -336,10 +349,11 @@ public class SynchronizationBase {
   }
 
   public void syncTags(Work work, List<SynchronizationTags> tags) {
+    log.debug("--> [SynchronizationBase][syncTags] Syncing tags");
+
     Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
     Objects.requireNonNull(tags, VALIDATION_ERROR_TAG_LIST_IS_NULL);
 
-    log.debug("--> [SynchronizationBase][syncTags] Syncing tags");
     if (work.getTags() == null) {
       work.setTags(new ArrayList<>());
     }
@@ -358,6 +372,25 @@ public class SynchronizationBase {
       }
     });
   }
-  
-  
+
+  public void syncAuthors(Work work, List<Author> authors) {
+    log.debug("--> [SynchronizationBase][syncAuthors] Syncing authors");
+
+    Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
+    Objects.requireNonNull(authors, VALIDATION_ERROR_AUTHOR_LIST_IS_NULL);
+
+    if (work.getAuthors() == null) {
+      work.setAuthors(new ArrayList<>());
+    }
+
+    authors.forEach(author -> {
+      if (!work.getAuthorsContains(author.getType(), author.getName()) && !author.getName().isBlank()) {
+        work.getAuthors().add(
+            WorkAuthor.builder()
+                .author(authorService.findOrCreate(author))
+                .work(work)
+                .build());
+      }
+    });
+  }
 }

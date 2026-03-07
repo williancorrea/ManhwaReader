@@ -15,7 +15,6 @@ import dev.williancorrea.manhwa.reader.features.author.AuthorType;
 import dev.williancorrea.manhwa.reader.features.language.LanguageService;
 import dev.williancorrea.manhwa.reader.features.tag.TagGroupType;
 import dev.williancorrea.manhwa.reader.features.work.Work;
-import dev.williancorrea.manhwa.reader.features.work.WorkAuthor;
 import dev.williancorrea.manhwa.reader.features.work.WorkContentRating;
 import dev.williancorrea.manhwa.reader.features.work.WorkPublicationDemographic;
 import dev.williancorrea.manhwa.reader.features.work.WorkService;
@@ -211,44 +210,33 @@ public class MangaDexMapperService implements Synchronization<MangaDexData> {
     Objects.requireNonNull(work);
     Objects.requireNonNull(dto);
 
-    if (work.getAuthors() == null) {
-      work.setAuthors(new ArrayList<>());
-    }
+    var authors = new ArrayList<Author>();
 
     dto.getRelationships().forEach(author -> {
       if (Arrays.asList(AuthorType.AUTHOR.name(), AuthorType.ARTIST.name()).contains(author.getType().toUpperCase())) {
-
-        var type = AuthorType.valueOf(author.getType().toUpperCase());
-        var name = author.getAttributes().getName();
-
-        if (!work.getAuthorsContains(type, name) && !name.isBlank()) {
-          work.getAuthors().add(
-              WorkAuthor.builder()
-                  .author(authorService.findOrCreate(Author.builder()
-                      .name(author.getAttributes().getName())
-                      .type(type)
-                      .biography(author.getAttributes().getBiography().values().stream().findAny().orElse(null))
-                      .twitter(author.getAttributes().getTwitter())
-                      .pixiv(author.getAttributes().getPixiv())
-                      .melonBook(author.getAttributes().getMelonBook())
-                      .fanBox(author.getAttributes().getFanBox())
-                      .booth(author.getAttributes().getBooth())
-                      .namicomi(author.getAttributes().getNamicomi())
-                      .nicoVideo(author.getAttributes().getNicoVideo())
-                      .skeb(author.getAttributes().getSkeb())
-                      .fanBox(author.getAttributes().getFanBox())
-                      .tumblr(author.getAttributes().getTumblr())
-                      .youtube(author.getAttributes().getYoutube())
-                      .weibo(author.getAttributes().getWeibo())
-                      .naver(author.getAttributes().getNaver())
-                      .website(author.getAttributes().getWebsite())
-                      .build()))
-                  .work(work)
-                  .build()
-          );
-        }
+        authors.add(Author.builder()
+            .name(author.getAttributes().getName())
+            .type(AuthorType.valueOf(author.getType().toUpperCase()))
+            .biography(author.getAttributes().getBiography().values().stream().findAny().orElse(null))
+            .twitter(author.getAttributes().getTwitter())
+            .pixiv(author.getAttributes().getPixiv())
+            .melonBook(author.getAttributes().getMelonBook())
+            .fanBox(author.getAttributes().getFanBox())
+            .booth(author.getAttributes().getBooth())
+            .namicomi(author.getAttributes().getNamicomi())
+            .nicoVideo(author.getAttributes().getNicoVideo())
+            .skeb(author.getAttributes().getSkeb())
+            .fanBox(author.getAttributes().getFanBox())
+            .tumblr(author.getAttributes().getTumblr())
+            .youtube(author.getAttributes().getYoutube())
+            .weibo(author.getAttributes().getWeibo())
+            .naver(author.getAttributes().getNaver())
+            .website(author.getAttributes().getWebsite())
+            .build()
+        );
       }
     });
+    synchronizationBase.syncAuthors(work, authors);
   }
 
   @Override
