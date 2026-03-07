@@ -80,7 +80,7 @@ public class MangaDexMapperService implements Synchronization<MangaDexData> {
       prepareSyncAttributes(work, dto);
       prepareSyncTags(work, dto);
       prepareSyncAuthors(work, dto);
-      prepareCover(work, dto);
+      prepareSyncCover(work, dto);
 
       work.setUpdatedAt(OffsetDateTime.now());
       return work;
@@ -299,7 +299,7 @@ public class MangaDexMapperService implements Synchronization<MangaDexData> {
   }
 
   @Override
-  public void prepareCover(Work work, MangaDexData dto) {
+  public void prepareSyncCover(Work work, MangaDexData dto) {
     Objects.requireNonNull(work);
     Objects.requireNonNull(dto);
 
@@ -332,6 +332,11 @@ public class MangaDexMapperService implements Synchronization<MangaDexData> {
         throw new RuntimeException(e);
       }
     });
+  }
+
+  @Override
+  public void prepareSyncRelationships(Work work, MangaDexData workDto) {
+    log.debug("--> [MangaDexMapperService][prepareSyncRelationships] Syncing relationships");
   }
 
   private WorkPublicationDemographic getWorkPublicationDemographic(MangaDexData dto) {

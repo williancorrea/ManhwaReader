@@ -194,12 +194,12 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
       prepareSynchronization(work, obra);
       prepareSyncSynopses(work, obra);
       prepareSyncTags(work, obra);
-      prepareCover(work, obra);
+      prepareSyncCover(work, obra);
 
       work.setUpdatedAt(OffsetDateTime.now());
       work = workService.save(work);
 
-      syncRelationship(work, obra);
+      prepareSyncRelationships(work, obra);
 //      syncChapters(work, obra);
 
 
@@ -285,33 +285,25 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
     );
   }
 
-  private void syncRelationship(Work work, Mediocrescan_ObraDTO dto) {
+  public void prepareSyncRelationships(Work work, Mediocrescan_ObraDTO dto) {
     Objects.requireNonNull(work);
     Objects.requireNonNull(dto);
 
-    if (work.getRelationship() == null) {
-      if (dto.getObraNovel() != null) {
-        var rel = workService.findBySynchronizationExternalID(
-                dto.getObraNovel().getId().toString(),
-                SynchronizationOriginType.MEDIOCRESCAN)
-            .orElse(null);
-        if (rel != null) {
-          work.setRelationship(rel);
-          rel.setRelationship(work);
-          workService.save(rel);
-          workService.save(work);
-        }
-      } else if (dto.getObraOriginal() != null) {
-        var rel = workService.findBySynchronizationExternalID(
-                dto.getObraOriginal().getId().toString(),
-                SynchronizationOriginType.MEDIOCRESCAN)
-            .orElse(null);
-        if (rel != null) {
-          work.setRelationship(rel);
-          rel.setRelationship(work);
-        }
-      }
+    if (dto.getObraNovel() != null && dto.getObraNovel().getId() != null) {
+      synchronizationBase.syncRelationship(
+          work,
+          SynchronizationOriginType.MEDIOCRESCAN,
+          dto.getObraNovel().getId().toString()
+      );
+    } else if (dto.getObraOriginal() != null && dto.getObraOriginal().getId() != null) {
+      synchronizationBase.syncRelationship(
+          work,
+          SynchronizationOriginType.MEDIOCRESCAN,
+          dto.getObraOriginal().getId().toString()
+      );
     }
+
+
   }
 
   @Override
@@ -366,7 +358,7 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
   }
 
   @Override
-  public void prepareCover(Work work, Mediocrescan_ObraDTO dto) throws IOException, InterruptedException {
+  public void prepareSyncCover(Work work, Mediocrescan_ObraDTO dto) throws IOException, InterruptedException {
     Objects.requireNonNull(work);
     Objects.requireNonNull(dto);
 

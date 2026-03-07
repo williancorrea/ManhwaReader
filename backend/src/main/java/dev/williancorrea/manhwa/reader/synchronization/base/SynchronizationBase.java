@@ -1,6 +1,7 @@
 package dev.williancorrea.manhwa.reader.synchronization.base;
 
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_AUTHOR_LIST_IS_NULL;
+import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_EXTERNAL_WORK_ID_IS_BLANK;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_EXTERNAL_WORK_ID_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_EXTERNAL_WORK_NAME_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_MESSAGE_IS_NULL;
@@ -459,5 +460,30 @@ public class SynchronizationBase {
     }
 
 
+  }
+
+  public void syncRelationship(Work work, SynchronizationOriginType origem, String externalId) {
+    log.debug("--> [SynchronizationBase][syncRelationship] Syncing relationship");
+
+    Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
+    Objects.requireNonNull(origem, VALIDATION_ERROR_SYNCHRONIZATION_ORIGIN_IS_NULL);
+    Objects.requireNonNull(externalId, VALIDATION_ERROR_EXTERNAL_WORK_ID_IS_NULL);
+
+    if (externalId.isBlank()) {
+      throw new IllegalArgumentException(VALIDATION_ERROR_EXTERNAL_WORK_ID_IS_BLANK);
+    }
+
+    if (work.getRelationship() == null) {
+      var rel = workService.findBySynchronizationExternalID(
+              externalId,
+              origem)
+          .orElse(null);
+      if (rel != null) {
+        work.setRelationship(rel);
+        rel.setRelationship(work);
+        workService.save(rel);
+        workService.save(work);
+      }
+    }
   }
 }
