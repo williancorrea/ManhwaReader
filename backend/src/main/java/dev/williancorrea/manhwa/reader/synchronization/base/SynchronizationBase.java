@@ -19,9 +19,13 @@ import static dev.williancorrea.manhwa.reader.synchronization.base.Synchronizati
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_WORK_SLUG_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_WORK_TYPE_IS_NULL;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -485,5 +489,29 @@ public class SynchronizationBase {
         workService.save(work);
       }
     }
+  }
+
+  public long jwtExtractExpiration(String jwt) {
+    log.debug("--> [SynchronizationBase][jwtExtractExpiration] Extracting expiration from JWT");
+    String[] parts = jwt.split("\\.");
+    String payload = new String(Base64.getUrlDecoder().decode(parts[1]));
+
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      JsonNode node = mapper.readTree(payload);
+      return node.get("exp").asLong();
+    } catch (Exception e) {
+      log.error("[SynchronizationBase][jwtExtractExpiration] Error reading exp from JWT.: {}", e.getMessage());
+      throw new RuntimeException("Error reading exp from JWT.", e);
+    }
+  }
+
+  public boolean isJwtTokenExpiring(String accessToken, long accessTokenExp) {
+    if (accessToken == null) {
+      return true;
+    }
+
+    long now = Instant.now().getEpochSecond();
+    return now >= (accessTokenExp - 60);
   }
 }

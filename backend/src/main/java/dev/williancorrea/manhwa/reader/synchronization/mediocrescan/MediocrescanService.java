@@ -38,7 +38,6 @@ import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.client.Medio
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.capitulo.Mediocrescan_CapituloDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Mediocrescan_LoginDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Mediocrescan_RefreshTokenDTO;
-import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Mediocrescan_TokenDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.obra.Mediocrescan_ObraDTO;
 import dev.williancorrea.manhwa.reader.utils.StringUtils;
 import jakarta.annotation.PostConstruct;
@@ -107,19 +106,49 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
   @Value("${synchronization.mediocrescan.api.password}")
   private String mediocrescanApiPassword;
 
-  private String token = null;
+  private String accessToken;
+  private String refreshToken;
+  private long accessTokenExp;
 
-  private String getToken() {
-    Mediocrescan_TokenDTO access = null;
-    if (token == null) {
-      log.debug("--> [MediocrescanService] Getting token");
-      access = mediocrescanClient.login(new Mediocrescan_LoginDTO(mediocrescanApiUsername, mediocrescanApiPassword));
+//  private String getToken() {
+//    Mediocrescan_TokenDTO access = null;
+//    if (token == null) {
+//      log.debug("--> [MediocrescanService] Getting token");
+//      access = mediocrescanClient.login(new Mediocrescan_LoginDTO(mediocrescanApiUsername, mediocrescanApiPassword));
+//    }
+//    Objects.requireNonNull(access);
+//    log.debug("--> [MediocrescanService] Refreshing token");
+//    return "Bearer " + mediocrescanClient.refreshToken(
+//        new Mediocrescan_RefreshTokenDTO(access.getRefreshToken())
+//    ).getAccessToken();
+//  }
+
+  private synchronized String getToken() {
+    if (accessToken == null && refreshToken == null) {
+      log.debug("--> [MediocrescanService] Login");
+
+      var tokenResponse =
+          mediocrescanClient.login(
+              new Mediocrescan_LoginDTO(mediocrescanApiUsername, mediocrescanApiPassword)
+          );
+
+      this.accessToken = tokenResponse.getAccessToken();
+      this.refreshToken = tokenResponse.getRefreshToken();
+      this.accessTokenExp = synchronizationBase.jwtExtractExpiration(accessToken);
     }
-    Objects.requireNonNull(access);
-    log.debug("--> [MediocrescanService] Refreshing token");
-    return "Bearer " + mediocrescanClient.refreshToken(
-        new Mediocrescan_RefreshTokenDTO(access.getRefreshToken())
-    ).getAccessToken();
+
+    if (synchronizationBase.isJwtTokenExpiring(accessToken, accessTokenExp)) {
+      log.debug("--> [MediocrescanService] Refresh token");
+
+      var refreshed =
+          mediocrescanClient.refreshToken(
+              new Mediocrescan_RefreshTokenDTO(refreshToken)
+          );
+
+      this.accessToken = refreshed.getAccessToken();
+      this.accessTokenExp = synchronizationBase.jwtExtractExpiration(accessToken);
+    }
+    return "Bearer " + accessToken;
   }
 
   @PostConstruct
@@ -386,7 +415,7 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
   public void prepareSyncAuthors(Work work, Mediocrescan_ObraDTO workDto) {
     log.debug("--> [MediocrescanService][prepareSyncAuthors] ({}) Syncing authors", workDto.getNome());
   }
-  
+
   @Transactional
   public void prepareSyncChapters(Work work, Mediocrescan_ObraDTO dto) {
     if (dto.getTotalCapitulos() == null || dto.getTotalCapitulos() == 0) {
