@@ -255,6 +255,10 @@ public class SynchronizationBase {
       work.setPublicationDemographic(publicationDemographic);
     }
 
+    if (originalLanguage != null && work.getOriginalLanguage() == null) {
+      work.setOriginalLanguage(originalLanguage);
+    }
+    
     if (work.getType() == null) {
       work.setType(workType);
     }
@@ -272,11 +276,7 @@ public class SynchronizationBase {
     if (releaseYear != null && work.getReleaseYear() == null) {
       work.setReleaseYear(releaseYear);
     }
-
-    if (originalLanguage != null && work.getOriginalLanguage() == null) {
-      work.setOriginalLanguage(originalLanguage);
-    }
-
+    
     if (contentRating != null && work.getContentRating() == null) {
       work.setContentRating(contentRating);
     }
