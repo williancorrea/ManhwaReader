@@ -1,6 +1,7 @@
 package dev.williancorrea.manhwa.reader.synchronization.base;
 
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_AUTHOR_LIST_IS_NULL;
+import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_CREATE_AT_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_EXTERNAL_WORK_ID_IS_BLANK;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_EXTERNAL_WORK_ID_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_EXTERNAL_WORK_NAME_IS_NULL;
@@ -13,6 +14,7 @@ import static dev.williancorrea.manhwa.reader.synchronization.base.Synchronizati
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_TITLE_IS_BLANK;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_TITLE_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_TITLE_LIST_IS_NULL;
+import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_UPDATE_AT_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_WORK_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_WORK_PUBLICATION_DEMOGRAPHIC_IS_NULL;
 import static dev.williancorrea.manhwa.reader.synchronization.base.SynchronizationErrorMessage.VALIDATION_ERROR_WORK_SLUG_IS_BLANK;
@@ -24,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -258,7 +261,7 @@ public class SynchronizationBase {
     if (originalLanguage != null && work.getOriginalLanguage() == null) {
       work.setOriginalLanguage(originalLanguage);
     }
-    
+
     if (work.getType() == null) {
       work.setType(workType);
     }
@@ -276,7 +279,7 @@ public class SynchronizationBase {
     if (releaseYear != null && work.getReleaseYear() == null) {
       work.setReleaseYear(releaseYear);
     }
-    
+
     if (contentRating != null && work.getContentRating() == null) {
       work.setContentRating(contentRating);
     }
@@ -330,6 +333,38 @@ public class SynchronizationBase {
               .externalSlug(externalSlug)
               .build());
     }
+  }
+
+  public boolean isWorkUpdated(Work work, SynchronizationOriginType origem, OffsetDateTime updateAt) {
+    log.debug("--> [SynchronizationBase][isWorkUpdated] Checking if work is updated");
+    Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
+    Objects.requireNonNull(origem, VALIDATION_ERROR_SYNCHRONIZATION_ORIGIN_IS_NULL);
+    Objects.requireNonNull(updateAt, VALIDATION_ERROR_UPDATE_AT_IS_NULL);
+
+    if (work.getSynchronizations() == null) {
+      return false;
+    }
+
+    return work.getSynchronizations().stream()
+        .anyMatch(sync -> sync.getOrigin()
+            .equals(origem) &&
+            sync.getUpdatedWorkAt() != null &&
+            sync.getUpdatedWorkAt().truncatedTo(ChronoUnit.SECONDS).equals(updateAt.truncatedTo(ChronoUnit.SECONDS)));
+  }
+
+  public void updatingSyncWorkTime(Work work, SynchronizationOriginType origem, OffsetDateTime createAt,
+                                   OffsetDateTime updateAt) {
+    log.debug("--> [SynchronizationBase][syncWorkTime] Syncing work time");
+    Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
+    Objects.requireNonNull(createAt, VALIDATION_ERROR_CREATE_AT_IS_NULL);
+    Objects.requireNonNull(updateAt, VALIDATION_ERROR_UPDATE_AT_IS_NULL);
+
+    work.getSynchronizations().stream()
+        .filter(sync -> sync.getOrigin().equals(origem))
+        .findFirst().ifPresent(sync -> {
+          sync.setCreatedWorkAt(createAt.truncatedTo(ChronoUnit.SECONDS));
+          sync.setUpdatedWorkAt(updateAt.truncatedTo(ChronoUnit.SECONDS));
+        });
   }
 
   public void syncLinks(Work work,
@@ -425,7 +460,9 @@ public class SynchronizationBase {
     Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
 
     var extension = "." + filename.split("\\.")[1];
-    var slug = work.getPublicationDemographic().name().toLowerCase() + "/covers/" + work.getSlug();
+    var slug = work.getPublicationDemographic().name().toLowerCase()
+        + "/" + work.getSlug()
+        + "/covers/";
 
     if (Boolean.TRUE.equals(isHigh) && work.getCoverHigh() == null) {
       work.setCoverHigh("cover" + extension);

@@ -81,7 +81,9 @@ public class Chapter implements Serializable {
 
   @Column(name = "created_at")
   private OffsetDateTime createdAt;
-
+  
+  @Column(name = "published_at")
+  private OffsetDateTime publishedAt;
 
   public void setNumberFormatted(String numberFormatted) {
     this.numberFormatted = StringUtils.completeWithZeroZeroToLeft(numberFormatted, 4);

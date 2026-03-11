@@ -1,8 +1,9 @@
 package dev.williancorrea.manhwa.reader.synchronization.mangotoons;
 
-import java.util.Objects;
-import dev.williancorrea.manhwa.reader.features.work.Work;
 import dev.williancorrea.manhwa.reader.features.work.WorkService;
+import dev.williancorrea.manhwa.reader.synchronization.mangotoons.client.MangoClient;
+import dev.williancorrea.manhwa.reader.synchronization.mangotoons.client.MangoClient1;
+import dev.williancorrea.manhwa.reader.synchronization.mangotoons.client.MangoClientEncrypted;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -11,17 +12,35 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class MangotoonsService {
+  
   public final WorkService workService;
+  public final MangoClient mangoClient;
+  public final MangoClientEncrypted mangoClientEncrypted;
 
   private static final String CDN_MANOTOONS = "https://cdn.mangotoons.com/obras";
 
-  public void start(Work work) {
-    Objects.requireNonNull(work);
+//  @PostConstruct
+  public void start() throws Exception {
 
-    log.info("--> Starting Mangotoons synchronization for work: {}", work.getTitles().getFirst().getTitle());
-    String title = work.getTitles().getFirst().getTitle();
+    String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTI1MTksImVtYWlsIjoid2lsbGlhbi52YWdAZ21haWwuY29tIiwiaXNfYWRtaW4iOmZhbHNlLCJpYXQiOjE3NzMwNzg3ODIsImV4cCI6MTc3MzY4MzU4Mn0.oCfn2Yf-cqtMFu8vlO4tHeXLDVLJd4q2ZWHOCOSP_5U";
 
-//    https://cdn.mangotoons.com/obras/10648/capitulo-1/pagina_001.jpg
-    log.info("<-- Lycantoons synchronization completed for work: {}", work.getTitles().getFirst().getTitle());
-  }
+    MangoClient1 client = new MangoClient1(token);
+    log.info("Tags: {}", client.getTags());
+    log.info("Formatos: {}", client.getFormatos());
+    log.info("Status: {}", client.getStatus());
+    log.info("DATA: {}", client.getRecentes("23")); 
+
+    var c = mangoClient.findAll(
+        token,
+        100,
+        1,
+        null,
+        null,
+        null
+    );
+    log.info("DATA: {}", c);
+    
+    var c2 = mangoClientEncrypted.findByStatus(token);    
+    log.info("DATA: {}", c2);
+}
 }

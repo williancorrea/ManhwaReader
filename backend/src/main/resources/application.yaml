@@ -77,6 +77,11 @@ synchronization:
       password: ${MEDIOCRESCAN_API_PASSWORD:admin}
     cdn:
       url: "https://cdn.mediocrescan.com"
+  mangotoons:
+    api:
+      url: "https://mangotoons.com"
+    cdn:
+      url: "https://cdn.mangotoons.com"
   mangadex:
     api:
       url: "https://api.mangadex.org"

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -110,19 +111,6 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
   private String refreshToken;
   private long accessTokenExp;
 
-//  private String getToken() {
-//    Mediocrescan_TokenDTO access = null;
-//    if (token == null) {
-//      log.debug("--> [MediocrescanService] Getting token");
-//      access = mediocrescanClient.login(new Mediocrescan_LoginDTO(mediocrescanApiUsername, mediocrescanApiPassword));
-//    }
-//    Objects.requireNonNull(access);
-//    log.debug("--> [MediocrescanService] Refreshing token");
-//    return "Bearer " + mediocrescanClient.refreshToken(
-//        new Mediocrescan_RefreshTokenDTO(access.getRefreshToken())
-//    ).getAccessToken();
-//  }
-
   private synchronized String getToken() {
     if (accessToken == null && refreshToken == null) {
       log.debug("--> [MediocrescanService] Login");
@@ -180,9 +168,10 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
 //      var titulo = "Cavaleiro em eterna regressão"; //COMIC
 //      var titulo = "Reencarnei no Corpo de um Príncipe Canalha"; //COMIC
 //      var titulo = "I Became a Munchkin Skill Thief"; // ENGLISH
-      var titulo = "Irmãs Ki"; // ENGLISH - 1 Caps
+//      var titulo = "Irmãs Ki"; // ENGLISH - 1 Caps
 //      var titulo = "Necromante! Eu Sou Um Desastre"; //COMIC e NOVEL
-//      var titulo = "O Gênio Que Lê O Mundo"; // COMIC - Testando titulos alternativos
+      var titulo = "O Gênio Que Lê O Mundo"; // COMIC - Testando titulos alternativos
+
 
       var obras = mediocrescanClient.listarObras(
           getToken(),
@@ -217,9 +206,15 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
     try {
       work = synchronizationBase.findWorkOrCreate(obra.getId().toString(), SynchronizationOriginType.MEDIOCRESCAN);
 
+      if (synchronizationBase.isWorkUpdated(work, SynchronizationOriginType.MEDIOCRESCAN, obra.getDataUltimoCap())) {
+        log.info("--> [MediocrescanService][synchronizeByExternalId] Work {} already updated", obra.getNome());
+        return;
+      }
+
+      //TODO: verificar se a obra está sincronizada 
+
       prepareSyncTitle(work, obra);
       prepareSyncAttributes(work, obra);
-
       prepareSynchronization(work, obra);
       prepareSyncSynopses(work, obra);
       prepareSyncTags(work, obra);
@@ -230,6 +225,14 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
 
       prepareSyncRelationships(work, obra);
       prepareSyncChapters(work, obra);
+
+      synchronizationBase.updatingSyncWorkTime(work,
+          SynchronizationOriginType.MEDIOCRESCAN,
+          obra.getCriadaEm(),
+          obra.getDataUltimoCap()
+      );
+
+      work = workService.save(work);
 
       log.info("<-- [MediocrescanService][synchronizeByExternalId] Synchronization completed: {}",
           obra.getNome().trim());
@@ -448,6 +451,10 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
             chapterDto.getNumero()
         );
 
+        if (work.getChapters() == null) {
+          work.setChapters(new ArrayList<>());
+        }
+
         var chapter =
             chapterService.findByNumberAndWorkIdAndScanlatorId(chapterDto.getNumeroWithScale(), work, scanlator,
                     language)
@@ -481,6 +488,19 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
           toNotifyNew = true;
         }
 
+        /*
+         * Checking if the chapter has been updated.
+         */
+        chapter.setSynced(false);
+        if (chapter.getCreatedAt() != null
+            && chapter.getPublishedAt() != null
+            && (chapter.getCreatedAt().truncatedTo(ChronoUnit.SECONDS)
+            .equals(chapterDto.getCriadoEm().truncatedTo(ChronoUnit.SECONDS))
+            && chapter.getPublishedAt().truncatedTo(ChronoUnit.SECONDS)
+            .equals(chapterDto.getLancadoEm().truncatedTo(ChronoUnit.SECONDS)))) {
+          chapter.setSynced(true);
+        }
+
         if (Boolean.TRUE.equals(chapter.getSynced())) {
           log.info("--> [MediocrescanService][syncChapters] ({}) Chapter {} already synchronized", dto.getNome(),
               chapterDto.getNumero());
@@ -490,6 +510,8 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
         try {
           syncPage(work, dto, chapter, chapterDto);
 
+          chapter.setPublishedAt(chapterDto.getLancadoEm().truncatedTo(ChronoUnit.SECONDS));
+          chapter.setCreatedAt(chapterDto.getCriadoEm().truncatedTo(ChronoUnit.SECONDS));
           chapter.setSynced(true);
           chapterService.save(chapter);
           chapterNotifyService.save(ChapterNotify.builder()
@@ -507,6 +529,7 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
               .status(ChapterNotifyType.ERROR)
               .build());
         }
+        work.getChapters().add(chapter);
       });
     }
   }

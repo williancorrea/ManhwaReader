@@ -34,24 +34,10 @@ CREATE TABLE work_synchronization (
     origin VARCHAR(50) NOT NULL,
     external_id VARCHAR(255) NOT NULL UNIQUE,
     external_slug VARCHAR(255),
+    created_work_at TIMESTAMP,
+    updated_work_at TIMESTAMP,
     FOREIGN KEY (work_id) REFERENCES work(id)
 );
-
-CREATE TABLE site (
-    id CHAR(36) NOT NULL PRIMARY KEY,
-    code VARCHAR(50) NOT NULL UNIQUE,
-    url VARCHAR(255) NOT NULL
-);
-
-INSERT INTO site (id, code, url) VALUES (UUID(), 'MANGADEX', 'https://mangadex.org/title');
-INSERT INTO site (id, code, url) VALUES (UUID(), 'MEDIOCRESCAN', 'https://mediocrescan.com/obra');
-INSERT INTO site (id, code, url) VALUES (UUID(), 'WEB_TOONS', 'https://www.webtoons.com');
-INSERT INTO site (id, code, url) VALUES (UUID(), 'ANI_LIST', 'https://anilist.co/manga');
-INSERT INTO site (id, code, url) VALUES (UUID(), 'ANIME_PLANET', 'https://www.anime-planet.com/manga');
-INSERT INTO site (id, code, url) VALUES (UUID(), 'NOVEL_UPDATES', 'https://www.novelupdates.com/series');
-INSERT INTO site (id, code, url) VALUES (UUID(), 'MY_ANIME_LIST', 'https://myanimelist.net/manga');
-INSERT INTO site (id, code, url) VALUES (UUID(), 'MANGA_UPDATES', 'https://www.mangaupdates.com/series');
-INSERT INTO site (id, code, url) VALUES (UUID(), 'KITSU', 'https://kitsu.app/manga');
 
 CREATE TABLE work_link (
     id CHAR(36) NOT NULL PRIMARY KEY,
@@ -81,27 +67,6 @@ CREATE TABLE work_title (
     FOREIGN KEY (work_id) REFERENCES work(id),
     FOREIGN KEY (language_id) REFERENCES language(id)
 );
-
--- Tags
-CREATE TABLE tag(
-    id        CHAR(36)     NOT NULL PRIMARY KEY,
-    group_tag VARCHAR(50)  NOT NULL,
-    name      VARCHAR(100),
-    alias1    VARCHAR(100),
-    alias2    VARCHAR(100),
-    alias3    VARCHAR(100)
-);
-
-INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', 'Action','Ação',null, null);
-INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', 'Adventure','Aventura',null, null);
-INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', 'Fantasy','Fantasia',null, null);
-INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', null,'Drama', null, null);
-INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', 'Reincarnation','Reencarnação',null, null);
-INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', null,'Horror',null, null);
-INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', 'Monsters','Monstros',null, null);
-INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', 'Mystery','Mistério',null, null);
-INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', null,'Shounen',null, null);
-INSERT INTO tag (id, group_tag, name, alias1, alias2, alias3) values (UUID(), 'GENRE', null,'Shoujo',null, null);
 
 CREATE TABLE work_tag(
     id      CHAR(36)     NOT NULL PRIMARY KEY,
@@ -166,7 +131,6 @@ INSERT INTO scanlator (id, name, code, website, synchronization) VALUES (UUID(),
 INSERT INTO scanlator (id, name, code, website, synchronization) VALUES (UUID(), 'Mangotoons', 'MT', 'https://mangotoons.com/', 'MANGOTOONS');
 INSERT INTO scanlator (id, name, code, website, synchronization) VALUES (UUID(), 'Mediocrescan', 'MS', 'https://mediocrescan.com//', 'MEDIOCRESCAN');
 
--- Estrutura de Capítulos
 CREATE TABLE volume (
     id CHAR(36) NOT NULL PRIMARY KEY,
     work_id CHAR(36) NOT NULL,
@@ -189,6 +153,7 @@ CREATE TABLE chapter (
     scanlator_id CHAR(36) NOT NULL,    
     disabled BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    published_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (work_id) REFERENCES work(id),
     FOREIGN KEY (volume_id) REFERENCES volume(id),
     FOREIGN KEY (scanlator_id) REFERENCES scanlator(id),
@@ -213,7 +178,6 @@ CREATE TABLE page (
     FOREIGN KEY (chapter_id) REFERENCES chapter(id)
 );
 
--- Usuários e Funcionalidades
 CREATE TABLE user (
     id CHAR(36) NOT NULL PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,

@@ -9,6 +9,9 @@ public class SynchronizationErrorMessage {
   public static final String VALIDATION_ERROR_WORK_SLUG_IS_NULL = "Work slug cannot be null";
   public static final String VALIDATION_ERROR_WORK_SLUG_IS_BLANK = "Work slug cannot be null";
   
+  public static final String VALIDATION_ERROR_CREATE_AT_IS_NULL = "Create at cannot be null";
+  public static final String VALIDATION_ERROR_UPDATE_AT_IS_NULL = "Update at cannot be null";
+  
   public static final String VALIDATION_ERROR_TITLE_IS_BLANK = "Title cannot be blank";
   public static final String VALIDATION_ERROR_TITLE_IS_NULL = "Title cannot be null";
   public static final String VALIDATION_ERROR_TITLE_LIST_IS_NULL = "Titles cannot be null";

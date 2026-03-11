@@ -1,6 +1,7 @@
 package dev.williancorrea.manhwa.reader.features.work.synchronization;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.work.Work;
 import jakarta.persistence.Column;
@@ -49,4 +50,9 @@ public class WorkSynchronization implements Serializable {
   @Column(name = "external_slug")
   private String externalSlug;
 
+  @Column(name = "created_work_at")
+  private OffsetDateTime createdWorkAt;
+
+  @Column(name = "updated_work_at")
+  private OffsetDateTime updatedWorkAt;
 }
