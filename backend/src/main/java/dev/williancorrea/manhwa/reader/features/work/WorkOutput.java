@@ -26,7 +26,6 @@ public class WorkOutput implements Serializable {
     this.type = work.getType();
     this.status = work.getStatus();
     this.releaseYear = work.getReleaseYear();
-    this.publisherId = work.getPublisher() != null ? work.getPublisher().getId() : null;
     this.createdAt = work.getCreatedAt();
     this.updatedAt = work.getUpdatedAt();
   }

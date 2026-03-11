@@ -8,7 +8,6 @@ import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.author.AuthorType;
 import dev.williancorrea.manhwa.reader.features.chapter.Chapter;
 import dev.williancorrea.manhwa.reader.features.language.Language;
-import dev.williancorrea.manhwa.reader.features.publisher.Publisher;
 import dev.williancorrea.manhwa.reader.features.tag.TagGroupType;
 import dev.williancorrea.manhwa.reader.features.volume.Volume;
 import dev.williancorrea.manhwa.reader.features.work.cover.CoverType;
@@ -73,10 +72,6 @@ public class Work implements Serializable {
   @Enumerated(EnumType.STRING)
   @Column(name = "content_rating")
   private WorkContentRating contentRating;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "publisher_id")
-  private Publisher publisher;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "original_language_id")

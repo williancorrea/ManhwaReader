@@ -2,7 +2,6 @@ package dev.williancorrea.manhwa.reader.features.work;
 
 import java.util.List;
 import java.util.UUID;
-import dev.williancorrea.manhwa.reader.features.publisher.Publisher;
 import dev.williancorrea.manhwa.reader.features.storage.FileStorage;
 import jakarta.validation.Valid;
 import org.springframework.context.annotation.Lazy;
@@ -85,12 +84,7 @@ public class WorkResource {
     if (input.getCoverImageId() != null) {
       var file = new FileStorage();
       file.setId(input.getCoverImageId());
-    }
-    if (input.getPublisherId() != null) {
-      var publisher = new Publisher();
-      publisher.setId(input.getPublisherId());
-      entity.setPublisher(publisher);
-    }
+    }   
     entity.setCreatedAt(input.getCreatedAt());
     entity.setUpdatedAt(input.getUpdatedAt());
     return entity;
