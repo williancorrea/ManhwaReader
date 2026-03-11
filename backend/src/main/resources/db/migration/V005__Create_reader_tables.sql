@@ -1,9 +1,3 @@
--- Núcleo das Obras
-CREATE TABLE publisher (
-    id CHAR(36) NOT NULL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
-);
-
 CREATE TABLE work (
     id CHAR(36) NOT NULL PRIMARY KEY,
     disabled BOOLEAN DEFAULT FALSE,
@@ -14,18 +8,22 @@ CREATE TABLE work (
     status VARCHAR(20)NOT NULL,
     content_rating VARCHAR(20),
     slug VARCHAR(200) NOT NULL UNIQUE,
-    cover_high VARCHAR(100),
-    cover_medium VARCHAR(100),
-    cover_low VARCHAR(100),
-    cover_custom VARCHAR(100),
-    publisher_id CHAR(36),
     relationship_id CHAR(36),
     original_language_id CHAR(36),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (publisher_id) REFERENCES publisher(id),
     FOREIGN KEY (original_language_id) REFERENCES language(id),
     FOREIGN KEY (relationship_id) REFERENCES work(id)
+);
+
+CREATE TABLE work_cover (
+    id CHAR(36) NOT NULL PRIMARY KEY,
+    work_id CHAR(36) NOT NULL,
+    origin VARCHAR(256) NOT NULL,
+    size VARCHAR(256) NOT NULL,
+    file_name VARCHAR(256) NOT NULL,
+    is_official BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (work_id) REFERENCES work(id)    
 );
 
 CREATE TABLE work_synchronization (
