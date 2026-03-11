@@ -11,6 +11,8 @@ import dev.williancorrea.manhwa.reader.features.language.Language;
 import dev.williancorrea.manhwa.reader.features.publisher.Publisher;
 import dev.williancorrea.manhwa.reader.features.tag.TagGroupType;
 import dev.williancorrea.manhwa.reader.features.volume.Volume;
+import dev.williancorrea.manhwa.reader.features.work.cover.CoverType;
+import dev.williancorrea.manhwa.reader.features.work.cover.WorkCover;
 import dev.williancorrea.manhwa.reader.features.work.link.SiteType;
 import dev.williancorrea.manhwa.reader.features.work.link.WorkLink;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
@@ -72,18 +74,6 @@ public class Work implements Serializable {
   @Column(name = "content_rating")
   private WorkContentRating contentRating;
 
-  @Column(name = "cover_high")
-  private String coverHigh;
-
-  @Column(name = "cover_medium")
-  private String coverMedium;
-
-  @Column(name = "cover_low")
-  private String coverLow;
-
-  @Column(name = "cover_custom")
-  private String coverCustom;
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "publisher_id")
   private Publisher publisher;
@@ -103,7 +93,7 @@ public class Work implements Serializable {
   @Enumerated(EnumType.STRING)
   @Column(name = "publication_demographic")
   private WorkPublicationDemographic publicationDemographic;
-  
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "relationship_id")
   private Work relationship;
@@ -138,17 +128,29 @@ public class Work implements Serializable {
   @OneToMany(mappedBy = "work", orphanRemoval = true, cascade = CascadeType.ALL)
   private List<Volume> volumes;
 
-  public boolean getSynchronizationsContains(SynchronizationOriginType origin) {
+  @OneToMany(mappedBy = "work", orphanRemoval = true, cascade = CascadeType.ALL)
+  private List<WorkCover> covers;
+
+  public boolean hasSynchronizationOrigin(SynchronizationOriginType origin) {
+    if (synchronizations == null) {
+      return false;
+    }
     return synchronizations.stream()
         .anyMatch(synchronization -> synchronization.getOrigin() == origin);
   }
 
-  public boolean getLinksContains(SiteType origin) {
+  public boolean hasSiteType(SiteType origin) {
+    if (links == null) {
+      return false;
+    }
     return links.stream()
         .anyMatch(link -> link.getCode() == origin);
   }
 
-  public boolean getTagsContains(TagGroupType group, String name) {
+  public boolean hasTagWithNameOrAlias(TagGroupType group, String name) {
+    if (tags == null) {
+      return false;
+    }
     return tags.stream()
         .anyMatch(tag -> tag.getTag().getGroup() == group
             && (
@@ -159,9 +161,21 @@ public class Work implements Serializable {
         ));
   }
 
-  public boolean getAuthorsContains(AuthorType type, String name) {
+  public boolean hasAuthorOfType(AuthorType type, String name) {
+    if (authors == null) {
+      return false;
+    }
     return authors.stream()
-        .anyMatch(author -> author.getAuthor().getType() == type && author.getAuthor().getName().equalsIgnoreCase(name));
+        .anyMatch(
+            author -> author.getAuthor().getType() == type && author.getAuthor().getName().equalsIgnoreCase(name));
+  }
+
+  public boolean hasCoverWithOriginAndSize(SynchronizationOriginType origin, CoverType size) {
+    if (covers == null) {
+      return false;
+    }
+    return covers.stream()
+        .anyMatch(cover -> cover.getOrigin() == origin && cover.getSize() == size);
   }
 
   @PrePersist

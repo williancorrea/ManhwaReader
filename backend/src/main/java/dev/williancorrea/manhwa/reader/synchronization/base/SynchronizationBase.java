@@ -51,6 +51,8 @@ import dev.williancorrea.manhwa.reader.features.work.WorkSynopsis;
 import dev.williancorrea.manhwa.reader.features.work.WorkTag;
 import dev.williancorrea.manhwa.reader.features.work.WorkTitle;
 import dev.williancorrea.manhwa.reader.features.work.WorkType;
+import dev.williancorrea.manhwa.reader.features.work.cover.CoverType;
+import dev.williancorrea.manhwa.reader.features.work.cover.WorkCover;
 import dev.williancorrea.manhwa.reader.features.work.link.WorkLink;
 import dev.williancorrea.manhwa.reader.features.work.link.WorkLinkRepository;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
@@ -324,7 +326,7 @@ public class SynchronizationBase {
       work.setSynchronizations(new ArrayList<>());
     }
 
-    if (!work.getSynchronizationsContains(origem)) {
+    if (!work.hasSynchronizationOrigin(origem)) {
       work.getSynchronizations().add(
           WorkSynchronization.builder()
               .externalId(externalId)
@@ -387,7 +389,7 @@ public class SynchronizationBase {
         throw new IllegalArgumentException(VALIDATION_ERROR_SITE_LINK_IS_BLANK);
       }
 
-      if (!work.getLinksContains(link.getSiteType())) {
+      if (!work.hasSiteType(link.getSiteType())) {
         work.getLinks().add(
             WorkLink.builder()
                 .site(workLinkRepository.findBySiteCode(link.getSiteType().name()).orElse(null))
@@ -415,7 +417,7 @@ public class SynchronizationBase {
         return;
       }
 
-      if (!work.getTagsContains(tag.getGroup(), tag.getName())) {
+      if (!work.hasTagWithNameOrAlias(tag.getGroup(), tag.getName())) {
         work.getTags().add(
             WorkTag.builder()
                 .tag(tagService.findOrCreate(tag.getGroup(), tag.getName()))
@@ -437,7 +439,7 @@ public class SynchronizationBase {
     }
 
     authors.forEach(author -> {
-      if (!work.getAuthorsContains(author.getType(), author.getName()) && !author.getName().isBlank()) {
+      if (!work.hasAuthorOfType(author.getType(), author.getName()) && !author.getName().isBlank()) {
         work.getAuthors().add(
             WorkAuthor.builder()
                 .author(authorService.findOrCreate(author))
@@ -450,64 +452,51 @@ public class SynchronizationBase {
   public void syncCover(Work work,
                         String url,
                         String filename,
-                        Boolean isHigh,
-                        Boolean isMedium,
-                        Boolean islow,
-                        Boolean isCustom
+                        SynchronizationOriginType origin,
+                        CoverType size
   ) throws IOException, InterruptedException {
     log.debug("--> [SynchronizationBase][syncCover] Syncing cover");
-
     Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
+
+    if (work.getCovers() == null) {
+      work.setCovers(new ArrayList<>());
+    }
+
+    if (work.hasCoverWithOriginAndSize(origin, size)) {
+      log.debug("--> [SynchronizationBase][syncCover] Work already has cover with origin ({}) and size ({})", origin,
+          size);
+      return;
+    }
 
     var extension = "." + filename.split("\\.")[1];
     var slug = work.getPublicationDemographic().name().toLowerCase()
         + "/" + work.getSlug()
         + "/covers/";
 
-    if (Boolean.TRUE.equals(isHigh) && work.getCoverHigh() == null) {
-      work.setCoverHigh("cover" + extension);
-      externalFileService.downloadWithAuthAndUpload(
-          url,
-          work.getCoverHigh(),
-          slug
-      );
-    }
+    var coverName = "cover_" + size.name().toLowerCase() + extension;
 
-    if (Boolean.TRUE.equals(isMedium) && work.getCoverMedium() == null) {
-      work.setCoverMedium("cover_512" + extension);
-      externalFileService.downloadWithAuthAndUpload(
-          url,
-          work.getCoverMedium(),
-          slug
-      );
-    }
+    work.getCovers().add(
+        WorkCover.builder()
+            .work(work)
+            .origin(origin)
+            .size(size)
+            .fileName(coverName)
+            .isOfficial(false)
+            .build()
+    );
 
-    if (Boolean.TRUE.equals(islow) && work.getCoverLow() == null) {
-      work.setCoverLow("cover_256" + extension);
-      externalFileService.downloadWithAuthAndUpload(
-          url,
-          work.getCoverLow(),
-          slug
-      );
-    }
-
-    if (Boolean.TRUE.equals(isCustom) && work.getCoverCustom() == null) {
-      work.setCoverCustom("cover_custom" + extension);
-      externalFileService.downloadWithAuthAndUpload(
-          url,
-          work.getCoverCustom(),
-          slug
-      );
-    }
-
-
+    externalFileService.downloadWithAuthAndUpload(
+        url,
+        coverName,
+        slug
+    );
   }
 
-  public void syncRelationship(Work work, SynchronizationOriginType origem, String externalId) {
+  public void syncRelationship(Work work, SynchronizationOriginType origin, String externalId) {
     log.debug("--> [SynchronizationBase][syncRelationship] Syncing relationship");
 
     Objects.requireNonNull(work, VALIDATION_ERROR_WORK_IS_NULL);
-    Objects.requireNonNull(origem, VALIDATION_ERROR_SYNCHRONIZATION_ORIGIN_IS_NULL);
+    Objects.requireNonNull(origin, VALIDATION_ERROR_SYNCHRONIZATION_ORIGIN_IS_NULL);
     Objects.requireNonNull(externalId, VALIDATION_ERROR_EXTERNAL_WORK_ID_IS_NULL);
 
     if (externalId.isBlank()) {
@@ -517,7 +506,7 @@ public class SynchronizationBase {
     if (work.getRelationship() == null) {
       var rel = workService.findBySynchronizationExternalID(
               externalId,
-              origem)
+              origin)
           .orElse(null);
       if (rel != null) {
         work.setRelationship(rel);

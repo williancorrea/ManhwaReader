@@ -28,6 +28,7 @@ import dev.williancorrea.manhwa.reader.features.work.WorkPublicationDemographic;
 import dev.williancorrea.manhwa.reader.features.work.WorkService;
 import dev.williancorrea.manhwa.reader.features.work.WorkStatus;
 import dev.williancorrea.manhwa.reader.features.work.WorkType;
+import dev.williancorrea.manhwa.reader.features.work.cover.CoverType;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
 import dev.williancorrea.manhwa.reader.minio.ExternalFileService;
 import dev.williancorrea.manhwa.reader.synchronization.base.Synchronization;
@@ -211,8 +212,6 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
         return;
       }
 
-      //TODO: verificar se a obra está sincronizada 
-
       prepareSyncTitle(work, obra);
       prepareSyncAttributes(work, obra);
       prepareSynchronization(work, obra);
@@ -395,13 +394,13 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
 
     log.debug("--> [MediocrescanService][syncCover] ({}) Syncing cover", dto.getNome());
     try {
-      synchronizationBase.syncCover(work,
+      synchronizationBase.syncCover(
+          work,
           mediocreScanUrlAPI + "/storage/obras/" + dto.getId() + "/" + dto.getImagem(),
           dto.getImagem(),
-          false,
-          false,
-          false,
-          true);
+          SynchronizationOriginType.MEDIOCRESCAN,
+          CoverType.HIGH
+      );
 
     } catch (Exception e) {
       log.error("[MediocrescanService][syncCover] Error syncing cover for work {} from MediocreScan", dto.getNome(), e);

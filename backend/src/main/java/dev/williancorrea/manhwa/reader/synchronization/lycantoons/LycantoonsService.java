@@ -29,7 +29,7 @@ public class LycantoonsService {
   public void init() {
 
     var work = workService.findAll().getFirst();
-    if (!work.getSynchronizationsContains(SynchronizationOriginType.LYCANTOONS)) {
+    if (!work.hasSynchronizationOrigin(SynchronizationOriginType.LYCANTOONS)) {
       work.getSynchronizations().add(WorkSynchronization.builder()
           .origin(SynchronizationOriginType.LYCANTOONS)
           .externalId("o-cavaleiro-em-eternidade-regredida")

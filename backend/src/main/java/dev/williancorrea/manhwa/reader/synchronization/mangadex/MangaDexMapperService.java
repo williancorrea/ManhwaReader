@@ -20,6 +20,7 @@ import dev.williancorrea.manhwa.reader.features.work.WorkPublicationDemographic;
 import dev.williancorrea.manhwa.reader.features.work.WorkService;
 import dev.williancorrea.manhwa.reader.features.work.WorkStatus;
 import dev.williancorrea.manhwa.reader.features.work.WorkType;
+import dev.williancorrea.manhwa.reader.features.work.cover.CoverType;
 import dev.williancorrea.manhwa.reader.features.work.link.SiteType;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
 import dev.williancorrea.manhwa.reader.minio.ExternalFileService;
@@ -308,26 +309,21 @@ public class MangaDexMapperService implements Synchronization<MangaDexData> {
         synchronizationBase.syncCover(work,
             MANDADEX_URL_COVERS + "/covers/" + dto.getId() + "/" + cover.getAttributes().getFileName(),
             cover.getAttributes().getFileName(),
-            true,
-            false,
-            false,
-            false);
+            SynchronizationOriginType.MANGADEX,
+            CoverType.HIGH
+        );
 
         synchronizationBase.syncCover(work,
             MANDADEX_URL_COVERS + "/covers/" + dto.getId() + "/" + cover.getAttributes().getFileName() + ".512.jpg",
             cover.getAttributes().getFileName(),
-            false,
-            true,
-            false,
-            false);
+            SynchronizationOriginType.MANGADEX,
+            CoverType.MEDIUM);
 
         synchronizationBase.syncCover(work,
             MANDADEX_URL_COVERS + "/covers/" + dto.getId() + "/" + cover.getAttributes().getFileName() + ".256.jpg",
             cover.getAttributes().getFileName(),
-            false,
-            false,
-            true,
-            false);
+            SynchronizationOriginType.MANGADEX,
+            CoverType.LOW);
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
@@ -338,7 +334,7 @@ public class MangaDexMapperService implements Synchronization<MangaDexData> {
   public void prepareSyncRelationships(Work work, MangaDexData workDto) {
     log.debug("--> [MangaDexMapperService][prepareSyncRelationships] Syncing relationships");
   }
-  
+
   @Override
   public void prepareSyncChapters(Work work, MangaDexData workDto) {
     log.debug("--> [MangaDexMapperService][prepareSyncChapters] Syncing chapters");
