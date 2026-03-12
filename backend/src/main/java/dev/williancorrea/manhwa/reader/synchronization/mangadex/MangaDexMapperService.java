@@ -98,6 +98,11 @@ public class MangaDexMapperService implements Synchronization<MangaDexData> {
   }
 
   @Override
+  public void synchronizeByExternalId(String externalId) {
+    log.debug("--> [MangaDexMapperService][synchronizeByExternalId] Starting synchronization with Mangadex for external id: {}", externalId);
+  }
+
+  @Override
   public void synchronizeByExternalId(MangaDexData workDto) {
     log.info(
         "--> [MangaDexMapperService][synchronizeByExternalId] Starting synchronization with Mangadex for external work: {}",

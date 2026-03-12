@@ -3,6 +3,7 @@ package dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.obra;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.OffsetDateTime;
 import java.util.List;
+import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.capitulo.Mediocrescan_CapituloObraDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.diversos.Mediocrescan_FormatoDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.diversos.Mediocrescan_StatusDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.diversos.Mediocrescan_TagDTO;
@@ -30,11 +31,22 @@ public class Mediocrescan_ObraDTO {
   private Mediocrescan_StatusDTO status;
   @JsonProperty("total_capitulos")
   private Integer totalCapitulos;
+
+  @JsonProperty("capitulos_importados")
+  private Integer capitulosImportados;
+  @JsonProperty("capitulos_nao_importados")
+  private Integer capitulosNaoImportados;
+  private List<Mediocrescan_CapituloObraDTO> capitulos;
+  
   @JsonProperty("data_ultimo_cap")
   private OffsetDateTime dataUltimoCap;
   private Boolean home;
   private Boolean vip;
   private Boolean desativada;
+  
+  @JsonProperty("obr_novel_id")
+  private Object obraNovelId;
+  
   @JsonProperty("obra_novel")
   private Mediocrescan_ObraNovelDTO obraNovel;
   @JsonProperty("obra_original")

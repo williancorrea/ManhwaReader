@@ -7,6 +7,7 @@ public interface Synchronization<T> {
 
   void ScheduledSynchronization();
 
+  void synchronizeByExternalId(String externalId);
   void synchronizeByExternalId(T workDto);
   void synchronizeByWork(Work work);
 

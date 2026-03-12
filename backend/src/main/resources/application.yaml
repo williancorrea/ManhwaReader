@@ -71,8 +71,7 @@ spring:
 synchronization:
   mediocrescan: 
     api:
-      url: "https://api.mediocretoons.site"
-#      url: "http://localhost:3000"
+      url: "https://api.mediocrescan.com"
       username: ${MEDIOCRESCAN_API_USERNAME:admin}
       password: ${MEDIOCRESCAN_API_PASSWORD:admin}
     cdn:

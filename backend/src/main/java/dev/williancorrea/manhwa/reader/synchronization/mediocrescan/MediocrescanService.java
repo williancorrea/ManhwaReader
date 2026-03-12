@@ -54,6 +54,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO> {
 
+  public static final String UNKNOWN_LANGUAGE = "xx-XX";
   public final MediocrescanClient mediocrescanClient;
 
   public final WorkService workService;
@@ -146,6 +147,13 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
   public void ScheduledSynchronization() {
     log.info("--> [MediocrescanService][ScheduledSynchronization] Starting synchronization with Mediocrescan");
 
+
+    //TODO REMOVER
+//    synchronizeByExternalId("220");
+//    if (true) {
+//      return;
+//    }
+
     var totalPages = 1;
     for (int i = 0; i < totalPages; i++) {
       log.warn("--> X <-- [MediocrescanService][ScheduledSynchronization] External synchronization page {} of {}",
@@ -164,15 +172,15 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
       8 - YAOI - G
       9 - YURI - L
       10- HENTAI
-       */
+      */
 
 //      var titulo = "Cavaleiro em eterna regressão"; //COMIC
 //      var titulo = "Reencarnei no Corpo de um Príncipe Canalha"; //COMIC
 //      var titulo = "I Became a Munchkin Skill Thief"; // ENGLISH
 //      var titulo = "Irmãs Ki"; // ENGLISH - 1 Caps
 //      var titulo = "Necromante! Eu Sou Um Desastre"; //COMIC e NOVEL
-      var titulo = "O Gênio Que Lê O Mundo"; // COMIC - Testando titulos alternativos
-
+//      var titulo = "O Gênio Que Lê O Mundo"; // COMIC - Testando titulos alternativos
+      var titulo = "O Começo Depois do Fim";
 
       var obras = mediocrescanClient.listarObras(
           getToken(),
@@ -198,6 +206,18 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
 
   @Transactional
   @Override
+  public void synchronizeByExternalId(String externalId) {
+    log.info(
+        "--> [MediocrescanService][synchronizeByExternalId] Starting synchronization with Mediocrescan for externalId: {}",
+        externalId);
+    var obra = mediocrescanClient.obterObra(getToken(), externalId);
+    if (obra != null) {
+      synchronizeByExternalId(obra);
+    }
+  }
+
+  @Transactional
+  @Override
   public void synchronizeByExternalId(Mediocrescan_ObraDTO obra) {
     log.info(
         "--> [MediocrescanService][synchronizeByExternalId] Starting synchronization with Mediocrescan for obra: {} - {}",
@@ -211,6 +231,7 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
         log.info("--> [MediocrescanService][synchronizeByExternalId] Work {} already updated", obra.getNome());
         return;
       }
+
 
       prepareSyncTitle(work, obra);
       prepareSyncAttributes(work, obra);
@@ -258,6 +279,15 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
         .origin(SynchronizationOriginType.MEDIOCRESCAN)
         .build()
     );
+
+    if (dto.getTituloAlternativo() != null && !dto.getTituloAlternativo().isEmpty()) {
+      dto.getTituloAlternativo().forEach(t -> titles.add(SynchronizationTitle.builder()
+          .title(t)
+          .language(UNKNOWN_LANGUAGE)
+          .origin(SynchronizationOriginType.MEDIOCRESCAN)
+          .build()));
+    }
+
     synchronizationBase.syncTitle(work, titles);
   }
 
@@ -358,7 +388,7 @@ public class MediocrescanService implements Synchronization<Mediocrescan_ObraDTO
 
     List<SynchronizationSynopses> synopses = new ArrayList<>();
     synopses.add(SynchronizationSynopses.builder()
-        .language("xx-XX") // The site doesn't have a standard.
+        .language(UNKNOWN_LANGUAGE) // The site doesn't have a standard.
         .description(dto.getDescricao())
         .origin(SynchronizationOriginType.MEDIOCRESCAN)
         .build()

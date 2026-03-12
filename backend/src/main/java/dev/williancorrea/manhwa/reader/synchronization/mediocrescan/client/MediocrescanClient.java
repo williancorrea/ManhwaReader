@@ -6,7 +6,7 @@ import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Me
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Mediocrescan_RefreshTokenDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Mediocrescan_TokenDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.login.Mediocrescan_TokenNewDTO;
-import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.obra.Mediocrescan_ObraDetalhadaResponse;
+import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.obra.Mediocrescan_ObraDTO;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.obra.Mediocrescan_ObrasRecentesResponse;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.obra.Mediocrescan_ObrasResponse;
 import dev.williancorrea.manhwa.reader.synchronization.mediocrescan.dto.pagina.Mediocrescan_PaginaResponse;
@@ -73,9 +73,9 @@ public interface MediocrescanClient {
   );
 
 
-  @GetMapping("/obra/{id}")
-  Mediocrescan_ObraDetalhadaResponse obterObra(
+  @GetMapping("/obras/{id}")
+  Mediocrescan_ObraDTO obterObra(
       @RequestHeader("Authorization") String bearerToken,
-      @PathVariable("id") Long id
+      @PathVariable("id") String id
   );
 }

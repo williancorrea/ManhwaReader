@@ -4,6 +4,8 @@ CREATE TABLE language (
                           name VARCHAR(50) NOT NULL
 );
 
+insert into language (id, code, name) values (UUID(), 'xx-XX', 'UNKNOWN LANGUAGE');
+  
 -- Portuguese
 insert into language (id, code, name) values (UUID(), 'pt-BR', 'Portuguese (Brazil)');
 insert into language (id, code, name) values (UUID(), 'pt-PT', 'Portuguese (Portugal)');
