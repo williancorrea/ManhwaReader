@@ -473,7 +473,8 @@ public class SynchronizationBase {
         + "/" + work.getSlug()
         + "/covers/";
 
-    var coverName = "cover_" + size.name().toLowerCase() + extension;
+    var scanlator = Objects.requireNonNull(scanlatorService.findBySynchronization(origin)).get();
+    var coverName = scanlator.getCode().toLowerCase() + "_cover_" + size.name().toLowerCase() + extension;
 
     work.getCovers().add(
         WorkCover.builder()
