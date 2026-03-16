@@ -255,6 +255,10 @@ public class ScraperBase {
       throw new IllegalArgumentException(VALIDATION_ERROR_WORK_SLUG_IS_BLANK);
     }
 
+    if (work.getType() == null) {
+      work.setType(workType);
+    }
+
     if (work.getPublicationDemographic() == null
         || work.getPublicationDemographic().equals(WorkPublicationDemographic.UNKNOWN)) {
       work.setPublicationDemographic(publicationDemographic);
@@ -262,10 +266,17 @@ public class ScraperBase {
 
     if (originalLanguage != null && work.getOriginalLanguage() == null) {
       work.setOriginalLanguage(originalLanguage);
-    }
 
-    if (work.getType() == null) {
-      work.setType(workType);
+      if (!work.getType().equals(WorkType.NOVEL)) {
+        var code = work.getOriginalLanguage().getCode();
+        if (code.startsWith("ja")) {
+          work.setType(WorkType.MANGA);
+        } else if (code.startsWith("ko")) {
+          work.setType(WorkType.MANHWA);
+        } else if (code.startsWith("zh")) {
+          work.setType(WorkType.MANHUA);
+        }
+      }
     }
 
     if (work.getStatus() == null) {
