@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novos Capítulos Disponíveis</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .work-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .work-info h2 {
+            color: #f5576c;
+            margin-top: 0;
+        }
+        .chapters-list {
+            margin: 20px 0;
+        }
+        .chapter-item {
+            background-color: #fff;
+            padding: 12px;
+            margin: 8px 0;
+            border-left: 4px solid #f5576c;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .chapter-title {
+            font-weight: bold;
+            color: #333;
+        }
+        .chapter-date {
+            font-size: 12px;
+            color: #777;
+            margin-top: 4px;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background-color: #f5576c;
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔔 Novos Capítulos Disponíveis</h1>
+        </div>
+        <div class="content">
+            <p>Novos capítulos foram adicionados!</p>
+
+            <div class="work-info">
+                <h2>
+                    <span th:text="${workTitle}">Título da Obra</span>
+                    <span class="badge" th:text="${chapterCount} + ' novo' + (${chapterCount} > 1 ? 's' : '')">1 novo</span>
+                </h2>
+
+                <div class="chapters-list">
+                    <div class="chapter-item" th:each="chapter : ${chapters}">
+                        <div class="chapter-title" th:text="${chapter.title}">Capítulo 1</div>
+                        <div class="chapter-date" th:if="${chapter.publishedAt}" th:text="'Publicado em: ' + ${chapter.publishedAt}">Data</div>
+                    </div>
+                </div>
+            </div>
+
+            <p th:if="${scanlator}">
+                <strong>Scanlator:</strong> <span th:text="${scanlator}">Nome do Scanlator</span>
+            </p>
+        </div>
+        <div class="footer">
+            <p>Este é um email automático do Manhwa Reader</p>
+            <p>&copy; 2026 Manhwa Reader. Todos os direitos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

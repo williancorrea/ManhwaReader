@@ -78,6 +78,7 @@ public class ScraperBase {
   public final TagService tagService;
   public final AuthorService authorService;
   public final ExternalFileService externalFileService;
+  public final dev.williancorrea.manhwa.reader.email.EmailService emailService;
 
   public ScraperBase(@Lazy WorkService workService,
                      @Lazy LanguageService languageService,
@@ -86,7 +87,8 @@ public class ScraperBase {
                      @Lazy WorkLinkRepository workLinkRepository,
                      @Lazy TagService tagService,
                      @Lazy AuthorService authorService,
-                     @Lazy ExternalFileService externalFileService) {
+                     @Lazy ExternalFileService externalFileService,
+                     @Lazy dev.williancorrea.manhwa.reader.email.EmailService emailService) {
     this.workService = workService;
     this.languageService = languageService;
     this.scanlatorSynchronizationErrorService = scanlatorSynchronizationErrorService;
@@ -95,6 +97,7 @@ public class ScraperBase {
     this.tagService = tagService;
     this.authorService = authorService;
     this.externalFileService = externalFileService;
+    this.emailService = emailService;
   }
 
   public void sleep(long millis) {
@@ -214,12 +217,22 @@ public class ScraperBase {
                             String externalWorkId,
                             String externalWorkName,
                             String errorMessage) {
+    syncWorkError(scan, workId, externalWorkId, externalWorkName, errorMessage, null, null);
+  }
+
+  public void syncWorkError(SynchronizationOriginType scan,
+                            String workId,
+                            String externalWorkId,
+                            String externalWorkName,
+                            String errorMessage,
+                            String stackTrace,
+                            String url) {
     log.error("--> [SynchronizationBase][syncWorkError] Error syncing work");
 
     Objects.requireNonNull(scan, VALIDATION_ERROR_SYNCHRONIZATION_ORIGIN_IS_NULL);
     Objects.requireNonNull(externalWorkId, VALIDATION_ERROR_EXTERNAL_WORK_ID_IS_NULL);
     Objects.requireNonNull(externalWorkName, VALIDATION_ERROR_EXTERNAL_WORK_NAME_IS_NULL);
-    Objects.requireNonNull(externalWorkName, VALIDATION_ERROR_MESSAGE_IS_NULL);
+    Objects.requireNonNull(errorMessage, VALIDATION_ERROR_MESSAGE_IS_NULL);
 
     scanlatorSynchronizationErrorService.save(
         ScanlatorSynchronizationError.builder()
@@ -231,6 +244,28 @@ public class ScraperBase {
             .errorMessage(errorMessage)
             .build()
     );
+
+    // Send error notification email
+    try {
+      var scanlator = scanlatorService.findBySynchronization(scan)
+          .map(s -> s.getName())
+          .orElse(scan.name());
+
+      var errorDetails = new java.util.HashMap<String, Object>();
+      errorDetails.put("workTitle", externalWorkName);
+      errorDetails.put("errorTime", java.time.LocalDateTime.now().toString());
+      errorDetails.put("errorType", "SynchronizationError");
+      if (stackTrace != null) {
+        errorDetails.put("stackTrace", stackTrace);
+      }
+      if (url != null) {
+        errorDetails.put("url", url);
+      }
+
+      emailService.sendScraperErrorEmail(scanlator, errorMessage, errorDetails);
+    } catch (Exception e) {
+      log.error("Failed to send error notification email", e);
+    }
   }
 
   @SuppressWarnings({"java:S3776", "java:S107"})

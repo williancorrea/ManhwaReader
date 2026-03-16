@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
+import dev.williancorrea.manhwa.reader.scraper.base.ScraperHelper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,9 +15,11 @@ import org.springframework.validation.annotation.Validated;
 public class WorkService {
 
   private final WorkRepository repository;
+  private final ScraperHelper scraperHelper;
 
-  public WorkService(@Lazy WorkRepository repository) {
+  public WorkService(@Lazy WorkRepository repository, @Lazy ScraperHelper scraperHelper) {
     this.repository = repository;
+    this.scraperHelper = scraperHelper;
   }
 
   public List<Work> findAll() {
@@ -29,7 +32,15 @@ public class WorkService {
 
   @Transactional
   public Work save(Work entity) {
-    return repository.saveAndFlush(entity);
+    boolean isNew = entity.getId() == null;
+    Work savedWork = repository.saveAndFlush(entity);
+
+    // Send notification if it's a new work
+    if (isNew) {
+      scraperHelper.notifyWorkAdded(savedWork);
+    }
+
+    return savedWork;
   }
 
   public boolean existsById(UUID id) {

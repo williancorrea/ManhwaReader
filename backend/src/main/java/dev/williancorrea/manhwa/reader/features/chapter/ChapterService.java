@@ -7,6 +7,7 @@ import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.language.Language;
 import dev.williancorrea.manhwa.reader.features.scanlator.Scanlator;
 import dev.williancorrea.manhwa.reader.features.work.Work;
+import dev.williancorrea.manhwa.reader.scraper.base.ScraperHelper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -16,9 +17,11 @@ import org.springframework.validation.annotation.Validated;
 public class ChapterService {
 
   private final ChapterRepository repository;
+  private final ScraperHelper scraperHelper;
 
-  public ChapterService(@Lazy ChapterRepository repository) {
+  public ChapterService(@Lazy ChapterRepository repository, @Lazy ScraperHelper scraperHelper) {
     this.repository = repository;
+    this.scraperHelper = scraperHelper;
   }
 
   public List<Chapter> findAll() {
@@ -30,7 +33,15 @@ public class ChapterService {
   }
 
   public Chapter save(Chapter entity) {
-    return repository.save(entity);
+    boolean isNew = entity.getId() == null;
+    Chapter savedChapter = repository.save(entity);
+
+    // Send notification if it's a new chapter
+    if (isNew && savedChapter.getWork() != null) {
+      scraperHelper.notifyNewChapters(savedChapter.getWork(), 1);
+    }
+
+    return savedChapter;
   }
 
   public boolean existsById(UUID id) {
