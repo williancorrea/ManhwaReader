@@ -101,7 +101,7 @@ public class ScraperBase {
     try {
       log.debug("--> [SynchronizationBase][sleep] Sleeping for ({}) seconds", millis);
       Thread.sleep(millis);
-    } catch (InterruptedException e) {
+    } catch (InterruptedException _) {
       log.error("<-- [SynchronizationBase][sleep] Error sleeping for ({}) seconds", millis);
       Thread.currentThread().interrupt();
     }
@@ -233,6 +233,7 @@ public class ScraperBase {
     );
   }
 
+  @SuppressWarnings({"java:S3776", "java:S107"})
   public void syncAttributes(Work work,
                              WorkPublicationDemographic publicationDemographic,
                              WorkType workType,
