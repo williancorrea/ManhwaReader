@@ -242,7 +242,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
 
       work.setUpdatedAt(OffsetDateTime.now());
       work = workService.saveAndNotifyIfNew(work, SynchronizationOriginType.MEDIOCRESCAN);
-      
+
       prepareSyncRelationships(work, obra);
       prepareSyncChapters(work, obra);
 
@@ -612,7 +612,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
 
       var path = work.getPublicationDemographic().name().toLowerCase()
           + "/" + work.getSlug()
-          + "/chapters"
+          + "/" + "chapters"
           + "/" + chapter.getNumberFormatted()
           + "/" + chapter.getScanlator().getCode().toLowerCase()
           + "/" + chapter.getLanguage().getCode().toLowerCase()
