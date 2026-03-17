@@ -242,7 +242,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
 
       work.setUpdatedAt(OffsetDateTime.now());
       work = workService.save(work);
-
+      
       prepareSyncRelationships(work, obra);
       prepareSyncChapters(work, obra);
 

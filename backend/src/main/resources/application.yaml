@@ -56,29 +56,6 @@ spring:
             connectTimeout: 5000
             readTimeout: 5000
 
-  mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
-    default-encoding: UTF-8
-
-email:
-  from: ${EMAIL_FROM:noreply@manhwareader.com}
-  from-name: ${EMAIL_FROM_NAME:Manhwa Reader}
-  admin-email: ${EMAIL_ADMIN:admin@manhwareader.com}
-  enabled: ${EMAIL_ENABLED:true}
-  
 # Feign Client configuration
 #feign:
 #  client:

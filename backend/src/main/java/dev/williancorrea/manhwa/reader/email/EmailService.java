@@ -1,6 +1,8 @@
 package dev.williancorrea.manhwa.reader.email;
 
-import dev.williancorrea.manhwa.reader.config.EmailProperties;
+import java.util.Map;
+import dev.williancorrea.manhwa.reader.config.email.EmailConfigKey;
+import dev.williancorrea.manhwa.reader.system.SystemConfigurationService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.util.Map;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -21,11 +21,11 @@ public class EmailService {
 
   private final JavaMailSender mailSender;
   private final TemplateEngine templateEngine;
-  private final EmailProperties emailProperties;
+  private final SystemConfigurationService systemConfigurationService;
 
   @Async
   public void sendEmail(EmailData emailData) {
-    if (!emailProperties.isEnabled()) {
+    if (systemConfigurationService.getValueByReference(EmailConfigKey.EMAIL_ENABLED.name()).equals("false")) {
       log.info("Email sending is disabled. Email not sent to: {}", emailData.getTo());
       return;
     }
@@ -34,9 +34,11 @@ public class EmailService {
       MimeMessage message = mailSender.createMimeMessage();
       MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-      helper.setFrom(emailProperties.getFrom(), emailProperties.getFromName());
+      helper.setFrom(
+          systemConfigurationService.getValueByReference(EmailConfigKey.EMAIL_FROM.name()),
+          systemConfigurationService.getValueByReference(EmailConfigKey.EMAIL_FROM_NAME.name()));
       helper.setTo(emailData.getTo());
-      helper.setSubject(emailData.getEmailType().getSubject());
+      helper.setSubject(emailData.getEmailType().getSubject() + " - " + emailData.getVariables().get("workTitle"));
 
       String htmlContent = processTemplate(emailData.getEmailType(), emailData.getVariables());
       helper.setText(htmlContent, true);
@@ -53,7 +55,7 @@ public class EmailService {
 
   public void sendWorkAddedEmail(String workTitle, Map<String, Object> additionalData) {
     EmailData emailData = EmailData.builder()
-        .to(emailProperties.getAdminEmail())
+        .to(systemConfigurationService.getValueByReference(EmailConfigKey.EMAIL_ADMIN.name()))
         .emailType(EmailType.WORK_ADDED)
         .variables(Map.of(
             "workTitle", workTitle,
@@ -72,7 +74,7 @@ public class EmailService {
                                    java.util.List<Map<String, Object>> chapters,
                                    Map<String, Object> additionalData) {
     EmailData emailData = EmailData.builder()
-        .to(emailProperties.getAdminEmail())
+        .to(systemConfigurationService.getValueByReference(EmailConfigKey.EMAIL_ADMIN.name()))
         .emailType(EmailType.NEW_CHAPTERS)
         .variables(Map.of(
             "workTitle", workTitle,
@@ -88,7 +90,7 @@ public class EmailService {
   public void sendScraperErrorEmail(String scraperName, String errorMessage,
                                     Map<String, Object> errorDetails) {
     EmailData emailData = EmailData.builder()
-        .to(emailProperties.getAdminEmail())
+        .to(systemConfigurationService.getValueByReference(EmailConfigKey.EMAIL_ADMIN.name()))
         .emailType(EmailType.SCRAPER_ERROR)
         .variables(Map.of(
             "scraperName", scraperName,

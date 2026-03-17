@@ -24,6 +24,10 @@ public class SystemConfigurationService {
   public List<SystemConfiguration> findAllByGroup(SystemConfigurationGroup group) {
     return systemConfigRepo.findAllByGroup(group);
   }
+  
+  public List<SystemConfiguration> findByGroupName(String groupName) {
+    return systemConfigRepo.findByGroupName(groupName);
+  }
 
   public Optional<SystemConfiguration> findById(UUID id) {
     return systemConfigRepo.findById(id);
@@ -39,5 +43,23 @@ public class SystemConfigurationService {
 
   public void deleteById(UUID id) {
     systemConfigRepo.deleteById(id);
+  }
+
+  public Optional<SystemConfiguration> findByReference(String reference) {
+    return systemConfigRepo.findByReference(reference);
+  }
+
+  public String getValueByReference(String name, String defaultValue) {
+    return findByReference(name)
+        .filter(SystemConfiguration::isActive)
+        .map(SystemConfiguration::getValue)
+        .orElse(defaultValue);
+  }
+  
+  public String getValueByReference(String name) {
+    return findByReference(name)
+        .filter(SystemConfiguration::isActive)
+        .map(SystemConfiguration::getValue)
+        .orElse("");
   }
 }
