@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import dev.williancorrea.manhwa.reader.email.EmailService;
 import dev.williancorrea.manhwa.reader.features.work.Work;
+import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +27,7 @@ public class ScraperHelper {
   /**
    * Send notification email when a new work is added
    */
-  public void notifyWorkAdded(Work work) {
+  public void notifyWorkAdded(Work work, SynchronizationOriginType origin) {
     try {
       if (work == null || work.getTitles() == null || work.getTitles().isEmpty()) {
         log.warn("Cannot send work added notification: work or title is null");
@@ -35,6 +36,7 @@ public class ScraperHelper {
 
       var workTitle = work.getTitles().get(0).getTitle();
       var additionalData = new HashMap<String, Object>();
+      additionalData.put("scanlator", origin.name());
 
       if (work.getType() != null) {
         additionalData.put("workType", work.getType().name());
@@ -42,11 +44,6 @@ public class ScraperHelper {
 
       if (work.getOriginalLanguage() != null) {
         additionalData.put("language", work.getOriginalLanguage().getName());
-      }
-
-      if (work.getSynchronizations() != null && !work.getSynchronizations().isEmpty()) {
-        var scanlator = work.getSynchronizations().get(0).getOrigin().name();
-        additionalData.put("scanlator", scanlator);
       }
 
       if (work.getCreatedAt() != null) {

@@ -31,15 +31,19 @@ public class WorkService {
   }
 
   @Transactional
-  public Work save(Work entity) {
+  public Work saveAndNotifyIfNew(Work entity, SynchronizationOriginType origin) {
     boolean isNew = entity.getId() == null;
     Work savedWork = repository.saveAndFlush(entity);
 
-    // Send notification if it's a new work
     if (isNew) {
-      scraperHelper.notifyWorkAdded(savedWork);
+      scraperHelper.notifyWorkAdded(savedWork, origin);
     }
     return savedWork;
+  }
+
+  @Transactional
+  public Work save(Work entity) {
+    return repository.saveAndFlush(entity);
   }
 
   public boolean existsById(UUID id) {
