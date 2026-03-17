@@ -173,6 +173,33 @@ public class Work implements Serializable {
         .anyMatch(cover -> cover.getOrigin() == origin && cover.getSize() == size);
   }
 
+  public String getCoverUrl() {
+    if (covers == null || covers.isEmpty()) {
+      return null;
+    }
+
+    // First, try searching for the official cover.
+    WorkCover officialCover = covers.stream()
+        .filter(WorkCover::getIsOfficial)
+        .findFirst()
+        .orElse(null);
+
+    // If you can't find an official one, pick the first one on the list.
+    WorkCover cover = officialCover != null ? officialCover : covers.get(0);
+
+    // Returns the path to the cover.
+    if (cover != null && cover.getFileName() != null) {
+      String basePath = publicationDemographic != null
+          ? publicationDemographic.name().toLowerCase()
+          : WorkPublicationDemographic.UNKNOWN.name().toLowerCase();
+      
+      String workSlug = slug != null ? slug : WorkPublicationDemographic.UNKNOWN.name().toLowerCase();
+      return String.format("/%s/%s/covers/%s", basePath, workSlug, cover.getFileName());
+    }
+
+    return null;
+  }
+
   @PrePersist
   private void prePersist() {
     this.createdAt = OffsetDateTime.now();

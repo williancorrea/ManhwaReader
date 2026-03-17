@@ -23,10 +23,10 @@ public class EmailService {
   private final TemplateEngine templateEngine;
   private final SystemConfigurationService systemConfigurationService;
 
-  @Async
+  @Async("emailTaskExecutor")
   public void sendEmail(EmailData emailData) {
     if (systemConfigurationService.getValueByReference(EmailConfigKey.EMAIL_ENABLED.name()).equals("false")) {
-      log.info("Email sending is disabled. Email not sent to: {}", emailData.getTo());
+      log.info("[EmailService][sendEmail] Email sending is disabled. Email not sent to: {}", emailData.getTo());
       return;
     }
 
@@ -44,12 +44,14 @@ public class EmailService {
       helper.setText(htmlContent, true);
 
       mailSender.send(message);
-      log.info("Email sent successfully to: {} with type: {}", emailData.getTo(), emailData.getEmailType());
+      log.info("[EmailService][sendEmail] Email sent successfully to: {} with type: {}", emailData.getTo(),
+          emailData.getEmailType());
 
     } catch (MessagingException e) {
-      log.error("Error sending email to: {} with type: {}", emailData.getTo(), emailData.getEmailType(), e);
+      log.error("[EmailService][sendEmail] Error sending email to: {} with type: {}", emailData.getTo(),
+          emailData.getEmailType(), e);
     } catch (Exception e) {
-      log.error("Unexpected error sending email to: {}", emailData.getTo(), e);
+      log.error("[EmailService][sendEmail] Unexpected error sending email to: {}", emailData.getTo(), e);
     }
   }
 
@@ -59,6 +61,7 @@ public class EmailService {
         .emailType(EmailType.WORK_ADDED)
         .variables(Map.of(
             "workTitle", workTitle,
+            "coverUrl", additionalData.getOrDefault("coverUrl", ""),
             "workType", additionalData.getOrDefault("workType", ""),
             "language", additionalData.getOrDefault("language", ""),
             "scanlator", additionalData.getOrDefault("scanlator", ""),
@@ -78,6 +81,7 @@ public class EmailService {
         .emailType(EmailType.NEW_CHAPTERS)
         .variables(Map.of(
             "workTitle", workTitle,
+            "coverUrl", additionalData.getOrDefault("coverUrl", ""),
             "chapterCount", chapterCount,
             "chapters", chapters,
             "scanlator", additionalData.getOrDefault("scanlator", "")
@@ -96,6 +100,7 @@ public class EmailService {
             "scraperName", scraperName,
             "errorMessage", errorMessage,
             "workTitle", errorDetails.getOrDefault("workTitle", "N/A"),
+            "coverUrl", errorDetails.getOrDefault("coverUrl", ""),
             "errorTime", errorDetails.getOrDefault("errorTime", java.time.LocalDateTime.now().toString()),
             "errorType", errorDetails.getOrDefault("errorType", "Unknown"),
             "stackTrace", errorDetails.getOrDefault("stackTrace", ""),

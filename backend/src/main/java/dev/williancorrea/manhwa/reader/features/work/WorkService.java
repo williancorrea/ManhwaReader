@@ -39,7 +39,6 @@ public class WorkService {
     if (isNew) {
       scraperHelper.notifyWorkAdded(savedWork);
     }
-
     return savedWork;
   }
 

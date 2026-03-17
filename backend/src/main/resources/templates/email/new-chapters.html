@@ -34,6 +34,9 @@
         .content {
             padding: 30px;
         }
+        .content > p{
+            text-align: center;
+        }
         .work-info {
             background-color: #f8f9fa;
             padding: 20px;
@@ -81,6 +84,19 @@
             font-weight: bold;
             margin-left: 10px;
         }
+        .cover-image {
+            width: 100%;
+            max-width: 200px;
+            height: auto;
+            border-radius: 8px;
+            margin: 0 auto 20px;
+            display: block;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .cover-container {
+            text-align: center;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
@@ -90,6 +106,10 @@
         </div>
         <div class="content">
             <p>Novos capítulos foram adicionados!</p>
+
+            <div class="cover-container" th:if="${coverUrl}">
+                <img th:src="${coverUrl}" alt="Capa da Obra" class="cover-image" />
+            </div>
 
             <div class="work-info">
                 <h2>

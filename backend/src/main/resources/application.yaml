@@ -55,21 +55,21 @@ spring:
             loggerLevel: full
             connectTimeout: 5000
             readTimeout: 5000
-
-# Feign Client configuration
-#feign:
-#  client:
-#    config:
-#      default:
-#        connectTimeout: 5000
-#        readTimeout: 30000
-#        loggerLevel: basic
-#      
-#  httpclient:
-#    enabled: true
   
+  # Feign Client configuration
+  #feign:
+  #  client:
+  #    config:
+  #      default:
+  #        connectTimeout: 5000
+  #        readTimeout: 30000
+  #        loggerLevel: basic
+  #      
+  #  httpclient:
+  #    enabled: true
+
 synchronization:
-  mediocrescan: 
+  mediocrescan:
     api:
       url: "https://api.mediocrescan.com"
       username: ${MEDIOCRESCAN_API_USERNAME:admin}
@@ -86,7 +86,7 @@ synchronization:
       url: "https://api.mangadex.org"
     site:
       url: "https://mangadex.org"
-      
+
 #Actuator
 management:
   endpoint:
@@ -116,8 +116,6 @@ minio:
     key: ${MINIO_ACCESS_KEY:admin}
     secret: ${MINIO_SECRET_KEY:admin123}
   url: ${MINIO_URL:http://localhost:9000}
-
-
 
 logging:
   level:

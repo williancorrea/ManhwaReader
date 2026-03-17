@@ -34,6 +34,9 @@
         .content {
             padding: 30px;
         }
+        .content > p{
+            text-align: center;
+        }
         .work-info {
             background-color: #f8f9fa;
             padding: 20px;
@@ -72,6 +75,19 @@
             border-radius: 5px;
             margin-top: 20px;
         }
+        .cover-image {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            border-radius: 8px;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .cover-container {
+            text-align: center;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
@@ -81,6 +97,10 @@
         </div>
         <div class="content">
             <p>Uma nova obra foi adicionada à sua biblioteca!</p>
+
+            <div class="cover-container" th:if="${coverUrl}">
+                <img th:src="${coverUrl}" alt="Capa da Obra" class="cover-image" />
+            </div>
 
             <div class="work-info">
                 <h2 th:text="${workTitle}">Título da Obra</h2>

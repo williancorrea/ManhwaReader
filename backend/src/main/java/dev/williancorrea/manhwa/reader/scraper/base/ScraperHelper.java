@@ -7,6 +7,7 @@ import dev.williancorrea.manhwa.reader.email.EmailService;
 import dev.williancorrea.manhwa.reader.features.work.Work;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -15,6 +16,12 @@ import org.springframework.stereotype.Component;
 public class ScraperHelper {
 
   private final EmailService emailService;
+
+  @Value("${minio.url}")
+  private String minioUrl;
+
+  @Value("${minio.bucket.name}")
+  private String bucketName;
 
   /**
    * Send notification email when a new work is added
@@ -50,6 +57,12 @@ public class ScraperHelper {
         additionalData.put("description", work.getSynopses().get(0).getDescription());
       }
 
+      // Adiciona URL da capa
+      String coverUrl = work.getCoverUrl();
+      if (coverUrl != null) {
+        additionalData.put("coverUrl", minioUrl + "/" + bucketName + coverUrl);
+      }
+
       emailService.sendWorkAddedEmail(workTitle, additionalData);
       log.info("Work added notification sent for: {}", workTitle);
     } catch (Exception e) {
@@ -77,9 +90,11 @@ public class ScraperHelper {
             .limit(5)
             .forEach(chapter -> {
               var chapterData = new HashMap<String, Object>();
-              chapterData.put("title", chapter.getTitle() != null ? chapter.getTitle() : "Capítulo " + chapter.getNumberFormatted());
+              chapterData.put("title",
+                  chapter.getTitle() != null ? chapter.getTitle() : "Capítulo " + chapter.getNumberFormatted());
               if (chapter.getPublishedAt() != null) {
-                chapterData.put("publishedAt", chapter.getPublishedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+                chapterData.put("publishedAt",
+                    chapter.getPublishedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
               }
               chapters.add(chapterData);
             });
@@ -89,6 +104,12 @@ public class ScraperHelper {
       if (work.getSynchronizations() != null && !work.getSynchronizations().isEmpty()) {
         var scanlator = work.getSynchronizations().get(0).getOrigin().name();
         additionalData.put("scanlator", scanlator);
+      }
+
+      // Adiciona URL da capa
+      String coverUrl = work.getCoverUrl();
+      if (coverUrl != null) {
+        additionalData.put("coverUrl",  minioUrl + "/" + bucketName + coverUrl);
       }
 
       emailService.sendNewChaptersEmail(workTitle, chapterCount, chapters, additionalData);
