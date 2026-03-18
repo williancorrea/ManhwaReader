@@ -91,7 +91,8 @@ public class MangaDexMapperService implements Scraper<MangaDexData> {
           work != null && work.getId() == null ? null : Objects.requireNonNull(work).getId().toString(),
           dto.getId(),
           dto.getAttributes().getTitle().values().stream().findAny().orElse(""),
-          e.getMessage()
+          e.getMessage(),
+          Arrays.toString(e.getStackTrace())
       );
       throw new RuntimeException("Error mapping MangaDex data to Work entity");
     }

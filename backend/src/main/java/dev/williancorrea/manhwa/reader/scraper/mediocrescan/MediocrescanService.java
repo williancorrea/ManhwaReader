@@ -9,6 +9,7 @@ import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import dev.williancorrea.manhwa.reader.features.chapter.Chapter;
@@ -177,10 +178,10 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
 //      var titulo = "Cavaleiro em eterna regressão"; //COMIC
 //      var titulo = "Reencarnei no Corpo de um Príncipe Canalha"; //COMIC
 //      var titulo = "I Became a Munchkin Skill Thief"; // ENGLISH
-//      var titulo = "Irmãs Ki"; // ENGLISH - 1 Caps
+      var titulo = "Irmãs Ki"; // ENGLISH - 1 Caps
 //      var titulo = "Necromante! Eu Sou Um Desastre"; //COMIC e NOVEL
 //      var titulo = "O Gênio Que Lê O Mundo"; // COMIC - Testando titulos alternativos
-      var titulo = "O Começo Depois do Fim";
+//      var titulo = "O Começo Depois do Fim";
 
       var obras = mediocrescanClient.listarObras(
           getToken(),
@@ -228,10 +229,9 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
       work = scraperBase.findWorkOrCreate(obra.getId().toString(), SynchronizationOriginType.MEDIOCRESCAN);
 
       if (scraperBase.isWorkUpdated(work, SynchronizationOriginType.MEDIOCRESCAN, obra.getDataUltimoCap())) {
-        log.info("--> [MediocrescanService][synchronizeByExternalId] Work {} already updated", obra.getNome());
+        log.info("--> [MediocrescanService][synchronizeByExternalId] Work ({}) already updated", obra.getNome());
         return;
       }
-
 
       prepareSyncTitle(work, obra);
       prepareSyncAttributes(work, obra);
@@ -262,7 +262,8 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
           work != null && work.getId() == null ? null : Objects.requireNonNull(work).getId().toString(),
           obra.getId().toString(),
           obra.getNome(),
-          e.getMessage()
+          e.getMessage(),
+          Arrays.toString(e.getStackTrace())
       );
     }
   }
@@ -545,6 +546,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
           chapterService.save(chapter);
           chapterNotifyService.save(ChapterNotify.builder()
               .chapter(chapter)
+              .work(work)
               .status(toNotifyNew ? ChapterNotifyType.NEW : ChapterNotifyType.UPDATED)
               .build());
         } catch (Exception e) {
@@ -552,12 +554,16 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
               chapterDto.getNumero(), e);
 
           chapter.setSynced(false);
+          chapter.setPublishedAt(null);
           chapterService.save(chapter);
           chapterNotifyService.save(ChapterNotify.builder()
               .chapter(chapter)
+              .work(work)
               .status(ChapterNotifyType.ERROR)
               .build());
         }
+        //Garante que nao sera duplicado em caso de uma re-sincronizacao
+        work.getChapters().remove(chapter);
         work.getChapters().add(chapter);
       });
     }
@@ -578,15 +584,15 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
     // Verifica se a quantidade de paginas é diferente
     var pageCount = pageService.countByChapterNumber(chapter);
 
-    if (pageCount == pageDto.getPaginas().size()) {
-      log.info("--> [MediocrescanService][syncPage] ({}) Page count match for chapter {}",
-          dto.getNome(),
-          chapterDto.getNumero());
-      return;
-    }
-    log.info("--> [MediocrescanService][syncPage] ({}) Page count mismatch for chapter {}",
-        dto.getNome(),
-        chapterDto.getNumero());
+//    if (pageCount == pageDto.getPaginas().size()) {
+//      log.info("--> [MediocrescanService][syncPage] ({}) Page count match for chapter {}",
+//          dto.getNome(),
+//          chapterDto.getNumero());
+//      return;
+//    }
+//    log.info("--> [MediocrescanService][syncPage] ({}) Page count mismatch for chapter {}",
+//        dto.getNome(),
+//        chapterDto.getNumero());
 
     for (var p = 0; p < pageDto.getPaginas().size(); p++) {
       var page = pageService.findByNumberNotDisabled(chapter, p + 1);

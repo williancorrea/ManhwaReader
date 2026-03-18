@@ -34,7 +34,7 @@
         .content {
             padding: 30px;
         }
-        .content > p{
+        .content p:first-child {
             text-align: center;
         }
         .work-info {
@@ -84,6 +84,15 @@
             font-weight: bold;
             margin-left: 10px;
         }
+        .badge-new {
+            background-color: #28a745;
+        }
+        .badge-updated {
+            background-color: #ffc107;
+        }
+        .badge-error {
+            background-color: #f5576c;
+        }
         .cover-image {
             width: 100%;
             max-width: 200px;
@@ -111,6 +120,11 @@
                 <img th:src="${coverUrl}" alt="Capa da Obra" class="cover-image" />
             </div>
 
+
+            <p th:if="${scanlator}">
+                <strong>Scanlator:</strong> <span th:text="${scanlator}">Nome do Scanlator</span>
+            </p>
+
             <div class="work-info">
                 <h2>
                     <span th:text="${workTitle}">Título da Obra</span>
@@ -119,7 +133,14 @@
 
                 <div class="chapters-list">
                     <div class="chapter-item" th:each="chapter : ${chapters}">
-                        <div class="chapter-title" th:text="${chapter.title}">Capítulo 1</div>
+                        <div class="chapter-title">
+                            <span th:text="${chapter.title}">Capítulo 1</span>
+                            <span class="badge"
+                                  th:classappend="${chapter.notificationType == 'NEW'} ? 'badge-new' : (${chapter.notificationType == 'UPDATED'} ? 'badge-updated' : 'badge-error')"
+                                  th:text="${chapter.notificationType == 'NEW'} ? 'NOVO' : (${chapter.notificationType == 'UPDATED'} ? 'ATUALIZADO' : 'ERRO')">
+                                NOVO
+                            </span>
+                        </div>
                         <div class="chapter-date" th:if="${chapter.publishedAt}" th:text="'Publicado em: ' + ${chapter.publishedAt}">Data</div>
                     </div>
                 </div>

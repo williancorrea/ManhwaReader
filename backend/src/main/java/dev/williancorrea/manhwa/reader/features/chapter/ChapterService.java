@@ -33,15 +33,7 @@ public class ChapterService {
   }
 
   public Chapter save(Chapter entity) {
-    boolean isNew = entity.getId() == null;
-    Chapter savedChapter = repository.save(entity);
-
-    // Send notification if it's a new chapter
-    if (isNew && savedChapter.getWork() != null) {
-      scraperHelper.notifyNewChapters(savedChapter.getWork(), 1);
-    }
-
-    return savedChapter;
+    return repository.save(entity);
   }
 
   public boolean existsById(UUID id) {

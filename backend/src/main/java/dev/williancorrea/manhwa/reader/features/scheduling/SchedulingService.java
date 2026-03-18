@@ -61,7 +61,7 @@ public class SchedulingService {
             ? scheduling.getLastExecution()
             : OffsetDateTime.now();
 
-        OffsetDateTime nextExecution = switch (scheduling.getScheduleIntervalUnit()) {
+        OffsetDateTime nextExecution = switch (scheduling.getSchedulingIntervalUnit()) {
             case MINUTES -> baseTime.plusMinutes(scheduling.getIntervalValue());
             case HOURS -> baseTime.plusHours(scheduling.getIntervalValue());
             case DAYS -> baseTime.plusDays(scheduling.getIntervalValue());

@@ -50,5 +50,8 @@ public class ScanlatorSynchronizationError implements Serializable {
 
   @Column(name = "error_message")
   private String errorMessage;
+  
+  @Column(name = "stack_trace")
+  private String stackTrace;
 
 }

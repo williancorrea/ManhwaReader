@@ -121,6 +121,7 @@ CREATE TABLE scanlator_synchronization_error (
     external_work_id VARCHAR(255) NOT NULL,
     external_work_name VARCHAR(255) NOT NULL,
     error_message TEXT,
+    stack_trace TEXT,
     FOREIGN KEY (scanlator_id) REFERENCES scanlator(id)
 );
 
@@ -161,9 +162,15 @@ CREATE TABLE chapter (
 CREATE TABLE chapter_notify (
     id CHAR(36) NOT NULL PRIMARY KEY,
     chapter_id CHAR(36) NOT NULL,
+    work_id CHAR(36) NOT NULL,
     status VARCHAR(20) NOT NULL,
-    FOREIGN KEY (chapter_id) REFERENCES chapter(id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (chapter_id) REFERENCES chapter(id),
+    FOREIGN KEY (work_id) REFERENCES work(id)
 );
+
+CREATE INDEX idx_chapter_notify_work_id ON chapter_notify(work_id);
+CREATE INDEX idx_chapter_notify_created_at ON chapter_notify(created_at);
 
 CREATE TABLE page (
     id CHAR(36) NOT NULL PRIMARY KEY,

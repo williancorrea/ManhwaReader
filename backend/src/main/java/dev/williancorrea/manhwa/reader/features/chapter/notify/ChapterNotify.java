@@ -1,8 +1,11 @@
 package dev.williancorrea.manhwa.reader.features.chapter.notify;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.chapter.Chapter;
+import dev.williancorrea.manhwa.reader.features.work.Work;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -34,6 +37,14 @@ public class ChapterNotify implements Serializable {
   @JoinColumn(name = "chapter_id", nullable = false)
   private Chapter chapter;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "work_id", nullable = false)
+  private Work work;
+
   @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 20)
   private ChapterNotifyType status;
+
+  @Column(name = "created_at")
+  private OffsetDateTime createdAt;
 }

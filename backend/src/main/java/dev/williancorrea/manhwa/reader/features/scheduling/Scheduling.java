@@ -28,7 +28,8 @@ public class Scheduling implements Serializable {
     private UUID id;
 
     @Column(nullable = false, unique = true, length = 100)
-    private String name;
+    @Enumerated(EnumType.STRING)
+    private SchedulingName name;
 
     @Column(length = 255)
     private String description;
@@ -38,7 +39,7 @@ public class Scheduling implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "interval_unit", nullable = false, length = 20)
-    private ScheduleIntervalUnit scheduleIntervalUnit;
+    private SchedulingIntervalUnit schedulingIntervalUnit;
 
     @Column(nullable = false)
     @Builder.Default

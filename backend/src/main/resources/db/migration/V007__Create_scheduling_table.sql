@@ -19,3 +19,11 @@ CREATE TABLE scheduling (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT chk_interval_unit CHECK (interval_unit IN ('MINUTES', 'HOURS', 'DAYS', 'WEEKS'))
 );
+
+-- Seed: Agendamento do scraper MEDIOCRESCAN
+INSERT INTO scheduling (id, name, description, interval_value, interval_unit, active)
+VALUES (UUID(), 'MEDIOCRESCAN_SCRAPER', 'Agendamento para execucao do scraper MEDIOCRESCAN', 30, 'MINUTES', TRUE);
+
+-- Seed: Agendamento de notificacao de capitulos
+INSERT INTO scheduling (id, name, description, interval_value, interval_unit, active)
+VALUES (UUID(), 'CHAPTER_NOTIFICATION', 'Agendamento para envio de notificacoes de capitulos', 10, 'MINUTES', TRUE);

@@ -15,7 +15,6 @@ public class ScanlatorSynchronizationErrorService {
   }
 
   public ScanlatorSynchronizationError save(ScanlatorSynchronizationError entity) {
-    //TODO: Apos salvar notificar que deu zica por algum dos canais(Email, Discord, etc...)
     return repository.save(entity);
   }
 

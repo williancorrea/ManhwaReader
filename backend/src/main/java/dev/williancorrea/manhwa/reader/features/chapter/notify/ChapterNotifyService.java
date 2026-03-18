@@ -1,21 +1,137 @@
 package dev.williancorrea.manhwa.reader.features.chapter.notify;
 
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import dev.williancorrea.manhwa.reader.email.EmailService;
+import dev.williancorrea.manhwa.reader.features.work.Work;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+@Slf4j
 @Validated
 @Service
+@RequiredArgsConstructor
 public class ChapterNotifyService {
 
   private final ChapterNotifyRepository repository;
 
-  public ChapterNotifyService(@Lazy ChapterNotifyRepository repository) {
-    this.repository = repository;
+  @Lazy
+  private final EmailService emailService;
+
+  @Value("${minio.url}")
+  private String minioUrl;
+
+  @Value("${minio.bucket.name}")
+  private String bucketName;
+
+  @Transactional
+  public void processAndSendNotifications() {
+    log.info("[ChapterNotifyService][processAndSendNotifications] Starting notification processing");
+
+    List<ChapterNotify> allNotifications = repository.findAllWithWorkAndChapter();
+
+    if (allNotifications.isEmpty()) {
+      log.info("[ChapterNotifyService][processAndSendNotifications] No notifications to process");
+      return;
+    }
+
+    // Agrupa notificacoes por obra
+    Map<Work, List<ChapterNotify>> notificationsByWork = allNotifications.stream()
+        .collect(Collectors.groupingBy(ChapterNotify::getWork));
+
+    log.info("[ChapterNotifyService][processAndSendNotifications] Found {} works with notifications",
+        notificationsByWork.size());
+
+    List<ChapterNotify> processedNotifications = new ArrayList<>();
+
+    // Processa cada obra
+    notificationsByWork.forEach((work, notifications) -> {
+      try {
+        sendWorkNotifications(work, notifications);
+        processedNotifications.addAll(notifications);
+        log.info("[ChapterNotifyService][processAndSendNotifications] Processed {} notifications for work: {}",
+            notifications.size(), work.getId());
+      } catch (Exception e) {
+        log.error("[ChapterNotifyService][processAndSendNotifications] Error processing notifications for work: {}",
+            work.getId(), e);
+      }
+    });
+
+    // Remove notificacoes processadas
+    if (!processedNotifications.isEmpty()) {
+      List<UUID> processedIds = processedNotifications.stream()
+          .map(ChapterNotify::getId)
+          .collect(Collectors.toList());
+      repository.deleteByIdIn(processedIds);
+      log.info("[ChapterNotifyService][processAndSendNotifications] Deleted {} processed notifications",
+          processedIds.size());
+    }
+
+    log.info("[ChapterNotifyService][processAndSendNotifications] Notification processing completed");
   }
 
+  private void sendWorkNotifications(Work work, List<ChapterNotify> notifications) {
+    String workTitle = getWorkTitle(work);
+    int chapterCount = notifications.size();
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+    List<Map<String, Object>> chapters = notifications.stream()
+        .map(notification -> {
+          Map<String, Object> chapterData = new HashMap<>();
+          chapterData.put("title", "Capítulo " + notification.getChapter().getNumberFormatted() +
+              (notification.getChapter().getTitle() != null ? " - " + notification.getChapter().getTitle() : ""));
+          chapterData.put("publishedAt", notification.getChapter().getPublishedAt() != null
+              ? notification.getChapter().getPublishedAt().format(formatter)
+              : "");
+          chapterData.put("notificationType", notification.getStatus().name());
+          return chapterData;
+        })
+        .collect(Collectors.toList());
+
+    Map<String, Object> additionalData = new HashMap<>();
+    additionalData.put("coverUrl", work.getCoverUrl() != null
+        ? minioUrl + "/" + bucketName + work.getCoverUrl()
+        : ""
+    );
+
+    String scanlatorName = notifications.stream()
+        .findFirst()
+        .map(n -> n.getChapter().getScanlator())
+        .map(s -> s.getName())
+        .orElse("");
+    additionalData.put("scanlator", scanlatorName);
+
+    emailService.sendNewChaptersEmail(workTitle, chapterCount, chapters, additionalData);
+
+    log.info("[ChapterNotifyService][sendWorkNotifications] Email sent for work: {} with {} chapters",
+        workTitle, chapterCount);
+  }
+
+  private String getWorkTitle(Work work) {
+    if (work.getTitles() != null && !work.getTitles().isEmpty()) {
+      return work.getTitles().get(0).getTitle();
+    }
+    return "Título Desconhecido";
+  }
+
+  @Transactional
   public ChapterNotify save(ChapterNotify entity) {
     return repository.save(entity);
+  }
+
+  public List<ChapterNotify> findByWorkId(UUID workId) {
+    return repository.findByWorkId(workId);
   }
 }
 

@@ -216,8 +216,9 @@ public class ScraperBase {
                             String workId,
                             String externalWorkId,
                             String externalWorkName,
-                            String errorMessage) {
-    syncWorkError(scan, workId, externalWorkId, externalWorkName, errorMessage, null, null);
+                            String errorMessage,
+                            String stackTrace) {
+    syncWorkError(scan, workId, externalWorkId, externalWorkName, errorMessage, stackTrace, null);
   }
 
   public void syncWorkError(SynchronizationOriginType scan,
@@ -242,6 +243,7 @@ public class ScraperBase {
             .externalWorkId(externalWorkId)
             .externalWorkName(externalWorkName)
             .errorMessage(errorMessage)
+            .stackTrace(stackTrace)
             .build()
     );
 
@@ -394,11 +396,18 @@ public class ScraperBase {
       return false;
     }
 
-    return work.getSynchronizations().stream()
+    var scanlator = scanlatorService.findBySynchronization(origem).get();
+
+    var syncByWork = work.getSynchronizations().stream()
         .anyMatch(sync -> sync.getOrigin()
             .equals(origem) &&
             sync.getUpdatedWorkAt() != null &&
             sync.getUpdatedWorkAt().truncatedTo(ChronoUnit.SECONDS).equals(updateAt.truncatedTo(ChronoUnit.SECONDS)));
+
+    var chapterSync = work.getChapters()
+        .stream().anyMatch(chapter -> chapter.getScanlator().equals(scanlator) && !chapter.getSynced());
+
+    return syncByWork && !chapterSync;
   }
 
   public void updatingSyncWorkTime(Work work, SynchronizationOriginType origem, OffsetDateTime createAt,
