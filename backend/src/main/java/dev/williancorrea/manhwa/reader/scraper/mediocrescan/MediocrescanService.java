@@ -150,7 +150,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
 
 
     //TODO REMOVER
-//    synchronizeByExternalId("220");
+//    synchronizeByExternalId("2373");
 //    if (true) {
 //      return;
 //    }
@@ -178,7 +178,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
 //      var titulo = "Cavaleiro em eterna regressão"; //COMIC
 //      var titulo = "Reencarnei no Corpo de um Príncipe Canalha"; //COMIC
 //      var titulo = "I Became a Munchkin Skill Thief"; // ENGLISH
-      var titulo = "Irmãs Ki"; // ENGLISH - 1 Caps
+//      var titulo = "Irmãs Ki"; // ENGLISH - 1 Caps
 //      var titulo = "Necromante! Eu Sou Um Desastre"; //COMIC e NOVEL
 //      var titulo = "O Gênio Que Lê O Mundo"; // COMIC - Testando titulos alternativos
 //      var titulo = "O Começo Depois do Fim";
@@ -189,11 +189,22 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
           i + 1,
           "data_ultimo_cap",
           "1,5",  // 1,3,4
-          titulo
+          null
       );
+//      var obras = mediocrescanClient.listarObras(
+//          getToken(),
+//          1, //Padrao 24
+//          i + 1,
+//          "data_ultimo_cap",
+//          "1,5",  // 1,3,4
+//          titulo
+//      );
 
       totalPages = obras.getPagination().getTotalPages();
-      obras.getData().forEach(this::synchronizeByExternalId);
+//      obras.getData().forEach(this::synchronizeByExternalId);
+      obras.getData().forEach(item -> 
+          synchronizeByExternalId(item.getId().toString())
+      );
       scraperBase.sleep(5000);
     }
   }
@@ -252,6 +263,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
           obra.getDataUltimoCap()
       );
 
+      work.setUpdatedAt(OffsetDateTime.now());
       work = workService.save(work);
 
       log.info("<-- [MediocrescanService][synchronizeByExternalId] Synchronization completed: {}",
