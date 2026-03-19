@@ -202,7 +202,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
 
       totalPages = obras.getPagination().getTotalPages();
 //      obras.getData().forEach(this::synchronizeByExternalId);
-      obras.getData().forEach(item -> 
+      obras.getData().forEach(item ->
           synchronizeByExternalId(item.getId().toString())
       );
       scraperBase.sleep(5000);
@@ -560,6 +560,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
               .chapter(chapter)
               .work(work)
               .status(toNotifyNew ? ChapterNotifyType.NEW : ChapterNotifyType.UPDATED)
+              .createdAt(OffsetDateTime.now())
               .build());
         } catch (Exception e) {
           log.error("[MediocrescanService][syncChapters] ({}) Error syncing chapter {}", dto.getNome(),
@@ -572,6 +573,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
               .chapter(chapter)
               .work(work)
               .status(ChapterNotifyType.ERROR)
+              .createdAt(OffsetDateTime.now())
               .build());
         }
         //Garante que nao sera duplicado em caso de uma re-sincronizacao
