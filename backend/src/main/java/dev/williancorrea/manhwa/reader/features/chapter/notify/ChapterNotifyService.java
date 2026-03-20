@@ -81,7 +81,7 @@ public class ChapterNotifyService {
   }
 
   private void sendWorkNotifications(Work work, List<ChapterNotify> notifications) {
-    String workTitle = getWorkTitle(work);
+    String workTitle = "(" + work.getPublicationDemographic() + ") " + getWorkTitle(work);
     int chapterCount = notifications.size();
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");

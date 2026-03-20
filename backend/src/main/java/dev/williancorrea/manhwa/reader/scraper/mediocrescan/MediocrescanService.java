@@ -183,7 +183,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
 //      titulo = "Necromante! Eu Sou Um Desastre"; //COMIC e NOVEL
 //      titulo = "O Gênio Que Lê O Mundo"; // COMIC - Testando titulos alternativos
 //      titulo = "O Começo Depois do Fim";
-     
+
 
       var obras = mediocrescanClient.listarObras(
           getToken(),
@@ -267,7 +267,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
           SynchronizationOriginType.MEDIOCRESCAN,
           work != null && work.getId() == null ? null : Objects.requireNonNull(work).getId().toString(),
           obra.getId().toString(),
-          obra.getNome(),
+          "(" + obra.getFormato().getNome() + ") " + obra.getNome(),
           e.getMessage(),
           Arrays.toString(e.getStackTrace())
       );

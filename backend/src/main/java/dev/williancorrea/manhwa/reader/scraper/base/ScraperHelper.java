@@ -33,7 +33,7 @@ public class ScraperHelper {
         return;
       }
 
-      var workTitle = work.getTitles().get(0).getTitle();
+      var workTitle = "(" + work.getPublicationDemographic() + ") " + work.getTitles().get(0).getTitle();
       var additionalData = new HashMap<String, Object>();
       additionalData.put("scanlator", origin.name());
 
