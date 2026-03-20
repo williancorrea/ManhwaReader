@@ -10,7 +10,7 @@ public interface ChapterNotifyRepository extends JpaRepository<ChapterNotify, UU
     @Query("SELECT cn FROM ChapterNotify cn " +
            "JOIN FETCH cn.work w " +
            "JOIN FETCH cn.chapter c " +
-           "ORDER BY w.id, c.number")
+           "ORDER BY w.id, c.number desc")
     List<ChapterNotify> findAllWithWorkAndChapter();
 
     List<ChapterNotify> findByWorkId(UUID workId);
