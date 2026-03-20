@@ -175,13 +175,15 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
       10- HENTAI
       */
 
-//      var titulo = "Cavaleiro em eterna regressão"; //COMIC
-//      var titulo = "Reencarnei no Corpo de um Príncipe Canalha"; //COMIC
-//      var titulo = "I Became a Munchkin Skill Thief"; // ENGLISH
-//      var titulo = "Irmãs Ki"; // ENGLISH - 1 Caps
-//      var titulo = "Necromante! Eu Sou Um Desastre"; //COMIC e NOVEL
-//      var titulo = "O Gênio Que Lê O Mundo"; // COMIC - Testando titulos alternativos
-//      var titulo = "O Começo Depois do Fim";
+      String titulo = null;
+//      titulo = "Cavaleiro em eterna regressão"; //COMIC
+//      titulo = "Reencarnei no Corpo de um Príncipe Canalha"; //COMIC
+//      titulo = "I Became a Munchkin Skill Thief"; // ENGLISH
+//      titulo = "Irmãs Ki"; // ENGLISH - 1 Caps
+//      titulo = "Necromante! Eu Sou Um Desastre"; //COMIC e NOVEL
+//      titulo = "O Gênio Que Lê O Mundo"; // COMIC - Testando titulos alternativos
+//      titulo = "O Começo Depois do Fim";
+     
 
       var obras = mediocrescanClient.listarObras(
           getToken(),
@@ -189,16 +191,8 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
           i + 1,
           "data_ultimo_cap",
           "1,5",  // 1,3,4
-          null
+          titulo
       );
-//      var obras = mediocrescanClient.listarObras(
-//          getToken(),
-//          1, //Padrao 24
-//          i + 1,
-//          "data_ultimo_cap",
-//          "1,5",  // 1,3,4
-//          titulo
-//      );
 
       totalPages = obras.getPagination().getTotalPages();
 //      obras.getData().forEach(this::synchronizeByExternalId);

@@ -120,7 +120,7 @@ public class ChapterNotifyService {
 
   private String getWorkTitle(Work work) {
     if (work.getTitles() != null && !work.getTitles().isEmpty()) {
-      return work.getTitles().get(0).getTitle();
+      return work.getTitles().getFirst().getTitle();
     }
     return "Título Desconhecido";
   }
