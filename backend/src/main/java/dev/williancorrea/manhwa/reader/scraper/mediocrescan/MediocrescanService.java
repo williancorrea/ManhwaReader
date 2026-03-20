@@ -147,60 +147,66 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
   @Override
   public void ScheduledSynchronization() {
     log.info("--> [MediocrescanService][ScheduledSynchronization] Starting synchronization with Mediocrescan");
+    new Thread(() -> {
+      try {
+
+        //TODO REMOVER
+        //    synchronizeByExternalId("2373");
+        //    if (true) {
+        //      return;
+        //    }
+
+        var totalPages = 1;
+        for (int i = 0; i < totalPages; i++) {
+          log.warn("--> X <-- [MediocrescanService][ScheduledSynchronization] External synchronization page {} of {}",
+              i + 1,
+              totalPages);
+    
+    
+          /*
+          1 - ENGLISH
+          2 -
+          3 - NOVEL
+          4 - SHOUJO
+          5 - COMIC
+          6 -
+          7 -
+          8 - YAOI - G
+          9 - YURI - L
+          10- HENTAI
+          */
+
+          String titulo = null;
+          //      titulo = "Cavaleiro em eterna regressão"; //COMIC
+          //      titulo = "Reencarnei no Corpo de um Príncipe Canalha"; //COMIC
+          //      titulo = "I Became a Munchkin Skill Thief"; // ENGLISH
+          //      titulo = "Irmãs Ki"; // ENGLISH - 1 Caps
+          //      titulo = "Necromante! Eu Sou Um Desastre"; //COMIC e NOVEL
+          //      titulo = "O Gênio Que Lê O Mundo"; // COMIC - Testando titulos alternativos
+          //      titulo = "O Começo Depois do Fim";
 
 
-    //TODO REMOVER
-//    synchronizeByExternalId("2373");
-//    if (true) {
-//      return;
-//    }
+          var obras = mediocrescanClient.listarObras(
+              getToken(),
+              1, //Padrao 24
+              i + 1,
+              "data_ultimo_cap",
+              "1,5",  // 1,3,4
+              titulo
+          );
 
-    var totalPages = 1;
-    for (int i = 0; i < totalPages; i++) {
-      log.warn("--> X <-- [MediocrescanService][ScheduledSynchronization] External synchronization page {} of {}",
-          i + 1,
-          totalPages);
-      
-      
-      /*
-      1 - ENGLISH
-      2 -
-      3 - NOVEL
-      4 - SHOUJO
-      5 - COMIC
-      6 -
-      7 -
-      8 - YAOI - G
-      9 - YURI - L
-      10- HENTAI
-      */
-
-      String titulo = null;
-//      titulo = "Cavaleiro em eterna regressão"; //COMIC
-//      titulo = "Reencarnei no Corpo de um Príncipe Canalha"; //COMIC
-//      titulo = "I Became a Munchkin Skill Thief"; // ENGLISH
-//      titulo = "Irmãs Ki"; // ENGLISH - 1 Caps
-//      titulo = "Necromante! Eu Sou Um Desastre"; //COMIC e NOVEL
-//      titulo = "O Gênio Que Lê O Mundo"; // COMIC - Testando titulos alternativos
-//      titulo = "O Começo Depois do Fim";
-
-
-      var obras = mediocrescanClient.listarObras(
-          getToken(),
-          1, //Padrao 24
-          i + 1,
-          "data_ultimo_cap",
-          "1,5",  // 1,3,4
-          titulo
-      );
-
-      totalPages = obras.getPagination().getTotalPages();
+          totalPages = obras.getPagination().getTotalPages();
 //      obras.getData().forEach(this::synchronizeByExternalId);
-      obras.getData().forEach(item ->
-          synchronizeByExternalId(item.getId().toString())
-      );
-      scraperBase.sleep(5000);
-    }
+          obras.getData().forEach(item ->
+              synchronizeByExternalId(item.getId().toString())
+          );
+          scraperBase.sleep(5000);
+        }
+
+      } catch (Exception e) {
+        log.error("--> [MediocrescanService][ScheduledSynchronization] Error", e);
+      }
+    }).start();
   }
 
   @Transactional
@@ -644,6 +650,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
         log.error("--> [MediocrescanService][syncPage] ({}) Error downloading file: {}",
             chapterDto.getObra().getObraNome(),
             fileSrc, e);
+        throw new RuntimeException("Error downloading page", e);
       }
     }
 
