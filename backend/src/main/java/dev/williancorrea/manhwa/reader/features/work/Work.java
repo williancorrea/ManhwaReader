@@ -185,7 +185,7 @@ public class Work implements Serializable {
         .orElse(null);
 
     // If you can't find an official one, pick the first one on the list.
-    WorkCover cover = officialCover != null ? officialCover : covers.get(0);
+    WorkCover cover = officialCover != null ? officialCover : covers.getFirst();
 
     // Returns the path to the cover.
     if (cover != null && cover.getFileName() != null) {
