@@ -7,6 +7,7 @@ import java.net.http.HttpHeaders;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import dev.williancorrea.manhwa.reader.exception.ObjectNotFoundException;
@@ -103,6 +104,16 @@ public class MinioService implements FileUploaderInterface {
              | IllegalArgumentException | IOException e) {
 
       throw new ObjectNotFoundException("Error removing object: " + e.getMessage());
+    }
+  }
+
+  @Override
+  public String getFileAsBase64(String fileName) {
+    try (InputStream inputStream = findObjectByName(fileName)) {
+      byte[] bytes = inputStream.readAllBytes();
+      return Base64.getEncoder().encodeToString(bytes);
+    } catch (Exception e) {
+      return null;
     }
   }
 
