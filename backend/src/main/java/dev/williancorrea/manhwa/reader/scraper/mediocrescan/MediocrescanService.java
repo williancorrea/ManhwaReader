@@ -173,7 +173,10 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
           7 -
           8 - YAOI - G
           9 - YURI - L
-          10- HENTAI
+          10 - HENTAI
+          11 -
+          12 -
+          13 - MANGA
           */
 
           String titulo = null;
@@ -188,7 +191,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
 
           var obras = mediocrescanClient.listarObras(
               getToken(),
-              1, //Padrao 24
+              24, //Padrao 24
               i + 1,
               "data_ultimo_cap",
               "1,5",  // 1,3,4
@@ -200,9 +203,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
           obras.getData().forEach(item ->
               synchronizeByExternalId(item.getId().toString())
           );
-          scraperBase.sleep(5000);
         }
-
       } catch (Exception e) {
         log.error("--> [MediocrescanService][ScheduledSynchronization] Error", e);
       }
@@ -575,6 +576,15 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
               .status(ChapterNotifyType.ERROR)
               .createdAt(OffsetDateTime.now())
               .build());
+          
+          scraperBase.syncWorkError(
+              SynchronizationOriginType.MEDIOCRESCAN,
+              work != null && work.getId() == null ? null : Objects.requireNonNull(work).getId().toString(),
+              dto.getId().toString(),
+              "(" + dto.getFormato().getNome() + ") " + dto.getNome(),
+              e.getMessage(),
+              Arrays.toString(e.getStackTrace())
+          );
         }
         //Garante que nao sera duplicado em caso de uma re-sincronizacao
         work.getChapters().remove(chapter);
