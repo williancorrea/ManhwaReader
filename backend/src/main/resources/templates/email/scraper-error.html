@@ -6,156 +6,185 @@
     <title>Erro Durante Scraper</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f4f4f4;
             margin: 0;
-            padding: 0;
+            padding: 16px 10px;
+            background-color: #edf2f7;
+            color: #1f2937;
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            line-height: 1.5;
         }
         .container {
-            max-width: 600px;
-            margin: 20px auto;
+            max-width: 640px;
+            margin: 0 auto;
             background-color: #ffffff;
-            border-radius: 8px;
+            border: 1px solid #dbe3ee;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
         }
         .header {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
+            padding: 24px 28px;
+            background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%);
+            color: #ffffff;
+        }
+        .header .eyebrow {
+            display: inline-block;
+            margin-bottom: 8px;
+            padding: 2px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.2);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
         .header h1 {
             margin: 0;
             font-size: 24px;
+            line-height: 1.25;
         }
         .content {
-            padding: 30px;
-        }
-        .error-info {
-            background-color: #fff5f5;
-            border-left: 4px solid #ff6b6b;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .error-info h2 {
-            color: #ff6b6b;
-            margin-top: 0;
-        }
-        .info-item {
-            margin: 10px 0;
-            padding: 8px 0;
-            border-bottom: 1px solid #fee;
-        }
-        .info-item:last-child {
-            border-bottom: none;
-        }
-        .label {
-            font-weight: bold;
-            color: #555;
-        }
-        .error-message {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            color: #c92a2a;
-            margin: 10px 0;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-        .stack-trace {
-            background-color: #2d2d2d;
-            color: #f8f8f2;
-            padding: 15px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            margin: 10px 0;
-            overflow-x: auto;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .footer {
-            background-color: #f8f9fa;
-            padding: 20px;
-            text-align: center;
-            font-size: 12px;
-            color: #777;
+            padding: 24px 28px;
         }
         .alert {
-            padding: 12px;
-            background-color: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 4px;
-            color: #856404;
-            margin: 15px 0;
+            border: 1px solid #fecaca;
+            background-color: #fef2f2;
+            color: #7f1d1d;
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 14px;
+            font-size: 13px;
+        }
+        .info-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px;
+        }
+        .info-card h2 {
+            margin: 0 0 10px;
+            font-size: 18px;
+            color: #991b1b;
+        }
+        .info-item {
+            margin: 0;
+            padding: 8px 0;
+            border-top: 1px solid #e2e8f0;
+            font-size: 13px;
+            color: #334155;
+        }
+        .info-item:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+        .label {
+            display: inline-block;
+            min-width: 88px;
+            color: #475569;
+            font-weight: 700;
+        }
+        .error-message {
+            margin-top: 6px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #fecaca;
+            background-color: #fff;
+            color: #b91c1c;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .stack-trace {
+            margin-top: 6px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #1f2937;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 280px;
+            overflow: auto;
+        }
+        .guidance {
+            margin: 14px 0 0;
+            font-size: 13px;
+            color: #475569;
+        }
+        .footer {
+            border-top: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+            padding: 16px 28px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+        }
+        .footer p {
+            margin: 4px 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>⚠️ Erro Durante Scraper</h1>
+            <span class="eyebrow">Monitoramento</span>
+            <h1>Erro durante o scraper</h1>
         </div>
+
         <div class="content">
             <div class="alert">
-                <strong>Atenção:</strong> Um erro ocorreu durante a execução do scraper.
+                Um erro ocorreu durante a execu&ccedil;&atilde;o do scraper. Veja os detalhes abaixo.
             </div>
 
-            <div class="error-info">
-                <h2>Detalhes do Erro</h2>
+            <div class="info-card">
+                <h2>Detalhes do erro</h2>
 
-                <div class="info-item" th:if="${scraperName}">
+                <p class="info-item" th:if="${scraperName}">
                     <span class="label">Scraper:</span>
                     <span th:text="${scraperName}">Nome do Scraper</span>
-                </div>
+                </p>
 
-                <div class="info-item" th:if="${workTitle}">
+                <p class="info-item" th:if="${workTitle}">
                     <span class="label">Obra:</span>
-                    <span th:text="${workTitle}">Título da Obra</span>
-                </div>
+                    <span th:text="${workTitle}">T&iacute;tulo da Obra</span>
+                </p>
 
-                <div class="info-item" th:if="${errorTime}">
-                    <span class="label">Horário:</span>
+                <p class="info-item" th:if="${errorTime}">
+                    <span class="label">Hor&aacute;rio:</span>
                     <span th:text="${errorTime}">Data e Hora</span>
-                </div>
+                </p>
 
-                <div class="info-item" th:if="${errorType}">
-                    <span class="label">Tipo de Erro:</span>
+                <p class="info-item" th:if="${errorType}">
+                    <span class="label">Tipo:</span>
                     <span th:text="${errorType}">Exception Type</span>
-                </div>
+                </p>
 
-                <div th:if="${errorMessage}">
-                    <div class="label" style="margin-top: 15px;">Mensagem de Erro:</div>
-                    <div class="error-message" th:text="${errorMessage}">
-                        Error message here
-                    </div>
-                </div>
-
-                <div th:if="${stackTrace}">
-                    <div class="label" style="margin-top: 15px;">Stack Trace:</div>
-                    <div class="stack-trace" th:text="${stackTrace}">
-                        Stack trace here
-                    </div>
-                </div>
-
-                <div class="info-item" th:if="${url}">
+                <p class="info-item" th:if="${url}">
                     <span class="label">URL:</span>
                     <span th:text="${url}" style="word-break: break-all;">URL</span>
+                </p>
+
+                <div class="info-item" th:if="${errorMessage}">
+                    <span class="label">Mensagem:</span>
+                    <div class="error-message" th:text="${errorMessage}">Error message here</div>
+                </div>
+
+                <div class="info-item" th:if="${stackTrace}">
+                    <span class="label">Stack Trace:</span>
+                    <div class="stack-trace" th:text="${stackTrace}">Stack trace here</div>
                 </div>
             </div>
 
-            <p style="margin-top: 20px;">
-                Por favor, verifique os logs do sistema para mais detalhes e tome as medidas necessárias para corrigir o problema.
+            <p class="guidance">
+                Verifique os logs do sistema e ajuste o scraper para evitar novas falhas.
             </p>
         </div>
+
         <div class="footer">
-            <p>Este é um email automático do Manhwa Reader</p>
+            <p>Este &eacute; um e-mail autom&aacute;tico do Manhwa Reader.</p>
             <p>&copy; 2026 Manhwa Reader. Todos os direitos reservados.</p>
         </div>
     </div>
