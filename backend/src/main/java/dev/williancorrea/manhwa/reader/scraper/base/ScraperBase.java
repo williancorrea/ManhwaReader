@@ -8,7 +8,6 @@ import static dev.williancorrea.manhwa.reader.scraper.base.ScraperErrorMessage.V
 import static dev.williancorrea.manhwa.reader.scraper.base.ScraperErrorMessage.VALIDATION_ERROR_MESSAGE_IS_NULL;
 import static dev.williancorrea.manhwa.reader.scraper.base.ScraperErrorMessage.VALIDATION_ERROR_SITE_LINK_IS_BLANK;
 import static dev.williancorrea.manhwa.reader.scraper.base.ScraperErrorMessage.VALIDATION_ERROR_SYNCHRONIZATION_ORIGIN_IS_NULL;
-import static dev.williancorrea.manhwa.reader.scraper.base.ScraperErrorMessage.VALIDATION_ERROR_SYNOPSES_IS_BLANK;
 import static dev.williancorrea.manhwa.reader.scraper.base.ScraperErrorMessage.VALIDATION_ERROR_SYNOPSES_LIST_IS_NULL;
 import static dev.williancorrea.manhwa.reader.scraper.base.ScraperErrorMessage.VALIDATION_ERROR_TAG_LIST_IS_NULL;
 import static dev.williancorrea.manhwa.reader.scraper.base.ScraperErrorMessage.VALIDATION_ERROR_TITLE_IS_BLANK;
@@ -190,7 +189,8 @@ public class ScraperBase {
 
     synopses.forEach(synopsis -> {
       if (synopsis.getDescription().isBlank()) {
-        throw new IllegalArgumentException(VALIDATION_ERROR_SYNOPSES_IS_BLANK);
+        log.debug("--> [SynchronizationBase][syncSynopses] Skipping synopsis because is empty");
+        return;
       }
 
       AtomicBoolean found = new AtomicBoolean(false);

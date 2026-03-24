@@ -29,8 +29,12 @@ public class Mediocrescan_CapituloDTO {
   private List<Object> paginas2; // Array vazio no exemplo
   private List<Object> links; // Array vazio no exemplo
   private Mediocrescan_ObraSimplificadaDTO obra;
-  
+
   public BigDecimal getNumeroWithScale() {
-    return numero.setScale(1, BigDecimal.ROUND_UNNECESSARY);
+    try {
+      return numero.setScale(1, BigDecimal.ROUND_UNNECESSARY);
+    } catch (Exception e) {
+      throw new RuntimeException("Chapter (" + numero + ") :  " + e.getMessage(), e);
+    }
   }
 }
