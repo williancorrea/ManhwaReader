@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import dev.williancorrea.manhwa.reader.config.email.EmailConfigKey;
 import dev.williancorrea.manhwa.reader.email.EmailService;
 import dev.williancorrea.manhwa.reader.features.work.Work;
+import dev.williancorrea.manhwa.reader.system.SystemConfigurationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,7 @@ import org.springframework.validation.annotation.Validated;
 public class ChapterNotifyService {
 
   private final ChapterNotifyRepository repository;
+  private final SystemConfigurationService systemConfigurationService;
 
   @Lazy
   private final EmailService emailService;
@@ -36,8 +39,14 @@ public class ChapterNotifyService {
 
   @Transactional
   public void processAndSendNotifications() {
+    if (systemConfigurationService.getValueByReference(EmailConfigKey.EMAIL_ENABLED.name()).equals("false")) {
+      log.warn("[ChapterNotifyService][processAndSendNotifications] Email sending is disabled.");
+      return;
+    }
+    
+    
     log.info("[ChapterNotifyService][processAndSendNotifications] Starting notification processing");
-
+    
     List<ChapterNotify> allNotifications = repository.findAllWithWorkAndChapter();
 
     if (allNotifications.isEmpty()) {
@@ -81,6 +90,11 @@ public class ChapterNotifyService {
   }
 
   private void sendWorkNotifications(Work work, List<ChapterNotify> notifications) {
+    if (systemConfigurationService.getValueByReference(EmailConfigKey.EMAIL_ENABLED.name()).equals("false")) {
+      log.warn("[ChapterNotifyService][sendWorkNotifications] Email sending is disabled.");
+      return;
+    }
+    
     String workTitle = "(" + work.getPublicationDemographic() + ") " + getWorkTitle(work);
     int chapterCount = notifications.size();
 

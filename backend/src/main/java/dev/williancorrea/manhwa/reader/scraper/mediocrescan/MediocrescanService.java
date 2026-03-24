@@ -13,8 +13,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import dev.williancorrea.manhwa.reader.features.chapter.Chapter;
 import dev.williancorrea.manhwa.reader.features.chapter.ChapterService;
 import dev.williancorrea.manhwa.reader.features.chapter.notify.ChapterNotify;
@@ -629,50 +631,75 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
     // Verifica se a quantidade de paginas é diferente
     var pageCount = pageService.countByChapterNumber(chapter);
 
-    for (var p = 0; p < pageDto.getPaginas().size(); p++) {
-      var page = pageService.findByNumberNotDisabled(chapter, p + 1);
-      if (page == null || page.getDisabled()) {
-        page = Page.builder()
-            .chapter(chapter)
-            .pageNumber(p + 1)
-            .type(PageType.IMAGE)
-            .content(null)
-            .disabled(false)
-            .build();
+    // Pool dedicado para este capítulo - permite cancelar apenas os downloads deste capítulo
+    ExecutorService chapterExecutor = Executors.newFixedThreadPool(5);
+    var cancelled = new AtomicBoolean(false);
+    List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+    try {
+      for (var p = 0; p < pageDto.getPaginas().size(); p++) {
+        final int pageIndex = p;
+
+        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+          if (cancelled.get()) return;
+
+          var page = pageService.findByNumberNotDisabled(chapter, pageIndex + 1);
+          if (page == null || page.getDisabled()) {
+            page = Page.builder()
+                .chapter(chapter)
+                .pageNumber(pageIndex + 1)
+                .type(PageType.IMAGE)
+                .content(null)
+                .disabled(false)
+                .build();
+          }
+
+          page.setFileName(
+              StringUtils.completeWithZeroZeroToLeft(page.getPageNumber().toString(), 4)
+                  + "__" + pageDto.getPaginas().get(pageIndex).getSrc()
+          );
+
+          var fileSrc = mediocreScanUrlCDN
+              + "/obras/" + dto.getId()
+              + "/capitulos/" + chapterDto.getNumero()
+              + "/" + pageDto.getPaginas().get(pageIndex).getSrc();
+
+          var path = work.getPublicationDemographic().name().toLowerCase()
+              + "/" + work.getSlug()
+              + "/" + "chapters"
+              + "/" + chapter.getNumberFormatted()
+              + "/" + chapter.getScanlator().getCode().toLowerCase()
+              + "/" + chapter.getLanguage().getCode().toLowerCase()
+              + "/" + chapter.getVersion();
+
+          try {
+            externalFileService.downloadWithAuthAndUpload(
+                fileSrc,
+                page.getFileName(),
+                path
+            );
+
+            pageService.save(page);
+          } catch (Exception e) {
+            cancelled.set(true);
+            log.error("--> [MediocrescanService][syncPage] ({}) Error downloading file: {}",
+                chapterDto.getObra().getObraNome(),
+                fileSrc, e);
+            throw new RuntimeException("Error downloading page", e);
+          }
+        }, chapterExecutor);
+
+        futures.add(future);
       }
 
-      page.setFileName(
-          StringUtils.completeWithZeroZeroToLeft(page.getPageNumber().toString(), 4)
-              + "__" + pageDto.getPaginas().get(p).getSrc()
-      );
-
-      var fileSrc = mediocreScanUrlCDN
-          + "/obras/" + dto.getId()
-          + "/capitulos/" + chapterDto.getNumero()
-          + "/" + pageDto.getPaginas().get(p).getSrc();
-
-      var path = work.getPublicationDemographic().name().toLowerCase()
-          + "/" + work.getSlug()
-          + "/" + "chapters"
-          + "/" + chapter.getNumberFormatted()
-          + "/" + chapter.getScanlator().getCode().toLowerCase()
-          + "/" + chapter.getLanguage().getCode().toLowerCase()
-          + "/" + chapter.getVersion();
-
-      try {
-        externalFileService.downloadWithAuthAndUpload(
-            fileSrc,
-            page.getFileName(),
-            path
-        );
-
-        pageService.save(page);
-      } catch (Exception e) {
-        log.error("--> [MediocrescanService][syncPage] ({}) Error downloading file: {}",
-            chapterDto.getObra().getObraNome(),
-            fileSrc, e);
-        throw new RuntimeException("Error downloading page", e);
-      }
+      CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+    } catch (CompletionException e) {
+      cancelled.set(true);
+      futures.forEach(f -> f.cancel(true));
+      chapterExecutor.shutdownNow();
+      throw new RuntimeException("Error downloading pages for chapter " + chapterDto.getNumero(), e.getCause());
+    } finally {
+      chapterExecutor.shutdown();
     }
 
   }
