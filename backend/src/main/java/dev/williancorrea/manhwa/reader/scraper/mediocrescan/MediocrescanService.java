@@ -629,16 +629,6 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
     // Verifica se a quantidade de paginas é diferente
     var pageCount = pageService.countByChapterNumber(chapter);
 
-//    if (pageCount == pageDto.getPaginas().size()) {
-//      log.info("--> [MediocrescanService][syncPage] ({}) Page count match for chapter {}",
-//          dto.getNome(),
-//          chapterDto.getNumero());
-//      return;
-//    }
-//    log.info("--> [MediocrescanService][syncPage] ({}) Page count mismatch for chapter {}",
-//        dto.getNome(),
-//        chapterDto.getNumero());
-
     for (var p = 0; p < pageDto.getPaginas().size(); p++) {
       var page = pageService.findByNumberNotDisabled(chapter, p + 1);
       if (page == null || page.getDisabled()) {
