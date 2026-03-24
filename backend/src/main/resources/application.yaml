@@ -109,6 +109,11 @@ info:
       vendor: @java.vendor@
       version: @java.version@
 
+retry:
+  download:
+    max-attempts: 3
+    delay: 1000
+
 minio:
   bucket:
     name: ${MINIO_DEFAULT_BUCKETS:manhwa}
