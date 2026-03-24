@@ -673,7 +673,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
               + "/" + chapter.getVersion();
 
           try {
-            externalFileService.downloadWithAuthAndUpload(
+            externalFileService.downloadExternalPublicObjectAndUploadToStorage(
                 fileSrc,
                 page.getFileName(),
                 path

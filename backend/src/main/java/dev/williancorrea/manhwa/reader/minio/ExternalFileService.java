@@ -20,7 +20,7 @@ public class ExternalFileService {
   }
 
   @Retryable(retryFor = RuntimeException.class, maxAttemptsExpression = "${retry.download.max-attempts}", backoff = @Backoff(delayExpression = "${retry.download.delay}"))
-  public String downloadWithAuthAndUpload(
+  public void downloadExternalPublicObjectAndUploadToStorage(
       String fileUrl,
       String originalFileName,
       String folderName
@@ -41,7 +41,7 @@ public class ExternalFileService {
       throw new RuntimeException("Falha no download: HTTP " + response.statusCode());
     }
 
-    return minioService.uploadStream(
+    minioService.uploadStream(
         response.body(),
         originalFileName,
         response.headers(),

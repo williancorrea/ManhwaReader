@@ -542,7 +542,7 @@ public class ScraperBase {
             .build()
     );
 
-    externalFileService.downloadWithAuthAndUpload(
+    externalFileService.downloadExternalPublicObjectAndUploadToStorage(
         url,
         coverName,
         slug
