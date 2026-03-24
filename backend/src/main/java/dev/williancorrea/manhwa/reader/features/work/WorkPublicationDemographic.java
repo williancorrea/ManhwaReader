@@ -10,5 +10,6 @@ public enum WorkPublicationDemographic {
   HENTAI,  // Categoria de anime ou mangá com conteúdo pornográfico explícito.
   COMIC,   // Termo amplo para histórias contadas em quadrinhos, incluindo produções ocidentais como as da Marvel e DC.
   NOVEL,   // Histórias contadas em formato de livro, com narrativas mais longas e desenvolvimentos mais complexos.
+  MANGA,   // Histórias contadas em formato de japonesa, com narrativas mais curtas e desenvolvimentos mais simples.
   UNKNOWN  // Indica que o gênero ou a classificação da obra não foi identificada ou não se encaixa nas categorias conhecidas.
 }

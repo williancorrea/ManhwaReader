@@ -83,6 +83,7 @@
         .count-badge {
             display: inline-block;
             margin-top: 10px;
+            margin-left: 15px;
             padding: 4px 10px;
             border-radius: 999px;
             font-size: 11px;
@@ -127,6 +128,7 @@
         }
         .chapter-title {
             margin: 0;
+            max-width: 230px;
             font-size: 14px;
             font-weight: 600;
             line-height: 1.35;
@@ -136,6 +138,7 @@
         .chapter-badge-wrap {
             display: table-cell;
             width: 100px;
+            max-width: 100px;
             text-align: right;
             vertical-align: top;
             white-space: nowrap;
@@ -144,6 +147,7 @@
             margin-top: 4px;
             font-size: 11px;
             color: #64748b;
+            max-width: 230px;
         }
         .badge {
             display: inline-block;
@@ -195,16 +199,16 @@
                     <strong>Scanlator:</strong>
                     <span th:text="${scanlator}">Nome do Scanlator</span>
                 </div>
-
-                <div class="count-badge" th:text="${chapterCount} + ' novo' + (${chapterCount} > 1 ? 's' : '')">1 novo</div>
-
+                
                 <div class="cover-container" th:if="${coverUrl}">
                     <img th:src="${coverUrl}" alt="Capa da Obra" class="cover-image" />
                 </div>
             </div>
 
             <div class="chapters-card">
-                <div class="chapters-head">Cap&iacute;tulos</div>
+                <div class="chapters-head">Cap&iacute;tulos
+                    <div class="count-badge" th:text="${chapterCount} + ' novo' + (${chapterCount} > 1 ? 's' : '')">1 novo</div>
+                </div>
                 
                 <div class="chapter-item" th:each="chapter : ${chapters}">
                     <div class="chapter-head">

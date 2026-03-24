@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import dev.williancorrea.manhwa.reader.features.chapter.Chapter;
 import dev.williancorrea.manhwa.reader.features.chapter.ChapterService;
 import dev.williancorrea.manhwa.reader.features.chapter.notify.ChapterNotify;
@@ -70,6 +73,8 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
   public final PageService pageService;
   public final VolumeService volumeService;
   public final ChapterNotifyService chapterNotifyService;
+
+  ExecutorService executorWorks = Executors.newFixedThreadPool(24);
 
 
   public MediocrescanService(@Lazy WorkService workService,
@@ -200,9 +205,19 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
 
           totalPages = obras.getPagination().getTotalPages();
 //      obras.getData().forEach(this::synchronizeByExternalId);
-          obras.getData().forEach(item ->
-              synchronizeByExternalId(item.getId().toString())
-          );
+//          obras.getData().forEach(item ->
+//              synchronizeByExternalId(item.getId().toString())
+//          );
+
+          List<CompletableFuture<Void>> futures = obras.getData()
+              .stream()
+              .map(item ->
+                  CompletableFuture.runAsync(() ->
+                      synchronizeByExternalId(item), executorWorks)
+              ).toList();
+
+          // barreira: espera TODOS terminarem
+          CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         }
       } catch (Exception e) {
         log.error("--> [MediocrescanService][ScheduledSynchronization] Error", e);
@@ -243,6 +258,12 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
       if (scraperBase.isWorkUpdated(work, SynchronizationOriginType.MEDIOCRESCAN, obra.getDataUltimoCap())) {
         log.info("--> [MediocrescanService][synchronizeByExternalId] Work ({}) already updated", obra.getNome());
         return;
+      }
+      
+      //Caso seja a primeira consulta, então busca todos os titulos da obra
+      if (work.getId() == null) {
+        log.info("--> [MediocrescanService][synchronizeByExternalId] Work ({}) is new, loading more infos (titles...)", obra.getNome());
+        obra = mediocrescanClient.obterObra(getToken(), obra.getId().toString());
       }
 
       prepareSyncTitle(work, obra);
@@ -576,7 +597,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
               .status(ChapterNotifyType.ERROR)
               .createdAt(OffsetDateTime.now())
               .build());
-          
+
           scraperBase.syncWorkError(
               SynchronizationOriginType.MEDIOCRESCAN,
               work != null && work.getId() == null ? null : Objects.requireNonNull(work).getId().toString(),
