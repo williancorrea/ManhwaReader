@@ -76,7 +76,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
   public final VolumeService volumeService;
   public final ChapterNotifyService chapterNotifyService;
 
-  ExecutorService executorWorks = Executors.newFixedThreadPool(24);
+  ExecutorService executorWorks = Executors.newFixedThreadPool(10);
 
 
   public MediocrescanService(@Lazy WorkService workService,
