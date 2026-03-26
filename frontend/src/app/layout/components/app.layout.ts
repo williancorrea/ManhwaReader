@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AppTopbar } from './app.topbar';
@@ -38,36 +38,11 @@ import { AppProfileMenu } from '@/app/layout/components/app.profilemenu';
 export class AppLayout {
     layoutService = inject(LayoutService);
 
-    constructor() {
-        effect(() => {
-            const state = this.layoutService.layoutState();
-            if (state.mobileMenuActive) {
-                document.body.classList.add('blocked-scroll');
-            } else {
-                document.body.classList.remove('blocked-scroll');
-            }
-        });
-    }
-
     containerClass = computed(() => {
         const layoutConfig = this.layoutService.layoutConfig();
-        const layoutState = this.layoutService.layoutState();
-
         return {
             'layout-light': !layoutConfig.darkTheme,
-            'layout-dark': layoutConfig.darkTheme,
-            'layout-overlay': layoutConfig.menuMode === 'overlay',
-            'layout-static': layoutConfig.menuMode === 'static',
-            'layout-slim': layoutConfig.menuMode === 'slim',
-            'layout-slim-plus': layoutConfig.menuMode === 'slim-plus',
-            'layout-horizontal': layoutConfig.menuMode === 'horizontal',
-            'layout-reveal': layoutConfig.menuMode === 'reveal',
-            'layout-drawer': layoutConfig.menuMode === 'drawer',
-            'layout-static-inactive': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static',
-            'layout-overlay-active': layoutState.overlayMenuActive,
-            'layout-mobile-active': layoutState.mobileMenuActive,
-            'layout-sidebar-expanded': layoutState.sidebarExpanded,
-            'layout-sidebar-anchored': layoutState.anchored
+            'layout-dark': layoutConfig.darkTheme
         };
     });
 }

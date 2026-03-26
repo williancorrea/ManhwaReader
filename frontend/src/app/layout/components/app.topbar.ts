@@ -10,26 +10,38 @@ import { ButtonModule } from 'primeng/button';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { FormsModule } from '@angular/forms';
-import { AppSidebar } from '@/app/layout/components/app.sidebar';
-import { AppBreadcrumb } from '@/app/layout/components/app.breadcrumb';
 
 @Component({
     selector: '[app-topbar]',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, FormsModule, Ripple, InputText, ButtonModule, IconField, InputIcon, AppBreadcrumb, AppSidebar],
+    imports: [RouterModule, CommonModule, StyleClassModule, FormsModule, Ripple, InputText, ButtonModule, IconField, InputIcon],
     template: `
         <div class="topbar-start">
-            <button pButton pRipple #menubutton type="button" class="topbar-menubutton p-trigger" text rounded severity="secondary" (click)="onMenuButtonClick()">
-                <i class="pi pi-bars"></i>
-            </button>
+            <a [routerLink]="['/']" class="app-logo cursor-pointer flex items-center gap-2">
+                <img class="h-8" [src]="'/demo/images/logo-' + logo() + '.png'" />
+                <img class="h-8 hidden lg:block" [src]="'/demo/images/appname-' + logo() + '.png'" />
+            </a>
+        </div>
 
-            <div class="topbar-breadcrumb">
-                <div app-breadcrumb></div>
-            </div>
-        </div>
-        <div class="layout-topbar-menu-section">
-            <div app-sidebar></div>
-        </div>
+        <nav class="layout-topbar-menu-section hidden lg:flex items-center gap-6">
+            <a routerLink="/" routerLinkActive="text-primary-500" [routerLinkActiveOptions]="{ exact: true }" class="flex items-center gap-2 cursor-pointer hover:text-primary-500 duration-200 font-medium">
+                <i class="pi pi-home"></i>
+                <span>Home</span>
+            </a>
+            <a routerLink="/catalog" routerLinkActive="text-primary-500" class="flex items-center gap-2 cursor-pointer hover:text-primary-500 duration-200 font-medium">
+                <i class="pi pi-book"></i>
+                <span>Catálogo</span>
+            </a>
+            <a routerLink="/auth/login" routerLinkActive="text-primary-500" class="flex items-center gap-2 cursor-pointer hover:text-primary-500 duration-200 font-medium">
+                <i class="pi pi-sign-in"></i>
+                <span>Login</span>
+            </a>
+            <a routerLink="/auth/register" routerLinkActive="text-primary-500" class="flex items-center gap-2 cursor-pointer hover:text-primary-500 duration-200 font-medium">
+                <i class="pi pi-user-plus"></i>
+                <span>Registrar</span>
+            </a>
+        </nav>
+
         <div class="topbar-end">
             <ul class="topbar-menu">
                 <li class="hidden! lg:block!">
@@ -132,21 +144,15 @@ export class AppTopbar {
 
     @ViewChild('searchinput') searchInput!: ElementRef<HTMLElement>;
 
-    @ViewChild('menubutton') menuButton!: ElementRef<HTMLElement>;
-
-    @ViewChild(AppSidebar) appSidebar!: AppSidebar;
-
     el = inject(ElementRef);
 
     constructor(public layoutService: LayoutService) {}
 
+    logo = computed(() => this.layoutService.logo());
+
     searchBarActive = computed(() => this.layoutService.layoutState().searchBarActive);
 
-    onMenuButtonClick() {
-        this.layoutService.onMenuToggle();
-    }
-
-    activateSearch(el: HTMLElement | null = null) {
+    activateSearch() {
         this.layoutService.layoutState.update((val) => ({
             ...val,
             searchBarActive: true

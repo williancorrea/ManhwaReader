@@ -6,11 +6,10 @@ import Aura from '@primeuix/themes/aura';
 import Lara from '@primeuix/themes/lara';
 import { PrimeNG } from 'primeng/config';
 import { SelectButtonModule } from 'primeng/selectbutton';
-import { LayoutService, MenuMode } from '@/app/layout/service/layout.service';
+import { LayoutService } from '@/app/layout/service/layout.service';
 import { Router } from '@angular/router';
 import { DrawerModule } from 'primeng/drawer';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
-import { RadioButtonModule } from 'primeng/radiobutton';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 
@@ -42,7 +41,7 @@ declare type SurfacesType = {
 @Component({
     selector: 'app-configurator',
     standalone: true,
-    imports: [CommonModule, FormsModule, SelectButtonModule, DrawerModule, ToggleSwitchModule, RadioButtonModule, RippleModule, ButtonModule],
+    imports: [CommonModule, FormsModule, SelectButtonModule, DrawerModule, ToggleSwitchModule, RippleModule, ButtonModule],
     template: `
         <button *ngIf="simple" class="layout-config-button config-link" type="button" (click)="toggleConfigSidebar()">
             <i class="pi pi-cog"></i>
@@ -100,48 +99,6 @@ declare type SurfacesType = {
                     <p-selectbutton [ngModel]="darkTheme()" (ngModelChange)="toggleDarkMode()" [options]="themeOptions" optionLabel="name" optionValue="value" [allowEmpty]="false"></p-selectbutton>
                 </div>
 
-                <div *ngIf="!simple" class="flex flex-col gap-2">
-                    <span class="text-lg font-semibold">Menu Type</span>
-                    <div class="flex flex-wrap flex-col gap-3">
-                        <div class="flex">
-                            <div class="flex items-center gap-2 w-1/2">
-                                <p-radio-button name="menuMode" value="static" [(ngModel)]="menuMode"></p-radio-button>
-                                <label for="static">Static</label>
-                            </div>
-
-                            <div class="flex items-center gap-2 w-1/2">
-                                <p-radio-button name="menuMode" value="overlay" [(ngModel)]="menuMode"></p-radio-button>
-                                <label for="overlay">Overlay</label>
-                            </div>
-                        </div>
-                        <div class="flex">
-                            <div class="flex items-center gap-2 w-1/2">
-                                <p-radio-button name="menuMode" value="slim" [(ngModel)]="menuMode"></p-radio-button>
-                                <label for="slim">Slim</label>
-                            </div>
-                            <div class="flex items-center gap-2 w-1/2">
-                                <p-radio-button name="menuMode" value="slim-plus" [(ngModel)]="menuMode" inputId="slim-plus"></p-radio-button>
-                                <label for="slim-plus">Slim+</label>
-                            </div>
-                        </div>
-                        <div class="flex">
-                            <div class="flex items-center gap-2 w-1/2">
-                                <p-radio-button name="menuMode" value="reveal" [(ngModel)]="menuMode"></p-radio-button>
-                                <label for="reveal">Reveal</label>
-                            </div>
-                            <div class="flex items-center gap-2 w-1/2">
-                                <p-radio-button name="menuMode" value="drawer" [(ngModel)]="menuMode" inputId="drawer"></p-radio-button>
-                                <label for="drawer">Drawer</label>
-                            </div>
-                        </div>
-                        <div class="flex">
-                            <div class="flex items-center gap-2 w-1/2">
-                                <p-radio-button name="menuMode" value="horizontal" [(ngModel)]="menuMode"></p-radio-button>
-                                <label for="horizontal">Horizontal</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </p-drawer>
     `
@@ -318,17 +275,6 @@ export class AppConfigurator {
     selectedSurfaceColor = computed(() => this.layoutService.layoutConfig().surface);
 
     selectedPreset = computed(() => this.layoutService.layoutConfig().preset);
-
-    get menuMode() {
-        return this.layoutService.layoutConfig().menuMode;
-    }
-
-    set menuMode(val: MenuMode) {
-        this.layoutService.layoutConfig.update((state) => ({
-            ...state,
-            menuMode: val
-        }));
-    }
 
     get visible() {
         return this.layoutService.layoutState().configSidebarVisible;
