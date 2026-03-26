@@ -8,7 +8,7 @@ public interface Scraper<T> {
   void ScheduledSynchronization();
 
   void synchronizeByExternalId(String externalId);
-  void synchronizeByExternalId(T workDto);
+  void synchronizeByExternalId(T workDto, Long pageIndex, Long pageTotal);
   void synchronizeByWork(Work work);
 
   void prepareSyncTitle(Work work, T workDto);
@@ -20,5 +20,5 @@ public interface Scraper<T> {
   void prepareSyncAuthors(Work work, T workDto);
   void prepareSyncCover(Work work, T workDto) throws IOException, InterruptedException;
   void prepareSyncRelationships(Work work, T workDto);
-  void prepareSyncChapters(Work work, T workDto);
+  void prepareSyncChapters(Work work, T workDto, Long pageIndex, Long pageTotal);
 }

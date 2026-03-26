@@ -165,10 +165,11 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
 
         var totalPages = 1;
         for (int i = 0; i < totalPages; i++) {
+          Long pageIndex = (long) (i + 1);
           log.warn("--> X <-- [MediocrescanService][ScheduledSynchronization] External synchronization page {} of {}",
-              i + 1,
+              pageIndex,
               totalPages);
-    
+          
     
           /*
           1 - ENGLISH
@@ -199,7 +200,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
           var obras = mediocrescanClient.listarObras(
               getToken(),
               24, //Padrao 24
-              i + 1,
+              pageIndex.intValue(),
               "data_ultimo_cap",
               "1,5",  // 1,3,4
               titulo
@@ -211,11 +212,12 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
 //              synchronizeByExternalId(item.getId().toString())
 //          );
 
+          Long finalTotalPages = (long) totalPages;
           List<CompletableFuture<Void>> futures = obras.getData()
               .stream()
               .map(item ->
                   CompletableFuture.runAsync(() ->
-                      synchronizeByExternalId(item), executorWorks)
+                      synchronizeByExternalId(item, pageIndex, finalTotalPages), executorWorks)
               ).toList();
 
           // barreira: espera TODOS terminarem
@@ -242,13 +244,13 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
         externalId);
     var obra = mediocrescanClient.obterObra(getToken(), externalId);
     if (obra != null) {
-      synchronizeByExternalId(obra);
+      synchronizeByExternalId(obra, 1L, 1L);
     }
   }
 
   @Transactional
   @Override
-  public void synchronizeByExternalId(Mediocrescan_ObraDTO obra) {
+  public void synchronizeByExternalId(Mediocrescan_ObraDTO obra, Long pageIndex, Long pageTotal) {
     log.info(
         "--> [MediocrescanService][synchronizeByExternalId] Starting synchronization with Mediocrescan for obra: {} - {}",
         obra.getId(), obra.getNome());
@@ -261,10 +263,11 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
         log.info("--> [MediocrescanService][synchronizeByExternalId] Work ({}) already updated", obra.getNome());
         return;
       }
-      
+
       //Caso seja a primeira consulta, então busca todos os titulos da obra
       if (work.getId() == null) {
-        log.info("--> [MediocrescanService][synchronizeByExternalId] Work ({}) is new, loading more infos (titles...)", obra.getNome());
+        log.info("--> [MediocrescanService][synchronizeByExternalId] Work ({}) is new, loading more infos (titles...)",
+            obra.getNome());
         obra = mediocrescanClient.obterObra(getToken(), obra.getId().toString());
       }
 
@@ -279,7 +282,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
       work = workService.saveAndNotifyIfNew(work, SynchronizationOriginType.MEDIOCRESCAN);
 
       prepareSyncRelationships(work, obra);
-      prepareSyncChapters(work, obra);
+      prepareSyncChapters(work, obra, pageIndex, pageTotal);
 
       scraperBase.updatingSyncWorkTime(work,
           SynchronizationOriginType.MEDIOCRESCAN,
@@ -486,7 +489,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
   }
 
   @Transactional
-  public void prepareSyncChapters(Work work, Mediocrescan_ObraDTO dto) {
+  public void prepareSyncChapters(Work work, Mediocrescan_ObraDTO dto, Long pageIndex, Long pageTotal) {
     if (dto.getTotalCapitulos() == null || dto.getTotalCapitulos() == 0) {
       return;
     }
@@ -512,7 +515,9 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
       totalPages = chapters.getPagination().getTotalPages(); // Update the total number of pages for the loop.
 
       chapters.getData().forEach(chapterDto -> {
-        log.info("--> [MediocrescanService][syncChapters] ({}) Syncing chapter {}",
+        log.info("--> Pagination {}/{} [MediocrescanService][syncChapters] ({}) Syncing chapter {}",
+            pageIndex,
+            pageTotal,
             dto.getNome(),
             chapterDto.getNumero()
         );
@@ -641,7 +646,9 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
         final int pageIndex = p;
 
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-          if (cancelled.get()) return;
+          if (cancelled.get()) {
+            return;
+          }
 
           var page = pageService.findByNumberNotDisabled(chapter, pageIndex + 1);
           if (page == null || page.getDisabled()) {

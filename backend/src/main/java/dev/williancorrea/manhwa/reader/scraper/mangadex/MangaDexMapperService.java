@@ -104,7 +104,7 @@ public class MangaDexMapperService implements Scraper<MangaDexData> {
   }
 
   @Override
-  public void synchronizeByExternalId(MangaDexData workDto) {
+  public void synchronizeByExternalId(MangaDexData workDto, Long pageIndex, Long pageTotal) {
     log.info(
         "--> [MangaDexMapperService][synchronizeByExternalId] Starting synchronization with Mangadex for external work: {}",
         workDto.getId());
@@ -342,7 +342,7 @@ public class MangaDexMapperService implements Scraper<MangaDexData> {
   }
 
   @Override
-  public void prepareSyncChapters(Work work, MangaDexData workDto) {
+  public void prepareSyncChapters(Work work, MangaDexData workDto, Long pageIndex, Long pageTotal) {
     log.debug("--> [MangaDexMapperService][prepareSyncChapters] Syncing chapters");
   }
 
