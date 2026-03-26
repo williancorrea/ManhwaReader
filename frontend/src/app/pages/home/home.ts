@@ -83,7 +83,7 @@ import { ManhwaService } from '@/app/pages/service/manhwa.service';
                 </div>
                 <button pButton routerLink="/catalog" label="Ver Todos" icon="pi pi-arrow-right" iconPos="right" text size="small" class="text-purple-400"></button>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 @for (manhwa of featuredManhwas(); track manhwa.id) {
                     <a [routerLink]="['/manhwa', manhwa.id]" class="group cursor-pointer block">
                         <div class="relative rounded-xl overflow-hidden aspect-[2/3] bg-surface-800 mb-2 shadow-lg border border-surface-700 group-hover:border-purple-500 transition-all duration-200">
