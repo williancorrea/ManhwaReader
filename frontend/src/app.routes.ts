@@ -1,5 +1,5 @@
-import {Routes} from '@angular/router';
-import {AppLayout} from '@/app/layout/components/app.layout';
+import { Routes } from '@angular/router';
+import { AppLayout } from '@/app/layout/components/app.layout';
 
 export const appRoutes: Routes = [
     {
@@ -8,46 +8,22 @@ export const appRoutes: Routes = [
         children: [
             {
                 path: '',
-                data: { breadcrumb: 'E-Commerce Dashboard' },
-                loadComponent: () => import('@/app/pages/dashboard/ecommercedashboard').then((c) => c.EcommerceDashboard)
+                data: { breadcrumb: 'Home' },
+                loadComponent: () => import('@/app/pages/home/home').then((c) => c.Home)
             },
             {
-                path: 'documentation',
-                data: { breadcrumb: 'Documentation' },
-                loadComponent: () => import('@/app/pages/documentation/documentation').then((c) => c.Documentation)
+                path: 'catalog',
+                data: { breadcrumb: 'Catálogo' },
+                loadComponent: () => import('@/app/pages/catalog/catalog').then((c) => c.Catalog)
             },
             {
-                path: 'pages',
-                data: { breadcrumb: 'Pages' },
-                loadChildren: () => import('@/app/pages/pages.routes')
-            },
-            {
-                path: 'apps',
-                data: { breadcrumb: 'Apps' },
-                loadChildren: () => import('./app/apps/apps.routes')
-            },
-            {
-                path: 'ecommerce',
-                data: { breadcrumb: 'E-Commerce' },
-                loadChildren: () => import('@/app/pages/ecommerce/ecommerce.routes')
-            },
-            {
-                path: 'blocks',
-                data: { breadcrumb: 'Prime Blocks' },
-                loadChildren: () => import('@/app/pages/blocks/blocks.routes')
-            },
-            {
-                path: 'profile',
-                data: { breadcrumb: 'User Management' },
-                loadChildren: () => import('@/app/pages/usermanagement/usermanagement.routes')
+                path: 'manhwa/:id',
+                data: { breadcrumb: 'Detalhes' },
+                loadComponent: () => import('@/app/pages/notfound/notfound').then((c) => c.Notfound)
             }
         ]
     },
     { path: 'auth', loadChildren: () => import('@/app/pages/auth/auth.routes') },
-    {
-        path: 'landing',
-        loadComponent: () => import('@/app/pages/landing/landing').then((c) => c.Landing)
-    },
     {
         path: 'notfound',
         loadComponent: () => import('@/app/pages/notfound/notfound').then((c) => c.Notfound)
