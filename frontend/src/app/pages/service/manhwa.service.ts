@@ -1,11 +1,11 @@
-import { Injectable, signal } from '@angular/core';
-import { Manhwa, ManhwaStatus } from '@/app/types/manhwa';
+import {Injectable, signal} from '@angular/core';
+import {Manhwa} from '@/app/types/manhwa';
 
 const MOCK_MANHWAS: Manhwa[] = [
     {
         id: '1',
         title: 'Solo Leveling',
-        coverUrl: 'https://placehold.co/200x280/1a1a2e/e94560?text=Solo+Leveling',
+        coverUrl: 'https://cdn.mangotoons.com/obras/10759/cover.webp',
         genres: ['Ação', 'Fantasia', 'Aventura'],
         status: 'completed',
         chapters: 179,
@@ -19,7 +19,7 @@ const MOCK_MANHWAS: Manhwa[] = [
     {
         id: '2',
         title: 'Omniscient Reader',
-        coverUrl: 'https://placehold.co/200x280/16213e/0f3460?text=Omniscient+Reader',
+        coverUrl: 'https://cdn.yomu.com.br/obras/Omniscient-Reader\'s-Viewpoint-novel/capa/aa1a2f378e493448.webp',
         genres: ['Ação', 'Fantasia', 'Drama'],
         status: 'completed',
         chapters: 551,
@@ -33,7 +33,7 @@ const MOCK_MANHWAS: Manhwa[] = [
     {
         id: '3',
         title: 'The Beginning After the End',
-        coverUrl: 'https://placehold.co/200x280/0f3460/533483?text=TBATE',
+        coverUrl: 'https://mediocrescan.com/_next/image?url=https%3A%2F%2Fapi.mediocrescan.com%2Fstorage%2Fobras%2F220%2F1ff98ed7ee079a0693bfba7ed814629f9d751c44.webp%3Fw%3D600&w=1200&q=75',
         genres: ['Ação', 'Fantasia', 'Reencarnação'],
         status: 'ongoing',
         chapters: 187,
@@ -47,7 +47,7 @@ const MOCK_MANHWAS: Manhwa[] = [
     {
         id: '4',
         title: 'Tower of God',
-        coverUrl: 'https://placehold.co/200x280/2d132c/ee4540?text=Tower+of+God',
+        coverUrl: 'https://cdn.yomu.com.br/obras/o-regressor-da-familia-caida/capa/cover-1767023299359-rp60lv.png',
         genres: ['Ação', 'Aventura', 'Mistério'],
         status: 'ongoing',
         chapters: 620,
@@ -60,7 +60,7 @@ const MOCK_MANHWAS: Manhwa[] = [
     {
         id: '5',
         title: 'Nano Machine',
-        coverUrl: 'https://placehold.co/200x280/1b1b2f/f5a623?text=Nano+Machine',
+        coverUrl: 'https://cdn.monstercomics.com.br/obras/o-mago-negro-eu-sou-o-unico-mago-transcendental-que-retornou-com-habilidades-injustas/e8eaeb3f1a931f44615e1ab9c47cbabb5a616e60.webp',
         genres: ['Ação', 'Artes Marciais', 'Sci-Fi'],
         status: 'ongoing',
         chapters: 171,
@@ -74,7 +74,7 @@ const MOCK_MANHWAS: Manhwa[] = [
     {
         id: '6',
         title: 'Eleceed',
-        coverUrl: 'https://placehold.co/200x280/162447/e84545?text=Eleceed',
+        coverUrl: 'https://cdn.monstercomics.com.br/obras/a-historia-de-um-soldado-de-baixa-patente-que-se-torna-um-monarca/6b7508c7daf797e0f34f0b42561d3a02b6ab8c83.webp',
         genres: ['Ação', 'Comédia', 'Super Poderes'],
         status: 'ongoing',
         chapters: 278,
@@ -87,7 +87,7 @@ const MOCK_MANHWAS: Manhwa[] = [
     {
         id: '7',
         title: 'Reincarnator',
-        coverUrl: 'https://placehold.co/200x280/0d0d0d/c0392b?text=Reincarnator',
+        coverUrl: 'https://cdn.monstercomics.com.br/obras/restaurante-da-vida-apos-a-morte/f214c898ff7796a32250be52d6ecc6950aedc01a.webp',
         genres: ['Ação', 'Fantasia', 'Reencarnação'],
         status: 'completed',
         chapters: 310,
@@ -100,7 +100,7 @@ const MOCK_MANHWAS: Manhwa[] = [
     {
         id: '8',
         title: 'Legend of the Northern Blade',
-        coverUrl: 'https://placehold.co/200x280/1a1a2e/2980b9?text=Northern+Blade',
+        coverUrl: 'https://cdn.monstercomics.com.br/obras/o-homem-implacavel-do-juizo-final-acumulando-trilhoes-de-suprimentos-no-inicio/ec8d9ee0481a3334b8688b6540d7c09b6e8fb3ea.webp',
         genres: ['Ação', 'Artes Marciais', 'Aventura'],
         status: 'ongoing',
         chapters: 170,
@@ -113,7 +113,7 @@ const MOCK_MANHWAS: Manhwa[] = [
     {
         id: '9',
         title: 'Volcanic Age',
-        coverUrl: 'https://placehold.co/200x280/2c1654/a855f7?text=Volcanic+Age',
+        coverUrl: 'https://cdn.yomu.com.br/obras/o-filho-cacula-do-conde-e-um-jogador/capa/cover-1773233418863-62ndsf.png',
         genres: ['Ação', 'Artes Marciais', 'Romance'],
         status: 'completed',
         chapters: 268,
@@ -126,7 +126,7 @@ const MOCK_MANHWAS: Manhwa[] = [
     {
         id: '10',
         title: 'Second Life Ranker',
-        coverUrl: 'https://placehold.co/200x280/0a3d62/1e90ff?text=Second+Life',
+        coverUrl: 'https://cdn.yomu.com.br/obras/o-recluso-supremo/capa/cover-1764174806623-5nwq16.png',
         genres: ['Ação', 'Fantasia', 'Vingança'],
         status: 'ongoing',
         chapters: 153,
@@ -140,7 +140,7 @@ const MOCK_MANHWAS: Manhwa[] = [
     {
         id: '11',
         title: 'Return of the Mount Hua Sect',
-        coverUrl: 'https://placehold.co/200x280/1a3a00/4caf50?text=Mount+Hua',
+        coverUrl: 'https://cdn.monstercomics.com.br/obras/os-filmes-sao-reais/cover.png',
         genres: ['Ação', 'Artes Marciais', 'Comédia'],
         status: 'ongoing',
         chapters: 144,
@@ -154,7 +154,7 @@ const MOCK_MANHWAS: Manhwa[] = [
     {
         id: '12',
         title: 'Murim Login',
-        coverUrl: 'https://placehold.co/200x280/2d1b00/ff8c00?text=Murim+Login',
+        coverUrl: 'https://cdn.monstercomics.com.br/obras/o-heroi-de-nivel-maximo-retornou/29219e08a8c73f74dcd2294cd24fb3070f1f1520.webp',
         genres: ['Ação', 'Artes Marciais', 'Isekai'],
         status: 'ongoing',
         chapters: 190,
