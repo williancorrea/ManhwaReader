@@ -20,7 +20,7 @@ import { ManhwaService } from '@/app/pages/service/manhwa.service';
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-semibold text-purple-400 uppercase tracking-widest mb-2">Bem-vindo ao</p>
                     <h1 class="text-4xl font-bold text-white mb-4 leading-tight">
-                        ManhwaReader
+                        Manhwa Reader
                     </h1>
                     <p class="text-surface-400 text-lg mb-6 max-w-lg">
                         Leia os melhores manhwas, mangas e webtoons em um só lugar. Milhares de obras atualizadas diariamente.
