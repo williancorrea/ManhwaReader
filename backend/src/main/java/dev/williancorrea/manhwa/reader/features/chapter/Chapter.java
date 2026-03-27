@@ -1,9 +1,9 @@
 package dev.williancorrea.manhwa.reader.features.chapter;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.Objects;
 import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.language.Language;
 import dev.williancorrea.manhwa.reader.features.scanlator.Scanlator;
@@ -36,7 +36,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Chapter implements Serializable {
-  
+
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   @EqualsAndHashCode.Include
@@ -86,13 +86,12 @@ public class Chapter implements Serializable {
    */
   private Boolean synced;
 
-  
-  
+
   private Boolean disabled;
 
   @Column(name = "created_at")
   private OffsetDateTime createdAt;
-  
+
   @Column(name = "published_at")
   private OffsetDateTime publishedAt;
 
@@ -102,5 +101,17 @@ public class Chapter implements Serializable {
 
   public String getNumberFormatted() {
     return StringUtils.completeWithZeroZeroToLeft(numberFormatted, 4);
+  }
+
+  /**
+   * Returns the chapter number with the version number (123, 124.1) if it is not 0000.
+   * @return
+   */
+  public String getNumberWithVersionInteger() {
+    return Integer.parseInt(numberFormatted) +
+        (!Objects.equals(numberVersion, "0000")
+            ? "." + Integer.parseInt(numberVersion)
+            : "");
+
   }
 }

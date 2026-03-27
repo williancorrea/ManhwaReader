@@ -43,10 +43,10 @@ public class ChapterNotifyService {
       log.warn("[ChapterNotifyService][processAndSendNotifications] Email sending is disabled.");
       return;
     }
-    
-    
+
+
     log.info("[ChapterNotifyService][processAndSendNotifications] Starting notification processing");
-    
+
     List<ChapterNotify> allNotifications = repository.findAllWithWorkAndChapter();
 
     if (allNotifications.isEmpty()) {
@@ -94,7 +94,7 @@ public class ChapterNotifyService {
       log.warn("[ChapterNotifyService][sendWorkNotifications] Email sending is disabled.");
       return;
     }
-    
+
     String workTitle = "(" + work.getPublicationDemographic() + ") " + getWorkTitle(work);
     int chapterCount = notifications.size();
 
@@ -103,15 +103,14 @@ public class ChapterNotifyService {
     List<Map<String, Object>> chapters = notifications.stream()
         .map(notification -> {
           Map<String, Object> chapterData = new HashMap<>();
-          chapterData.put("title", "Capítulo " + notification.getChapter().getNumberFormatted() +
-              (notification.getChapter().getTitle() != null ? " - " + notification.getChapter().getTitle() : ""));
+          chapterData.put("title", "Capítulo " + notification.getChapter().getNumberWithVersionInteger());
           chapterData.put("publishedAt", notification.getChapter().getPublishedAt() != null
               ? notification.getChapter().getPublishedAt().format(formatter)
               : "");
           chapterData.put("notificationType", notification.getStatus().name());
           return chapterData;
         })
-        .collect(Collectors.toList());
+        .toList();
 
     Map<String, Object> additionalData = new HashMap<>();
     additionalData.put("coverUrl", work.getCoverUrl() != null
