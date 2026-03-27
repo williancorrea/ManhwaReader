@@ -17,7 +17,7 @@ public class Mediocrescan_CapituloDTO {
   private Long id;
   private String nome;
   private String descricao;
-  private BigDecimal numero;
+  private String numero;
   private String volume;
   @JsonProperty("lancado_em")
   private OffsetDateTime lancadoEm;
@@ -30,11 +30,17 @@ public class Mediocrescan_CapituloDTO {
   private List<Object> links; // Array vazio no exemplo
   private Mediocrescan_ObraSimplificadaDTO obra;
 
-  public BigDecimal getNumeroWithScale() {
-    try {
-      return numero.setScale(1, BigDecimal.ROUND_UNNECESSARY);
-    } catch (Exception e) {
-      throw new RuntimeException("Chapter (" + numero + ") :  " + e.getMessage(), e);
+  public String getNumberFormatted() {
+    return String.format("%04d", Integer.parseInt(numero.split("\\.")[0]));
+  }
+
+  public String getNumberVersion() {
+    int dotIndex = numero.indexOf('.');
+    if (dotIndex == -1) {
+      return "0000";
     }
+
+    String decimal = numero.substring(dotIndex + 1);
+    return String.format("%04d", Integer.parseInt(decimal));
   }
 }

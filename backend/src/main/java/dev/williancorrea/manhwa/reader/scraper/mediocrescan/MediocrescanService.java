@@ -4,8 +4,6 @@ import static dev.williancorrea.manhwa.reader.scraper.base.ScraperErrorMessage.V
 import static dev.williancorrea.manhwa.reader.scraper.base.ScraperErrorMessage.VALIDATION_ERROR_WORK_IS_NULL;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -194,7 +192,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
           //      titulo = "Irmãs Ki"; // ENGLISH - 1 Caps
           //      titulo = "Necromante! Eu Sou Um Desastre"; //COMIC e NOVEL
           //      titulo = "O Gênio Que Lê O Mundo"; // COMIC - Testando titulos alternativos
-          //      titulo = "O Começo Depois do Fim";
+                titulo = "O Começo Depois do Fim";
 
 
           var obras = mediocrescanClient.listarObras(
@@ -526,28 +524,22 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
           work.setChapters(new ArrayList<>());
         }
 
-        var chapter =
-            chapterService.findByNumberAndWorkIdAndScanlatorId(chapterDto.getNumeroWithScale(), work, scanlator,
-                    language)
-                .orElseGet(() -> null);
+        var chapter = chapterService.findByNumberAndWorkIdAndScanlatorId(chapterDto.getNumberFormatted(),
+                chapterDto.getNumberVersion(),
+                work,
+                scanlator,
+                language)
+            .orElseGet(() -> null);
 
         var toNotifyNew = false;
         if (chapter == null) {
           var volumeName = chapterDto.getVolume() != null ? chapterDto.getVolume() : null;
 
-          BigDecimal decimal = chapterDto.getNumero().remainder(BigDecimal.ONE);
-
-          var version = decimal.scale() > 0
-              ? decimal.movePointRight(decimal.scale()).abs().toPlainString()
-              : "0";
-
           chapter = chapterService.save(Chapter.builder()
               .work(work)
-              .number(chapterDto.getNumeroWithScale())
-              .numberFormatted(StringUtils.completeWithZeroZeroToLeft(
-                  chapterDto.getNumero().setScale(0, RoundingMode.FLOOR).toPlainString(), 4)
-              )
-              .version("v" + StringUtils.completeWithZeroZeroToLeft(version, 2))
+              .number(chapterDto.getNumero())
+              .numberFormatted(chapterDto.getNumberFormatted())
+              .numberVersion(chapterDto.getNumberVersion())
               .scanlator(scanlator)
               .language(language)
               .synced(false)
@@ -677,7 +669,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
               + "/" + chapter.getNumberFormatted()
               + "/" + chapter.getScanlator().getCode().toLowerCase()
               + "/" + chapter.getLanguage().getCode().toLowerCase()
-              + "/" + chapter.getVersion();
+              + "/" + chapter.getNumberVersion();
 
           try {
             externalFileService.downloadExternalPublicObjectAndUploadToStorage(

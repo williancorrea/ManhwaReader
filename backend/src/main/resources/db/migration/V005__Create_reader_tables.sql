@@ -141,9 +141,9 @@ CREATE TABLE volume (
 CREATE TABLE chapter (
     id CHAR(36) NOT NULL PRIMARY KEY,
     work_id CHAR(36) NOT NULL,
-    number DECIMAL(10, 1) NOT NULL,
-    number_formatted VARCHAR(5) NOT NULL,
-    version VARCHAR(15) NOT NULL,
+    number VARCHAR(10) NOT NULL,
+    number_formatted VARCHAR(4) NOT NULL,
+    number_version VARCHAR(4) NOT NULL,
     title VARCHAR(255),
     volume_id CHAR(36),
     language_id CHAR(36) NOT NULL,

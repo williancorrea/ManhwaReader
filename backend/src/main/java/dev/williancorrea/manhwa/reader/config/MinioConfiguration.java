@@ -17,7 +17,7 @@ public class MinioConfiguration {
   @Value("${minio.access.secret}")
   private String secretKey;
 
-  @Value("${minio.url}")
+  @Value("${minio.url.local}")
   private String minioUrl;
 
   @Value("${minio.bucket.name}")

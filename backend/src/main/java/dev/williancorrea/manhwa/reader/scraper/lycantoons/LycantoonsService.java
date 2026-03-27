@@ -41,59 +41,70 @@ public class LycantoonsService {
   }
 
   public void start(Work work) {
-    log.info("--> LycantoonsService initialized");
-    Objects.requireNonNull(work);
+//    log.info("--> LycantoonsService initialized");
+//    Objects.requireNonNull(work);
+//
+//    log.info("--> Starting Lycantoons synchronization for work: {}", work.getTitles().getFirst().getTitle());
+//
+//    if (work.getChapters() == null) {
+//      work.setChapters(new ArrayList<>());
+//    }
+//    var lastChapter = scanlatorService.getLastChapterNumber(work).orElseGet(() -> BigDecimal.ZERO);
+//
+//    var scanlator = Objects.requireNonNull(
+//        scanlatorService.findBySynchronization(SynchronizationOriginType.LYCANTOONS).get()
+//    );
+//
+//    var language = languageService.findOrCreate("pt-BR", SynchronizationOriginType.LYCANTOONS);
+//    var chapter = Chapter.builder()
+//        .work(work)
+//        .number(lastChapter)
+//        .title("Chapter " + lastChapter)
+//        .language(language)
+//        .scanlator(scanlator)
+//        .build();
+//
+//
+//    var scanChapterFolder = work.getSynchronizations()
+//        .stream()
+//        .filter(s -> s.getOrigin().equals(SynchronizationOriginType.LYCANTOONS))
+//        .findFirst().get().getExternalId();
+//
+//    var prefixScanCap = "cap-";
+//    var prefixScanPage = "page-";
+//    var scanPage = 1;
+//
+//    var url = CDN_LYCANTOONS
+//        + "/" + scanChapterFolder + "/"
+//        + prefixScanCap + lastChapter
+//        + "/" + prefixScanPage + StringUtils.completeWithZeroZeroToLeft(String.valueOf(scanPage), 4) + ".jpg";
+//
+//    log.info("URL1: {}", url);
+//    log.info(
+//        "URL2: https://cdn.lycantoons.com/file/lycantoons/o-cavaleiro-em-eternidade-regredida/cap-0/page-0001.jpg");
+//
+//
+//    var workFolder = work.getSlug();
+//    var scanFolder = scanlator.getCode().toLowerCase();
+//
+//    var urlPage = workFolder
+//        + "/" + StringUtils.completeWithZeroZeroToLeft(String.valueOf(lastChapter), 4)
+//        + "/" + scanFolder
+//        + "/" + StringUtils.completeWithZeroZeroToLeft(String.valueOf(scanPage), 4) + ".jpg";
+//
+//    log.info("URL3: {}", urlPage);
 
-    log.info("--> Starting Lycantoons synchronization for work: {}", work.getTitles().getFirst().getTitle());
-
-    if (work.getChapters() == null) {
-      work.setChapters(new ArrayList<>());
-    }
-    var lastChapter = scanlatorService.getLastChapterNumber(work).orElseGet(() -> BigDecimal.ZERO);
-
-    var scanlator = Objects.requireNonNull(
-        scanlatorService.findBySynchronization(SynchronizationOriginType.LYCANTOONS).get()
-    );
-
-    var language = languageService.findOrCreate("pt-BR", SynchronizationOriginType.LYCANTOONS);
-    var chapter = Chapter.builder()
-        .work(work)
-        .number(lastChapter)
-        .title("Chapter " + lastChapter)
-        .language(language)
-        .scanlator(scanlator)
-        .build();
-
-
-    var scanChapterFolder = work.getSynchronizations()
-        .stream()
-        .filter(s -> s.getOrigin().equals(SynchronizationOriginType.LYCANTOONS))
-        .findFirst().get().getExternalId();
-
-    var prefixScanCap = "cap-";
-    var prefixScanPage = "page-";
-    var scanPage = 1;
-
-    var url = CDN_LYCANTOONS
-        + "/" + scanChapterFolder + "/"
-        + prefixScanCap + lastChapter
-        + "/" + prefixScanPage + StringUtils.completeWithZeroZeroToLeft(String.valueOf(scanPage), 4) + ".jpg";
-
-    log.info("URL1: {}", url);
-    log.info(
-        "URL2: https://cdn.lycantoons.com/file/lycantoons/o-cavaleiro-em-eternidade-regredida/cap-0/page-0001.jpg");
-
-
-    var workFolder = work.getSlug();
-    var scanFolder = scanlator.getCode().toLowerCase();
-
-    var urlPage = workFolder
-        + "/" + StringUtils.completeWithZeroZeroToLeft(String.valueOf(lastChapter), 4)
-        + "/" + scanFolder
-        + "/" + StringUtils.completeWithZeroZeroToLeft(String.valueOf(scanPage), 4) + ".jpg";
-
-    log.info("URL3: {}", urlPage);
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 //    https://cdn.lycantoons.com/file/lycantoons/o-cavaleiro-em-eternidade-regredida/cap-0/page-0001.jpg
 

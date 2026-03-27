@@ -120,7 +120,9 @@ minio:
   access:
     key: ${MINIO_ACCESS_KEY:admin}
     secret: ${MINIO_SECRET_KEY:admin123}
-  url: ${MINIO_URL:http://localhost:9000}
+  url:
+    local: ${MINIO_URL:http://localhost:9000}
+    public: ${MINIO_URL:https://storage.williancorrea.dev}
 
 logging:
   level:

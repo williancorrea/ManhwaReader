@@ -31,7 +31,7 @@ public class ChapterNotifyService {
   @Lazy
   private final EmailService emailService;
 
-  @Value("${minio.url}")
+  @Value("${minio.url.public}")
   private String minioUrl;
 
   @Value("${minio.bucket.name}")

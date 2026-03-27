@@ -3,6 +3,7 @@ package dev.williancorrea.manhwa.reader.email;
 import java.util.Map;
 import dev.williancorrea.manhwa.reader.config.email.EmailConfigKey;
 import dev.williancorrea.manhwa.reader.system.SystemConfigurationService;
+import dev.williancorrea.manhwa.reader.utils.StringUtils;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,16 @@ public class EmailService {
           systemConfigurationService.getValueByReference(EmailConfigKey.EMAIL_FROM.name()),
           systemConfigurationService.getValueByReference(EmailConfigKey.EMAIL_FROM_NAME.name()));
       helper.setTo(emailData.getTo());
-      helper.setSubject(emailData.getEmailType().getSubject() + " - " + emailData.getVariables().get("workTitle"));
+
+      if (emailData.getEmailType() == EmailType.NEW_CHAPTERS) {
+        helper.setSubject(emailData.getEmailType().getSubject()
+            + " - " + emailData.getVariables().get("chaptersSize")
+            + " - " + emailData.getVariables().get("workTitle"));
+      } else {
+        helper.setSubject(emailData.getEmailType().getSubject()
+            + " - " + emailData.getVariables().get("workTitle"));
+      }
+
 
       String htmlContent = processTemplate(emailData.getEmailType(), emailData.getVariables());
       helper.setText(htmlContent, true);
@@ -84,6 +94,7 @@ public class EmailService {
             "coverUrl", additionalData.getOrDefault("coverUrl", ""),
             "chapterCount", chapterCount,
             "chapters", chapters,
+            "chaptersSize", StringUtils.completeWithZeroZeroToLeft(String.valueOf(chapters.size()),3),
             "scanlator", additionalData.getOrDefault("scanlator", "")
         ))
         .build();

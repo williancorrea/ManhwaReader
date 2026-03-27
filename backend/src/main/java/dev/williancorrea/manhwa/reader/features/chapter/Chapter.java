@@ -46,14 +46,23 @@ public class Chapter implements Serializable {
   @JoinColumn(name = "work_id", nullable = false)
   private Work work;
 
-  @Column(nullable = false, precision = 10, scale = 1)
-  private BigDecimal number;
+  @NotNull
+  @NotEmpty
+  @Size(min = 1, max = 10)
+  @Column(nullable = false)
+  private String number;
 
   @NotNull
   @NotEmpty
-  @Size(min = 4)
+  @Size(min = 4, max = 4)
   @Column(name = "number_formatted", nullable = false)
   private String numberFormatted;
+
+  @NotNull
+  @NotEmpty
+  @Size(min = 4, max = 4)
+  @Column(name = "number_version", nullable = false)
+  private String numberVersion;
 
   private String title;
 
@@ -77,10 +86,8 @@ public class Chapter implements Serializable {
    */
   private Boolean synced;
 
-  @NotNull
-  @NotEmpty
-  @Size(min = 2, max = 15)
-  private String version;
+  
+  
   private Boolean disabled;
 
   @Column(name = "created_at")

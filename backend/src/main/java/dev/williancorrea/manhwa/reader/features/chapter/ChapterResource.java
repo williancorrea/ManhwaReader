@@ -101,7 +101,6 @@ public class ChapterResource {
       scanlator.setId(input.getScanlatorId());
       entity.setScanlator(scanlator);
     }
-    entity.setNumber(input.getNumber());
     entity.setTitle(input.getTitle());
     entity.setReleaseDate(input.getReleaseDate());
     entity.setCreatedAt(input.getCreatedAt());

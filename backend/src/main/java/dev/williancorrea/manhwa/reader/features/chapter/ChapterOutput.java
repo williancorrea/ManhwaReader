@@ -29,7 +29,6 @@ public class ChapterOutput implements Serializable {
     this.id = chapter.getId();
     this.workId = chapter.getWork() != null ? chapter.getWork().getId() : null;
     this.volumeId = chapter.getVolume() != null ? chapter.getVolume().getId() : null;
-    this.number = chapter.getNumber();
     this.title = chapter.getTitle();
     this.languageId = chapter.getLanguage() != null ? chapter.getLanguage().getId() : null;
     this.releaseDate = chapter.getReleaseDate();
