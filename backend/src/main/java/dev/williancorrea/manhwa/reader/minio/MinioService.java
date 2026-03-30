@@ -35,7 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
-public class MinioService implements FileUploaderInterface {
+public class MinioService implements StorageInterface {
 
   private final MinioClient minioClient;
 
