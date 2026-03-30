@@ -45,12 +45,12 @@ public class ChapterNotifyService {
     }
 
 
-    log.info("[ChapterNotifyService][processAndSendNotifications] Starting notification processing");
+    log.debug("[ChapterNotifyService][processAndSendNotifications] Starting notification processing");
 
     List<ChapterNotify> allNotifications = repository.findAllWithWorkAndChapter();
 
     if (allNotifications.isEmpty()) {
-      log.info("[ChapterNotifyService][processAndSendNotifications] No notifications to process");
+      log.debug("[ChapterNotifyService][processAndSendNotifications] No notifications to process");
       return;
     }
 
@@ -58,7 +58,7 @@ public class ChapterNotifyService {
     Map<Work, List<ChapterNotify>> notificationsByWork = allNotifications.stream()
         .collect(Collectors.groupingBy(ChapterNotify::getWork));
 
-    log.info("[ChapterNotifyService][processAndSendNotifications] Found {} works with notifications",
+    log.debug("[ChapterNotifyService][processAndSendNotifications] Found {} works with notifications",
         notificationsByWork.size());
 
     List<ChapterNotify> processedNotifications = new ArrayList<>();
@@ -82,11 +82,11 @@ public class ChapterNotifyService {
           .map(ChapterNotify::getId)
           .collect(Collectors.toList());
       repository.deleteByIdIn(processedIds);
-      log.info("[ChapterNotifyService][processAndSendNotifications] Deleted {} processed notifications",
+      log.debug("[ChapterNotifyService][processAndSendNotifications] Deleted {} processed notifications",
           processedIds.size());
     }
 
-    log.info("[ChapterNotifyService][processAndSendNotifications] Notification processing completed");
+    log.debug("[ChapterNotifyService][processAndSendNotifications] Notification processing completed");
   }
 
   private void sendWorkNotifications(Work work, List<ChapterNotify> notifications) {

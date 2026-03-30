@@ -192,7 +192,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
           //      titulo = "Irmãs Ki"; // ENGLISH - 1 Caps
           //      titulo = "Necromante! Eu Sou Um Desastre"; //COMIC e NOVEL
           //      titulo = "O Gênio Que Lê O Mundo"; // COMIC - Testando titulos alternativos
-                titulo = "O Começo Depois do Fim";
+//                titulo = "O Começo Depois do Fim";
 
 
           var obras = mediocrescanClient.listarObras(
