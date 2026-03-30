@@ -36,6 +36,7 @@ import dev.williancorrea.manhwa.reader.features.author.Author;
 import dev.williancorrea.manhwa.reader.features.author.AuthorService;
 import dev.williancorrea.manhwa.reader.features.language.Language;
 import dev.williancorrea.manhwa.reader.features.language.LanguageService;
+import dev.williancorrea.manhwa.reader.features.scanlator.Scanlator;
 import dev.williancorrea.manhwa.reader.features.scanlator.ScanlatorService;
 import dev.williancorrea.manhwa.reader.features.scanlator.error.ScanlatorSynchronizationError;
 import dev.williancorrea.manhwa.reader.features.scanlator.error.ScanlatorSynchronizationErrorService;
@@ -240,7 +241,7 @@ public class ScraperBase {
     // Send error notification email
     try {
       var scanlator = scanlatorService.findBySynchronization(scan)
-          .map(s -> s.getName())
+          .map(Scanlator::getName)
           .orElse(scan.name());
 
       var errorDetails = new java.util.HashMap<String, Object>();
@@ -386,7 +387,7 @@ public class ScraperBase {
       return false;
     }
 
-    var scanlator = scanlatorService.findBySynchronization(origem).get();
+    var scanlator = scanlatorService.findBySynchronization(origem).orElseThrow();
 
     var syncByWork = work.getSynchronizations().stream()
         .anyMatch(sync -> sync.getOrigin()
