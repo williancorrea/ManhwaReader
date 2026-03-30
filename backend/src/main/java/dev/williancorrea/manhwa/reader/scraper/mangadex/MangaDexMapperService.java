@@ -23,7 +23,7 @@ import dev.williancorrea.manhwa.reader.features.work.WorkType;
 import dev.williancorrea.manhwa.reader.features.work.cover.CoverType;
 import dev.williancorrea.manhwa.reader.features.work.link.SiteType;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
-import dev.williancorrea.manhwa.reader.minio.ExternalFileService;
+import dev.williancorrea.manhwa.reader.storage.ExternalFileService;
 import dev.williancorrea.manhwa.reader.scraper.base.Scraper;
 import dev.williancorrea.manhwa.reader.scraper.base.ScraperBase;
 import dev.williancorrea.manhwa.reader.scraper.base.input.SynchronizationLinks;

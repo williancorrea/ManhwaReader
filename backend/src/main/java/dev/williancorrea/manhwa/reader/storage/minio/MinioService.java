@@ -1,4 +1,4 @@
-package dev.williancorrea.manhwa.reader.minio;
+package dev.williancorrea.manhwa.reader.storage.minio;
 
 
 import java.io.IOException;
@@ -11,6 +11,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import dev.williancorrea.manhwa.reader.exception.ObjectNotFoundException;
+import dev.williancorrea.manhwa.reader.storage.StorageInterface;
 import dev.williancorrea.manhwa.reader.utils.RemoveAccentuationUtils;
 import io.minio.BucketExistsArgs;
 import io.minio.GetObjectArgs;

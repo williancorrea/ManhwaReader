@@ -1,4 +1,4 @@
-package dev.williancorrea.manhwa.reader.minio;
+package dev.williancorrea.manhwa.reader.storage;
 
 import java.io.InputStream;
 import java.net.http.HttpHeaders;

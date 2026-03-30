@@ -1,4 +1,4 @@
-package dev.williancorrea.manhwa.reader.minio;
+package dev.williancorrea.manhwa.reader.storage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import dev.williancorrea.manhwa.reader.storage.minio.MinioService;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
