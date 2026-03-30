@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import dev.williancorrea.manhwa.reader.config.email.EmailConfigKey;
 import dev.williancorrea.manhwa.reader.email.EmailService;
+import dev.williancorrea.manhwa.reader.features.scanlator.Scanlator;
 import dev.williancorrea.manhwa.reader.features.work.Work;
 import dev.williancorrea.manhwa.reader.system.SystemConfigurationService;
 import jakarta.transaction.Transactional;
@@ -54,7 +55,7 @@ public class ChapterNotifyService {
       return;
     }
 
-    // Agrupa notificacoes por obra
+    // Group notifications by project.
     Map<Work, List<ChapterNotify>> notificationsByWork = allNotifications.stream()
         .collect(Collectors.groupingBy(ChapterNotify::getWork));
 
@@ -63,7 +64,7 @@ public class ChapterNotifyService {
 
     List<ChapterNotify> processedNotifications = new ArrayList<>();
 
-    // Processa cada obra
+    // Process each work
     notificationsByWork.forEach((work, notifications) -> {
       try {
         sendWorkNotifications(work, notifications);
@@ -76,11 +77,11 @@ public class ChapterNotifyService {
       }
     });
 
-    // Remove notificacoes processadas
+    // Remove processed notifications
     if (!processedNotifications.isEmpty()) {
       List<UUID> processedIds = processedNotifications.stream()
           .map(ChapterNotify::getId)
-          .collect(Collectors.toList());
+          .toList();
       repository.deleteByIdIn(processedIds);
       log.debug("[ChapterNotifyService][processAndSendNotifications] Deleted {} processed notifications",
           processedIds.size());
@@ -121,7 +122,7 @@ public class ChapterNotifyService {
     String scanlatorName = notifications.stream()
         .findFirst()
         .map(n -> n.getChapter().getScanlator())
-        .map(s -> s.getName())
+        .map(Scanlator::getName)
         .orElse("");
     additionalData.put("scanlator", scanlatorName);
 
@@ -141,10 +142,6 @@ public class ChapterNotifyService {
   @Transactional
   public ChapterNotify save(ChapterNotify entity) {
     return repository.save(entity);
-  }
-
-  public List<ChapterNotify> findByWorkId(UUID workId) {
-    return repository.findByWorkId(workId);
   }
 }
 
