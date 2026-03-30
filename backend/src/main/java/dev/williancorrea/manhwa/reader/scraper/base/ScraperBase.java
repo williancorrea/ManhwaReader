@@ -99,16 +99,6 @@ public class ScraperBase {
     this.emailService = emailService;
   }
 
-  public void sleep(long millis) {
-    try {
-      log.debug("--> [SynchronizationBase][sleep] Sleeping for ({}) seconds", millis);
-      Thread.sleep(millis);
-    } catch (InterruptedException _) {
-      log.error("<-- [SynchronizationBase][sleep] Error sleeping for ({}) seconds", millis);
-      Thread.currentThread().interrupt();
-    }
-  }
-
   public Work findWorkOrCreate(String externalID,
                                SynchronizationOriginType origin) {
     log.debug("--> [SynchronizationBase][findWorkOrCreate] Finding work with externalID: ({}) and origin ({})",
