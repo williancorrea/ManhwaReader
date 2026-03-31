@@ -73,7 +73,7 @@ public class EmailService {
             "workTitle", workTitle,
             "coverUrl", additionalData.getOrDefault("coverUrl", ""),
             "workType", additionalData.getOrDefault("workType", ""),
-            "language", additionalData.getOrDefault("language", ""),
+            "status", additionalData.getOrDefault("status", ""),
             "scanlator", additionalData.getOrDefault("scanlator", ""),
             "addedAt", additionalData.getOrDefault("addedAt", ""),
             "description", additionalData.getOrDefault("description", "")

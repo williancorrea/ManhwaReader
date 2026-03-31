@@ -41,8 +41,8 @@ public class ScraperHelper {
         additionalData.put("workType", work.getType().name());
       }
 
-      if (work.getOriginalLanguage() != null) {
-        additionalData.put("language", work.getOriginalLanguage().getName());
+      if (work.getStatus() != null) {
+        additionalData.put("status", work.getStatus().name());
       }
 
       if (work.getCreatedAt() != null) {
