@@ -39,7 +39,7 @@ public class ScanlatorSynchronizationError implements Serializable {
   private String workId;
 
   @NotNull
-  @Size(min = 2, max = 255)
+  @Size(min = 1, max = 255)
   @Column(nullable = false, name = "external_work_id")
   private String externalWorkId;
 
