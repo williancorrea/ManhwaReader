@@ -568,7 +568,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
         }
 
         if (Boolean.TRUE.equals(chapter.getSynced())) {
-          log.info("--> Pagination {}/{} [MediocrescanService][syncChapters] ({}) Chapter {} already synchronized",
+          log.debug("--> Pagination {}/{} [MediocrescanService][syncChapters] ({}) Chapter {} already synchronized",
               pageIndex,
               pageTotal,
               dto.getNome(),
@@ -628,9 +628,10 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
       return;
     }
 
-    log.info("--> X <-- Pagination {}/{} [MediocrescanService][syncPage] ({}) Syncing chapter {}", dto.getNome(),
+    log.info("--> X <-- Pagination {}/{} [MediocrescanService][syncPage] ({}) Syncing chapter {}",
         pIndex,
         pTotal,
+        dto.getNome(),
         chapterDto.getNumero());
     var pageDto = mediocrescanClient.obterCapitulo(getToken(), chapterDto.getId());
 
