@@ -34,7 +34,6 @@ import dev.williancorrea.manhwa.reader.features.work.WorkStatus;
 import dev.williancorrea.manhwa.reader.features.work.WorkType;
 import dev.williancorrea.manhwa.reader.features.work.cover.CoverType;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
-import dev.williancorrea.manhwa.reader.storage.ExternalFileService;
 import dev.williancorrea.manhwa.reader.scraper.base.Scraper;
 import dev.williancorrea.manhwa.reader.scraper.base.ScraperBase;
 import dev.williancorrea.manhwa.reader.scraper.base.input.SynchronizationSynopses;
@@ -45,6 +44,7 @@ import dev.williancorrea.manhwa.reader.scraper.mediocrescan.dto.capitulo.Mediocr
 import dev.williancorrea.manhwa.reader.scraper.mediocrescan.dto.login.Mediocrescan_LoginDTO;
 import dev.williancorrea.manhwa.reader.scraper.mediocrescan.dto.login.Mediocrescan_RefreshTokenDTO;
 import dev.williancorrea.manhwa.reader.scraper.mediocrescan.dto.obra.Mediocrescan_ObraDTO;
+import dev.williancorrea.manhwa.reader.storage.ExternalFileService;
 import dev.williancorrea.manhwa.reader.utils.StringUtils;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -240,7 +240,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
   @Transactional
   @Override
   public void synchronizeByExternalId(String externalId) {
-    log.info(
+    log.debug(
         "--> [MediocrescanService][synchronizeByExternalId] Starting synchronization with Mediocrescan for externalId: {}",
         externalId);
     var obra = mediocrescanClient.obterObra(getToken(), externalId);
@@ -252,7 +252,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
   @Transactional
   @Override
   public void synchronizeByExternalId(Mediocrescan_ObraDTO obra, Long pageIndex, Long pageTotal) {
-    log.info(
+    log.debug(
         "--> [MediocrescanService][synchronizeByExternalId] Starting synchronization with Mediocrescan for obra: {} - {}",
         obra.getId(), obra.getNome());
 
@@ -267,7 +267,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
 
       //Caso seja a primeira consulta, então busca todos os titulos da obra
       if (work.getId() == null) {
-        log.info("--> [MediocrescanService][synchronizeByExternalId] Work ({}) is new, loading more infos (titles...)",
+        log.debug("--> [MediocrescanService][synchronizeByExternalId] Work ({}) is new, loading more infos (titles...)",
             obra.getNome());
         obra = mediocrescanClient.obterObra(getToken(), obra.getId().toString());
       }
@@ -516,7 +516,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
       totalPages = chapters.getPagination().getTotalPages(); // Update the total number of pages for the loop.
 
       chapters.getData().forEach(chapterDto -> {
-        log.info("--> Pagination {}/{} [MediocrescanService][syncChapters] ({}) Syncing chapter {}",
+        log.debug("--> Pagination {}/{} [MediocrescanService][syncChapters] ({}) Syncing chapter {}",
             pageIndex,
             pageTotal,
             dto.getNome(),
@@ -568,13 +568,16 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
         }
 
         if (Boolean.TRUE.equals(chapter.getSynced())) {
-          log.info("--> [MediocrescanService][syncChapters] ({}) Chapter {} already synchronized", dto.getNome(),
+          log.info("--> Pagination {}/{} [MediocrescanService][syncChapters] ({}) Chapter {} already synchronized",
+              pageIndex,
+              pageTotal,
+              dto.getNome(),
               chapterDto.getNumero());
           return;
         }
 
         try {
-          syncPage(work, dto, chapter, chapterDto);
+          syncPage(work, dto, chapter, chapterDto, pageIndex, pageTotal);
 
           chapter.setPublishedAt(chapterDto.getLancadoEm().truncatedTo(ChronoUnit.SECONDS));
           chapter.setCreatedAt(chapterDto.getCriadoEm().truncatedTo(ChronoUnit.SECONDS));
@@ -617,14 +620,17 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
   }
 
   @Transactional
-  protected void syncPage(Work work, Mediocrescan_ObraDTO dto, Chapter chapter, Mediocrescan_CapituloDTO chapterDto) {
+  protected void syncPage(Work work, Mediocrescan_ObraDTO dto, Chapter chapter, Mediocrescan_CapituloDTO chapterDto,
+                          Long pIndex, Long pTotal) {
 
     if (Boolean.FALSE.equals(chapterDto.getTemPaginas())) {
       syncPageNovel(work, dto, chapter, chapterDto);
       return;
     }
 
-    log.info("--> X <-- [MediocrescanService][syncPage] ({}) Syncing chapter {}", dto.getNome(),
+    log.info("--> X <-- Pagination {}/{} [MediocrescanService][syncPage] ({}) Syncing chapter {}", dto.getNome(),
+        pIndex,
+        pTotal,
         chapterDto.getNumero());
     var pageDto = mediocrescanClient.obterCapitulo(getToken(), chapterDto.getId());
 
