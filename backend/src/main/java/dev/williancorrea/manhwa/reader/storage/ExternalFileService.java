@@ -15,28 +15,28 @@ import org.springframework.stereotype.Service;
 public class ExternalFileService {
 
   private final MinioService minioService;
+  private final HttpClient httpClient;
 
   public ExternalFileService(MinioService minioService) {
     this.minioService = minioService;
+    this.httpClient = HttpClient.newBuilder()
+        .followRedirects(HttpClient.Redirect.NORMAL)
+        .build();
   }
 
-  @Retryable(retryFor = RuntimeException.class, maxAttemptsExpression = "${retry.download.max-attempts}", backoff = @Backoff(delayExpression = "${retry.download.delay}"))
+  @Retryable(retryFor = {RuntimeException.class, IOException.class}, maxAttemptsExpression = "${retry.download.max-attempts}", backoff = @Backoff(delayExpression = "${retry.download.delay}"))
   public void downloadExternalPublicObjectAndUploadToStorage(
       String fileUrl,
       String originalFileName,
       String folderName
   ) throws IOException, InterruptedException {
 
-    HttpClient client = HttpClient.newBuilder()
-        .followRedirects(HttpClient.Redirect.NORMAL)
-        .build();
-
     HttpRequest request = HttpRequest.newBuilder()
         .uri(URI.create(fileUrl))
         .GET()
         .build();
 
-    HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+    HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
     if (response.statusCode() != 200) {
       throw new RuntimeException("Falha no download: HTTP " + response.statusCode());
