@@ -1,4 +1,4 @@
-package dev.williancorrea.manhwa.reader.exception;
+package dev.williancorrea.manhwa.reader.exception.custom;
 
 public class ObjectNotFoundException extends RuntimeException{
 

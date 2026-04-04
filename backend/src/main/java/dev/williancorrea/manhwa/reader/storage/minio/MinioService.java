@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
-import dev.williancorrea.manhwa.reader.exception.ObjectNotFoundException;
+import dev.williancorrea.manhwa.reader.exception.custom.ObjectNotFoundException;
 import dev.williancorrea.manhwa.reader.storage.StorageInterface;
 import dev.williancorrea.manhwa.reader.utils.RemoveAccentuationUtils;
 import io.minio.BucketExistsArgs;
