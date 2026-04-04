@@ -10,7 +10,9 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import dev.williancorrea.manhwa.reader.exception.custom.BusinessException;
+import dev.williancorrea.manhwa.reader.exception.custom.ConflictException;
 import dev.williancorrea.manhwa.reader.exception.custom.NotFoundException;
+import org.springframework.security.core.AuthenticationException;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.ConstraintViolation;
@@ -566,5 +568,34 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     String method = ((ServletWebRequest) request).getRequest().getMethod();
     ApiError errors = new ApiError(HttpStatus.NOT_FOUND, uri, method, items);
     return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+  }
+
+  @ExceptionHandler({AuthenticationException.class})
+  public ResponseEntity<Object> handleAuthenticationException(AuthenticationException ex, WebRequest request) {
+    String messageCode = "auth.error.invalid-credentials";
+    String message = getMessage(messageCode, null);
+
+    var items = new ArrayList<ApiError.ErrorItem>();
+    items.add(new ApiError.ErrorItem(messageCode, message, null));
+
+    String uri = ((ServletWebRequest) request).getRequest().getRequestURI();
+    String method = ((ServletWebRequest) request).getRequest().getMethod();
+    ApiError errors = new ApiError(HttpStatus.UNAUTHORIZED, uri, method, items);
+    return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
+  }
+
+  @SuppressWarnings({"DuplicatedCode"})
+  @ExceptionHandler({ConflictException.class})
+  public ResponseEntity<Object> handlerConflictException(ConflictException ex, WebRequest request) {
+    String messageCode = ex.getMessageKey();
+    String message = getMessage(messageCode, ex.getMessageArgs());
+
+    var items = new ArrayList<ApiError.ErrorItem>();
+    items.add(new ApiError.ErrorItem(messageCode, message, null));
+
+    String uri = ((ServletWebRequest) request).getRequest().getRequestURI();
+    String method = ((ServletWebRequest) request).getRequest().getMethod();
+    ApiError errors = new ApiError(HttpStatus.CONFLICT, uri, method, items);
+    return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.CONFLICT, request);
   }
 }

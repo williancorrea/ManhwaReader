@@ -113,6 +113,20 @@ minio:
     local: ${MINIO_URL:http://localhost:9000}
     public: ${MINIO_URL:https://storage.williancorrea.dev}
 
+app:
+  jwt:
+    secret: ${JWT_SECRET:secret}
+    access-token-expiration: 15m
+    refresh-token-expiration: 7d
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+  auth:
+    cookie:
+      secure: true
+      same-site: Strict
+
 logging:
   level:
     dev.williancorrea.manhwa: INFO
