@@ -261,7 +261,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
       work = scraperBase.findWorkOrCreate(obra.getId().toString(), SynchronizationOriginType.MEDIOCRESCAN);
 
       if (scraperBase.isWorkUpdated(work, SynchronizationOriginType.MEDIOCRESCAN, obra.getDataUltimoCap())) {
-        log.info("--> [MediocrescanService][synchronizeByExternalId] Work ({}) already updated", obra.getNome());
+        log.info("--> [MediocrescanService][synchronizeByExternalId] ALREADY UPDATED - Work ({})", obra.getNome());
         return;
       }
 
