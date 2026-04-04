@@ -53,8 +53,8 @@ spring:
         config:
           mediocrescan-client:
             loggerLevel: full
-            connectTimeout: 5000
-            readTimeout: 5000
+            connectTimeout: 15000
+            readTimeout: 60000
   
   # Feign Client configuration
   #feign:

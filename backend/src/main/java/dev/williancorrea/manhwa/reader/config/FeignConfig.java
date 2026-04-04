@@ -2,6 +2,7 @@ package dev.williancorrea.manhwa.reader.config;
 
 import feign.Logger;
 import feign.RequestInterceptor;
+import feign.Retryer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,5 +20,10 @@ public class FeignConfig {
   @Bean
   Logger.Level feignLoggerLevel() {
     return Logger.Level.FULL;
+  }
+
+  @Bean
+  public Retryer retryer() {
+    return new Retryer.Default(1000, 3000, 3);
   }
 }
