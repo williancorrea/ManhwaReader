@@ -45,7 +45,6 @@ public class ChapterNotifyService {
       return;
     }
 
-
     log.debug("[ChapterNotifyService][processAndSendNotifications] Starting notification processing");
 
     List<ChapterNotify> allNotifications = repository.findAllWithWorkAndChapter();

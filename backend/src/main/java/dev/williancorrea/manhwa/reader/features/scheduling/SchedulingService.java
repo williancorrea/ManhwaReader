@@ -31,10 +31,6 @@ public class SchedulingService {
         return repository.findById(id);
     }
 
-    public Optional<Scheduling> findByName(String name) {
-        return repository.findByName(name);
-    }
-
     public Scheduling save(Scheduling entity) {
         if (entity.getId() == null) {
             entity.setCreatedAt(OffsetDateTime.now());

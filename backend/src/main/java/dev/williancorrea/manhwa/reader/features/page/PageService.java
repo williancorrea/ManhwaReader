@@ -22,14 +22,9 @@ public class PageService {
     return repository.countByChapterNumber(chapter.getId());
   }
 
-  public List<Page> findAllByChapter(Chapter chapter) {
-    return repository.findAllByChapter(chapter.getId());
-  }
-
   public Page findByNumberNotDisabled(Chapter chapter, int number) {
     return repository.findByNumberNotDisabled(chapter.getId(), number);
   }
-
 
   public List<Page> findAll() {
     return repository.findAll();
@@ -50,10 +45,5 @@ public class PageService {
   public void deleteById(UUID id) {
     repository.deleteById(id);
   }
-
-  public List<Page> findAllByChapterId(UUID chapterId) {
-    return repository.findAllByChapter_Id(chapterId);
-  }
-
 }
 

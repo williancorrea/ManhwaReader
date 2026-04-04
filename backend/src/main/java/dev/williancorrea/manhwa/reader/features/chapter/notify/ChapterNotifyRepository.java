@@ -13,8 +13,6 @@ public interface ChapterNotifyRepository extends JpaRepository<ChapterNotify, UU
            "ORDER BY w.id, c.numberFormatted desc, c.numberVersion desc ")
     List<ChapterNotify> findAllWithWorkAndChapter();
 
-    List<ChapterNotify> findByWorkId(UUID workId);
-
     void deleteByIdIn(List<UUID> ids);
 }
 

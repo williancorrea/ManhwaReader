@@ -17,5 +17,4 @@ public class ScanlatorSynchronizationErrorService {
   public ScanlatorSynchronizationError save(ScanlatorSynchronizationError entity) {
     return repository.save(entity);
   }
-
 }

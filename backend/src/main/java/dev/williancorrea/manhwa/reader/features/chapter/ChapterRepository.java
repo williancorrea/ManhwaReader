@@ -22,15 +22,5 @@ public interface ChapterRepository extends JpaRepository<Chapter, UUID> {
                                                                      UUID workId,
                                                                      UUID scanlatorId,
                                                                      UUID languageId);
-
-  @Query(nativeQuery = true,
-      value = """
-          select count(*) from chapter where work_id = :workId
-            and scanlator_id = :scanlatorId
-            and language_id = :languageId
-            and synced = true
-            and disabled = false
-          """)
-  Integer countByWorkIdAndScanlatorIdAndLanguageIdAndSynched(UUID workId, UUID scanlatorId, UUID languageId);
 }
 

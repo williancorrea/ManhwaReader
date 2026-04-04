@@ -36,13 +36,5 @@ public class RatingService {
   public void deleteById(UUID id) {
     repository.deleteById(id);
   }
-
-  public List<Rating> findAllByWorkId(UUID workId) {
-    return repository.findAllByWork_Id(workId);
-  }
-
-  public List<Rating> findAllByUserId(UUID userId) {
-    return repository.findAllByUser_Id(userId);
-  }
 }
 

@@ -10,6 +10,7 @@ public interface SystemConfigurationRepository extends JpaRepository<SystemConfi
 
   @Query("SELECT s FROM SystemConfiguration s WHERE s.group.name = :name")
   List<SystemConfiguration> findByGroupName(String name);
+
   List<SystemConfiguration> findAllByGroup(SystemConfigurationGroup type);
 
   Optional<SystemConfiguration> findByReference(String reference);
