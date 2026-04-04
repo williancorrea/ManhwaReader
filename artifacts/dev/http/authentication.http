@@ -1,0 +1,256 @@
+### ===================================================
+### Auth - Register
+### ===================================================
+
+### POST /api/v1/auth/register - Registrar novo usuário
+POST {{host}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "name": "Usuário Teste",
+  "email": "teste@example.com",
+  "password": "senha12345"
+}
+
+> {%
+    client.test("Status 201", function() {
+        client.assert(response.status === 201, "Expected 201, got " + response.status);
+    });
+    client.test("Retorna accessToken", function() {
+        client.assert(response.body.accessToken != null, "accessToken ausente");
+        client.assert(response.body.expiresIn === 900, "expiresIn esperado 900");
+    });
+    if (response.status === 201) {
+        client.global.set("accessToken", response.body.accessToken);
+    }
+%}
+
+### POST /api/v1/auth/register - Email já cadastrado (espera 409)
+POST {{host}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "name": "Usuário Duplicado",
+  "email": "teste@example.com",
+  "password": "senha12345"
+}
+
+> {%
+    client.test("Status 409 - Email já existe", function() {
+        client.assert(response.status === 409, "Expected 409, got " + response.status);
+    });
+    client.test("Retorna erro com chave correta", function() {
+        var hasKey = response.body.items.some(function(item) {
+            return item.key === "auth.error.email-already-exists";
+        });
+        client.assert(hasKey, "Chave auth.error.email-already-exists ausente");
+    });
+%}
+
+### POST /api/v1/auth/register - Validação de campos (espera 400)
+POST {{host}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "name": "",
+  "email": "email-invalido",
+  "password": "123"
+}
+
+> {%
+    client.test("Status 400 - Validação", function() {
+        client.assert(response.status === 400, "Expected 400, got " + response.status);
+    });
+    client.test("Retorna itens de erro", function() {
+        client.assert(response.body.items.length > 0, "Nenhum item de erro retornado");
+    });
+%}
+
+### ===================================================
+### Auth - Login (email/senha)
+### ===================================================
+
+### POST /api/v1/auth/login - Login com credenciais válidas
+POST {{host}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "teste@example.com",
+  "password": "senha12345"
+}
+
+> {%
+    client.test("Status 200", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+    client.test("Retorna accessToken", function() {
+        client.assert(response.body.accessToken != null, "accessToken ausente");
+        client.assert(response.body.expiresIn === 900, "expiresIn esperado 900");
+    });
+    if (response.status === 200) {
+        client.global.set("accessToken", response.body.accessToken);
+    }
+%}
+
+### POST /api/v1/auth/login - Credenciais inválidas (espera 401)
+POST {{host}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "teste@example.com",
+  "password": "senhaErrada"
+}
+
+> {%
+    client.test("Status 401 - Credenciais inválidas", function() {
+        client.assert(response.status === 401, "Expected 401, got " + response.status);
+    });
+%}
+
+### POST /api/v1/auth/login - Usuário inexistente (espera 401)
+POST {{host}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "naoexiste@example.com",
+  "password": "senha12345"
+}
+
+> {%
+    client.test("Status 401 - Usuário não encontrado", function() {
+        client.assert(response.status === 401, "Expected 401, got " + response.status);
+    });
+%}
+
+### POST /api/v1/auth/login - Login admin existente
+POST {{host}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "willian.vag@gmail.com",
+  "password": "admin"
+}
+
+> {%
+    client.test("Status 200", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+    if (response.status === 200) {
+        client.global.set("accessToken", response.body.accessToken);
+    }
+%}
+
+### ===================================================
+### Auth - Google Login
+### ===================================================
+
+### POST /api/v1/auth/google - Login com Google (substituir idToken por token real)
+POST {{host}}/api/v1/auth/google
+Content-Type: {{contentType}}
+
+{
+  "idToken": "SUBSTITUIR_PELO_ID_TOKEN_DO_GOOGLE"
+}
+
+> {%
+    client.test("Status 200", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+    client.test("Retorna accessToken e isNewUser", function() {
+        client.assert(response.body.accessToken != null, "accessToken ausente");
+        client.assert(response.body.isNewUser != null, "isNewUser ausente");
+    });
+    if (response.status === 200) {
+        client.global.set("accessToken", response.body.accessToken);
+    }
+%}
+
+### POST /api/v1/auth/google - Token inválido (espera 400)
+POST {{host}}/api/v1/auth/google
+Content-Type: {{contentType}}
+
+{
+  "idToken": "token.invalido.aqui"
+}
+
+> {%
+    client.test("Status 400 - Token inválido", function() {
+        client.assert(response.status === 400, "Expected 400, got " + response.status);
+    });
+%}
+
+### ===================================================
+### Auth - Refresh Token
+### ===================================================
+
+### POST /api/v1/auth/refresh - Renovar access token (refresh token vem do cookie)
+POST {{host}}/api/v1/auth/refresh
+
+> {%
+    client.test("Status 200", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+    client.test("Retorna novo accessToken", function() {
+        client.assert(response.body.accessToken != null, "accessToken ausente");
+        client.assert(response.body.expiresIn === 900, "expiresIn esperado 900");
+    });
+    if (response.status === 200) {
+        client.global.set("accessToken", response.body.accessToken);
+    }
+%}
+
+### POST /api/v1/auth/refresh - Sem cookie (espera 400)
+# Executar em sessão limpa (sem cookies) para testar erro
+POST {{host}}/api/v1/auth/refresh
+
+> {%
+    client.test("Status 400 - Refresh token ausente", function() {
+        client.assert(response.status === 400, "Expected 400, got " + response.status);
+    });
+%}
+
+### ===================================================
+### Auth - Logout
+### ===================================================
+
+### POST /api/v1/auth/logout - Encerrar sessão (limpa cookie do refresh token)
+POST {{host}}/api/v1/auth/logout
+
+> {%
+    client.test("Status 204 - No Content", function() {
+        client.assert(response.status === 204, "Expected 204, got " + response.status);
+    });
+%}
+
+### ===================================================
+### Endpoint protegido - Testar JWT
+### ===================================================
+
+### GET /features/user - Com Bearer token (deve funcionar)
+GET {{host}}/features/user
+Authorization: Bearer {{accessToken}}
+
+> {%
+    client.test("Status 200 - Acesso autorizado com JWT", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### GET /features/user - Sem token (espera 401)
+GET {{host}}/features/user
+
+> {%
+    client.test("Status 401 - Sem autenticação", function() {
+        client.assert(response.status === 401, "Expected 401, got " + response.status);
+    });
+%}
+
+### GET /features/user - Token expirado/inválido (espera 401)
+GET {{host}}/features/user
+Authorization: Bearer token.invalido.aqui
+
+> {%
+    client.test("Status 401 - Token inválido", function() {
+        client.assert(response.status === 401, "Expected 401, got " + response.status);
+    });
+%}

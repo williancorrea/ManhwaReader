@@ -15,7 +15,7 @@ O frontend é Angular e será desenvolvido separadamente. Este prompt cobre excl
 3. **Google Login:** o Angular obtém o `id_token` via Google Identity Services SDK e envia ao backend via `POST /api/v1/auth/google`. O backend valida o token com a biblioteca `google-api-client`, faz upsert do usuário e retorna os mesmos tokens JWT da aplicação.
 4. **Account linking:** se um usuário se cadastrou com email/senha e depois tenta login com Google usando o mesmo email, as contas são vinculadas automaticamente **apenas se** `email_verified: true` no ID token do Google. O `googleId` é salvo no usuário existente. Caso contrário, retorna erro orientando o login por senha.
 5. **Senha nullable:** usuários criados via Google não possuem senha. O campo `passwordHash` fica `null`. O endpoint de login por email/senha deve rejeitar esses usuários com mensagem clara.
-6. **Algoritmo JWT:** HMAC-SHA256 (`HS256`) com secret configurável via `application.yaml` pegando de uma variavel de ambiente.
+6. **Algoritmo JWT:** HMAC-SHA256 (`HS256`) com secret configurável via `application.yaml` pegando de uma variavel de ambiente, caso não exista pegar o valor padrao. O valor padrão é definido como 'secret' no arquivo `application.yaml`.
 7. **Login via email (sem username):** o identificador de login é o **email** em todos os fluxos. O campo `username` será removido da tabela `user`.
 8. **Sem enum AuthProvider:** um mesmo usuário pode ter **ambas** as formas de login (email/senha + Google). A capacidade de login é derivada dos dados: `passwordHash != null` → pode logar com email/senha; `googleId != null` → pode logar com Google. Não há necessidade de um enum `AuthProvider`.
 
@@ -57,44 +57,163 @@ features/<nome>/
 ### Padrões de código obrigatórios
 
 - **Lombok:** o projeto usa Lombok extensivamente. Usar `@Getter`, `@Setter`, `@Slf4j`, `@RequiredArgsConstructor`, `@NoArgsConstructor`, `@AllArgsConstructor`, `@Builder`, `@Data` conforme necessário.
-- **Injeção de dependência:** usar injeção via construtor com `@Lazy` para evitar dependência circular:
+- **RequiredArgsConstructor** Utilizar o `@Lazy` para evitar dependência circular:
   ```java
-  public AuthResource(@Lazy AuthService authService) {
-      this.authService = authService;
-  }
+  @Lazy public final AuthService authService;
   ```
 - **IDs:** `UUID` com `@GeneratedValue(strategy = GenerationType.UUID)`.
 - **Timestamps:** `OffsetDateTime` (não `LocalDateTime`), com `@PrePersist` e `@PreUpdate`.
 - **Entidades:** implementar `Serializable`.
 - **Transações:** `@Transactional` nos métodos de serviço que modificam dados.
 - **Validação:** `@Validated` no serviço, `@Valid` nos DTOs do controller.
-- **Mensagens:** todas as mensagens de texto visíveis ao usuário (erros de negócio, mensagens de exceção) devem vir do `messages.properties`, usando `MessageSource` do Spring. As mensagens de Bean Validation já usam `ValidationMessages_pt_BR.properties`.
+- **Mensagens:** todas as mensagens de texto visíveis ao usuário devem vir do `messages.properties`, usando `MessageSource` do Spring. As mensagens de Bean Validation já usam `ValidationMessages_pt_BR.properties`.
+
+---
+
+## Framework de exceções existente
+
+O projeto já possui um framework completo de tratamento de exceções. **Toda a feature de autenticação deve utilizar este framework — não criar estruturas paralelas.**
+
+### `ApiError.java` (JÁ EXISTE — `exception/ApiError.java`)
+
+Formato padrão de resposta de erro da API:
+```json
+{
+  "origin": "/api/v1/auth/login",
+  "method": "POST",
+  "status": {
+    "code": 401,
+    "description": "Unauthorized"
+  },
+  "dateTime": "2026-04-03T12:00:00.000-03:00",
+  "items": [
+    {
+      "key": "auth.error.invalid-credentials",
+      "message": "Credenciais inválidas",
+      "detail": ""
+    }
+  ]
+}
+```
+
+> **IMPORTANTE:** este é o formato de erro que a feature de autenticação DEVE utilizar. Não criar outro formato.
+
+### Exceções customizadas existentes (`exception/custom/`)
+
+| Classe               | Uso                                      | HTTP Status | Handler no GlobalExceptionHandler |
+|----------------------|------------------------------------------|-------------|-----------------------------------|
+| `BusinessException`  | Erros de regra de negócio genéricos      | `400`       | `handlerBusinessException()`      |
+| `NotFoundException`  | Recurso não encontrado (com messageKey)  | `404`       | `handlerBusinessNotFoundException()` |
+
+Ambas `BusinessException` e `NotFoundException` seguem o padrão:
+```java
+@Getter
+public class BusinessException extends RuntimeException {
+    private final String messageKey;    // chave do messages.properties
+    private final Object[] messageArgs; // argumentos para interpolação
+}
+```
+
+### `GlobalExceptionHandler.java` (JÁ EXISTE — `exception/GlobalExceptionHandler.java`)
+
+O handler global já trata 15+ tipos de exceção. Para a feature de autenticação, é necessário **ADICIONAR** handlers para:
+
+| Exceção                                          | HTTP Status | Ação                                                   |
+|--------------------------------------------------|-------------|--------------------------------------------------------|
+| `AuthenticationException` (Spring Security)      | `401`       | Novo handler — erros de autenticação JWT e login        |
+| `ConflictException` (NOVA — `exception/custom/`) | `409`       | Novo handler — email já cadastrado                     |
+
+#### Handler para `AuthenticationException` (ADICIONAR)
+
+```java
+@ExceptionHandler({AuthenticationException.class})
+public ResponseEntity<Object> handleAuthenticationException(AuthenticationException ex, WebRequest request) {
+    String messageCode = "auth.error.invalid-credentials";
+    String message = getMessage(messageCode, null);
+
+    var items = new ArrayList<ApiError.ErrorItem>();
+    items.add(new ApiError.ErrorItem(messageCode, message, null));
+
+    String uri = ((ServletWebRequest) request).getRequest().getRequestURI();
+    String method = ((ServletWebRequest) request).getRequest().getMethod();
+    ApiError errors = new ApiError(HttpStatus.UNAUTHORIZED, uri, method, items);
+    return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
+}
+```
+
+#### Handler para `ConflictException` (ADICIONAR)
+
+```java
+@ExceptionHandler({ConflictException.class})
+public ResponseEntity<Object> handlerConflictException(ConflictException ex, WebRequest request) {
+    String messageCode = ex.getMessageKey();
+    String message = getMessage(messageCode, ex.getMessageArgs());
+
+    var items = new ArrayList<ApiError.ErrorItem>();
+    items.add(new ApiError.ErrorItem(messageCode, message, null));
+
+    String uri = ((ServletWebRequest) request).getRequest().getRequestURI();
+    String method = ((ServletWebRequest) request).getRequest().getMethod();
+    ApiError errors = new ApiError(HttpStatus.CONFLICT, uri, method, items);
+    return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.CONFLICT, request);
+}
+```
+
+### `ConflictException.java` (NOVA — `exception/custom/`)
+
+Nova exceção seguindo o mesmo padrão do projeto:
+```java
+@Getter
+public class ConflictException extends RuntimeException {
+    private final String messageKey;
+    private final Object[] messageArgs;
+
+    public ConflictException(String messageKey, Object[] messageArgs) {
+        super(messageKey);
+        this.messageKey = messageKey;
+        this.messageArgs = messageArgs;
+    }
+}
+```
+
+### Mapeamento de erros de autenticação para exceções
+
+| Cenário de erro                        | Exceção a lançar                                  | HTTP | Chave messages.properties                |
+|----------------------------------------|---------------------------------------------------|------|------------------------------------------|
+| Email/senha inválidos                  | `BadCredentialsException` (Spring Security)       | 401  | `auth.error.invalid-credentials`         |
+| Usuário só tem login Google            | `BusinessException`                               | 400  | `auth.error.google-account`              |
+| Email já cadastrado                    | `ConflictException` (NOVA)                        | 409  | `auth.error.email-already-exists`        |
+| Token Google inválido                  | `BusinessException`                               | 400  | `auth.error.invalid-google-token`        |
+| Email Google não verificado            | `BusinessException`                               | 400  | `auth.error.google-email-not-verified`   |
+| Refresh token inválido/expirado        | `BusinessException`                               | 400  | `auth.error.invalid-refresh-token`       |
+| Usuário não encontrado                 | `NotFoundException`                               | 404  | `auth.error.user-not-found`              |
+
+> **NÃO criar** `EmailAlreadyExistsException` nem `InvalidGoogleTokenException` como classes separadas. Usar `BusinessException`, `ConflictException` e `NotFoundException` com as chaves do `messages.properties`.
 
 ---
 
 ## Internacionalização de mensagens
 
-### `messages.properties` (NOVO)
+### `messages.properties` (JÁ EXISTE — `src/main/resources/messages.properties`)
 
-Criar o arquivo `src/main/resources/messages.properties` com as chaves de erro da autenticação:
+O arquivo já existe com chaves de exceção genéricas do projeto. **ADICIONAR** as chaves de autenticação:
 
 ```properties
-# Auth - erros de login
-auth.error.invalid-credentials=Credenciais inválidas
+# ===== Auth - erros de autenticação =====
+auth.error.invalid-credentials=Credenciais inv\u00e1lidas
 auth.error.google-account=Esta conta foi criada via Google. Use o login com Google.
-auth.error.email-already-exists=Já existe uma conta com este e-mail
-auth.error.invalid-google-token=Token do Google inválido ou expirado
-auth.error.google-email-not-verified=O e-mail da conta Google não está verificado. Faça login com e-mail e senha.
-auth.error.invalid-refresh-token=Refresh token inválido ou expirado
-auth.error.user-not-found=Usuário não encontrado
+auth.error.email-already-exists=J\u00e1 existe uma conta com este e-mail
+auth.error.invalid-google-token=Token do Google inv\u00e1lido ou expirado
+auth.error.google-email-not-verified=O e-mail da conta Google n\u00e3o est\u00e1 verificado. Fa\u00e7a login com e-mail e senha.
+auth.error.invalid-refresh-token=Refresh token inv\u00e1lido ou expirado
+auth.error.user-not-found=Usu\u00e1rio n\u00e3o encontrado
 ```
+
+> **Nota:** usar escaping unicode (`\u00e1` para `á`, etc.) conforme o padrão já utilizado no arquivo existente.
 
 ### `ValidationMessages_pt_BR.properties` (JÁ EXISTE)
 
-O arquivo já existe com mensagens genéricas de Bean Validation. Não precisa ser alterado — os validators das entidades e DTOs usarão as mensagens genéricas já configuradas:
-- `@NotBlank` → `{0}: Não pode estar em branco`
-- `@Email` → `{0}: Não é um endereço de e-mail válido`
-- `@Size` → `{0}: Deve ter o tamanho mínimo de {min} e máximo de {max} caracteres`
+Não precisa ser alterado — as mensagens genéricas de Bean Validation já estão configuradas.
 
 ---
 
@@ -156,7 +275,7 @@ Os seguintes arquivos precisam ser atualizados para remover referências ao `use
 | Arquivo | Alteração |
 |---------|-----------|
 | `features/access/user/User.java` | Remover campo `username`, adicionar novos campos com Bean Validation |
-| `features/access/user/UserInput.java` | Remover campo `username` |
+| `features/access/user/UserInput.java` | Remover campo `username`, adicionar `name` |
 | `features/access/user/UserOutput.java` | Remover campo `username`, adicionar `name` |
 | `features/access/user/UserRepository.java` | Remover `findByUsername()`, adicionar `findByEmail()` e `findByGoogleId()` |
 | `security/DatabaseUserDetailsService.java` | Alterar `findByUsername()` → `findByEmail()`, usar `email` no `.withUsername()` |
@@ -251,6 +370,14 @@ src/main/java/dev/williancorrea/manhwa/reader/
 │   └── CorsProperties.java             ← NOVO
 ├── security/
 │   └── DatabaseUserDetailsService.java  ← MODIFICAR (já existe)
+├── exception/
+│   ├── ApiError.java                    ← JÁ EXISTE (não alterar)
+│   ├── GlobalExceptionHandler.java     ← MODIFICAR (adicionar handlers de auth)
+│   └── custom/
+│       ├── BusinessException.java       ← JÁ EXISTE (reutilizar)
+│       ├── NotFoundException.java       ← JÁ EXISTE (reutilizar)
+│       ├── ObjectNotFoundException.java ← JÁ EXISTE (não alterar)
+│       └── ConflictException.java      ← NOVO (para 409)
 ├── features/
 │   ├── auth/                            ← NOVO (feature de autenticação)
 │   │   ├── AuthResource.java
@@ -258,14 +385,11 @@ src/main/java/dev/williancorrea/manhwa/reader/
 │   │   ├── JwtTokenProvider.java
 │   │   ├── JwtAuthenticationFilter.java
 │   │   ├── GoogleTokenVerifier.java
-│   │   ├── dto/
-│   │   │   ├── LoginInput.java
-│   │   │   ├── RegisterInput.java
-│   │   │   ├── GoogleLoginInput.java
-│   │   │   └── AuthOutput.java
-│   │   └── exception/
-│   │       ├── EmailAlreadyExistsException.java
-│   │       └── InvalidGoogleTokenException.java
+│   │   └── dto/
+│   │       ├── LoginInput.java
+│   │       ├── RegisterInput.java
+│   │       ├── GoogleLoginInput.java
+│   │       └── AuthOutput.java
 │   ├── access/
 │   │   └── user/                        ← MODIFICAR (já existe)
 │   │       ├── User.java               ← Remover username, adicionar novos campos + Bean Validation
@@ -275,9 +399,6 @@ src/main/java/dev/williancorrea/manhwa/reader/
 │   │       ├── UserService.java        ← Existente (sem alteração)
 │   │       └── UserResource.java       ← Existente (sem alteração)
 │   ...
-├── exception/
-│   ├── ObjectNotFoundException.java     ← Já existe
-│   └── GlobalExceptionHandler.java     ← NOVO (@RestControllerAdvice)
 ```
 
 ---
@@ -303,7 +424,7 @@ Response `201 Created`:
 }
 ```
 - O `refreshToken` vai no header `Set-Cookie` (httpOnly, Secure, SameSite conforme profile, Path=/api/v1/auth).
-- Se o email já existe, retorna `409 Conflict` com `{ "error": "EMAIL_ALREADY_EXISTS", "message": "<mensagem do messages.properties>" }`.
+- Se o email já existe, retorna `409 Conflict` via `ConflictException("auth.error.email-already-exists", null)` → formato `ApiError`.
 
 ### `POST /api/v1/auth/login`
 
@@ -318,8 +439,8 @@ Request body:
 Response `200 OK`: mesmo formato do register.
 
 Erros:
-- `401` com `{ "error": "INVALID_CREDENTIALS", "message": "<messages.properties>" }` para email/senha inválidos.
-- `401` com `{ "error": "GOOGLE_ACCOUNT", "message": "<messages.properties>" }` se o usuário não tem `passwordHash` (só tem login Google).
+- `401` via `AuthenticationException` → `ApiError` com key `auth.error.invalid-credentials`.
+- `400` via `BusinessException("auth.error.google-account", null)` se o usuário não tem `passwordHash` (só tem login Google).
 
 ### `POST /api/v1/auth/google`
 
@@ -340,7 +461,7 @@ Response `200 OK`:
 ```
 - `isNewUser` indica se o usuário foi criado neste momento (para redirecionamento de onboarding no frontend).
 - Mesma lógica de `Set-Cookie` para o refresh token.
-- **Account linking:** se já existe um usuário com o mesmo email e o Google retorna `email_verified: true`, vincula o `googleId` ao usuário existente (`isNewUser: false`). Se `email_verified: false`, retorna `401` com `{ "error": "GOOGLE_EMAIL_NOT_VERIFIED", "message": "<messages.properties>" }`.
+- **Account linking:** se já existe um usuário com o mesmo email e o Google retorna `email_verified: true`, vincula o `googleId` ao usuário existente (`isNewUser: false`). Se `email_verified: false`, retorna `400` via `BusinessException("auth.error.google-email-not-verified", null)`.
 - **Novo usuário:** cria com `name` do Google, `email`, `googleId`, `avatarUrl` (picture), `emailVerified = true`, `passwordHash = null`.
 
 ### `POST /api/v1/auth/refresh`
@@ -354,7 +475,7 @@ Response `200 OK`:
   "expiresIn": 900
 }
 ```
-- `401` com `{ "error": "INVALID_REFRESH_TOKEN", "message": "<messages.properties>" }` se o cookie não existe ou o token é inválido/expirado.
+- `400` via `BusinessException("auth.error.invalid-refresh-token", null)` se o cookie não existe ou o token é inválido/expirado.
 
 ### `POST /api/v1/auth/logout`
 
@@ -465,9 +586,9 @@ Alterações necessárias:
 
 ### `AuthService.java` (NOVO)
 
-- Injetar `MessageSource` para todas as mensagens de erro de negócio.
-- Método `register(RegisterInput)`: validar duplicidade de email, salvar com BCrypt, `emailVerified = false`, gerar tokens, retornar output com cookie.
-- Método `login(LoginInput)`: buscar user por email, verificar `hasPasswordLogin()` (senão → erro GOOGLE_ACCOUNT via `messages.properties`), autenticar via `AuthenticationManager`, gerar tokens.
+- Usar as exceções existentes do projeto (`BusinessException`, `ConflictException`, `NotFoundException`) com chaves do `messages.properties`. Não criar exceções específicas de auth.
+- Método `register(RegisterInput)`: validar duplicidade de email (`existsByEmail` → `ConflictException`), salvar com BCrypt, `emailVerified = false`, gerar tokens, retornar output com cookie.
+- Método `login(LoginInput)`: buscar user por email, verificar `hasPasswordLogin()` (senão → `BusinessException` com `auth.error.google-account`), autenticar via `AuthenticationManager`, gerar tokens.
 - Método `googleLogin(GoogleLoginInput)`: validar ID token via `GoogleTokenVerifier`, buscar usuário por `googleId` ou `email`, aplicar lógica de account linking (verificar `email_verified` do Google), fazer upsert, gerar tokens, retornar com flag `isNewUser`.
 - Método `refresh(String refreshToken)`: validar refresh token, gerar novo access token (não rotacionar o refresh token).
 - Método `logout()`: retornar cookie de limpeza.
@@ -481,18 +602,13 @@ Alterações necessárias:
 - Validação de request via `@Valid` + Bean Validation annotations nos DTOs (Input).
 - Localização: `features/auth/AuthResource.java`.
 
-### `GlobalExceptionHandler.java` (NOVO)
+### `GlobalExceptionHandler.java` (MODIFICAR — já existe em `exception/`)
 
-- `@RestControllerAdvice` global.
-- Injetar `MessageSource` para resolver mensagens de erro.
-- Tratar:
-  - `MethodArgumentNotValidException` → `400` com lista de campos inválidos.
-  - `AuthenticationException` → `401`.
-  - `EmailAlreadyExistsException` (custom) → `409`.
-  - `InvalidGoogleTokenException` (custom) → `401`.
-  - `ObjectNotFoundException` (já existe) → `404`.
-  - Exceções genéricas → `500` sem expor stack trace.
-- Localização: `exception/GlobalExceptionHandler.java`.
+O handler global já existe e trata 15+ exceções. **ADICIONAR** apenas:
+1. Handler para `AuthenticationException` → retorna `401` com `ApiError`.
+2. Handler para `ConflictException` → retorna `409` com `ApiError`.
+
+Ver seção "Framework de exceções existente" acima para o código dos handlers.
 
 ### DTOs (NOVOS)
 
@@ -532,23 +648,6 @@ public record AuthOutput(
 ```
 
 Localização: `features/auth/dto/`.
-
----
-
-## Validação e tratamento de erros
-
-- O `GlobalExceptionHandler` (`@RestControllerAdvice`) é novo e não existe no projeto atualmente.
-- As exceções customizadas `EmailAlreadyExistsException` e `InvalidGoogleTokenException` devem ficar em `features/auth/exception/`.
-- A exceção `ObjectNotFoundException` já existe em `exception/` e deve ser reaproveitada.
-- Todas as mensagens de erro devem ser resolvidas via `MessageSource` usando as chaves do `messages.properties`.
-- Formato padrão de erro:
-  ```json
-  {
-    "error": "CODIGO_DO_ERRO",
-    "message": "Mensagem legível vinda do messages.properties",
-    "fields": [...]  // apenas para erros de validação (400)
-  }
-  ```
 
 ---
 
@@ -666,6 +765,56 @@ app:
 
 ---
 
+## Testes manuais via HTTP Client
+
+O arquivo `artifacts/dev/http/authentication.http` contém todos os requests para testar os endpoints de autenticação via IntelliJ HTTP Client.
+
+### Variáveis de ambiente (`http-client.env.json`)
+
+O arquivo `http-client.env.json` existente precisa ser atualizado para incluir a variável `accessToken`:
+
+```json
+{
+  "dev": {
+    "host": "http://localhost:8080",
+    "contentType": "application/json"
+  }
+}
+```
+
+> **Nota:** `authUser` e `authPass` podem ser removidos após a migração para JWT, pois HTTP Basic Auth não será mais utilizado. A variável `accessToken` é populada automaticamente pelos response handlers dos requests de login/register.
+
+### Cenários cobertos no `authentication.http`
+
+| # | Request | Cenário | HTTP esperado |
+|---|---------|---------|---------------|
+| 1 | `POST /api/v1/auth/register` | Registro com sucesso | `201` |
+| 2 | `POST /api/v1/auth/register` | Email duplicado | `409` |
+| 3 | `POST /api/v1/auth/register` | Campos inválidos (validação) | `400` |
+| 4 | `POST /api/v1/auth/login` | Login com credenciais válidas | `200` |
+| 5 | `POST /api/v1/auth/login` | Senha incorreta | `401` |
+| 6 | `POST /api/v1/auth/login` | Usuário inexistente | `401` |
+| 7 | `POST /api/v1/auth/login` | Login admin existente | `200` |
+| 8 | `POST /api/v1/auth/google` | Login Google (token real) | `200` |
+| 9 | `POST /api/v1/auth/google` | Token Google inválido | `400` |
+| 10 | `POST /api/v1/auth/refresh` | Refresh token válido (cookie) | `200` |
+| 11 | `POST /api/v1/auth/refresh` | Sem cookie de refresh | `400` |
+| 12 | `POST /api/v1/auth/logout` | Logout (limpa cookie) | `204` |
+| 13 | `GET /features/user` | Endpoint protegido com Bearer token | `200` |
+| 14 | `GET /features/user` | Endpoint protegido sem token | `401` |
+| 15 | `GET /features/user` | Endpoint protegido com token inválido | `401` |
+
+### Fluxo de teste recomendado
+
+1. Executar request #1 (register) — salva `accessToken` automaticamente.
+2. Executar request #2 (register duplicado) — valida erro 409.
+3. Executar request #4 (login) — salva `accessToken`.
+4. Executar request #13 (endpoint protegido) — valida JWT funciona.
+5. Executar request #12 (logout) — limpa refresh cookie.
+6. Executar request #10 (refresh sem cookie) — valida erro.
+
+---
+
 ## Critérios de qualidade
 
 1. Todo código deve compilar e funcionar. Nada de stubs ou TODOs.
@@ -673,11 +822,12 @@ app:
 3. Usar Lombok nas entidades e serviços conforme padrão do projeto.
 4. Logs estruturados com `@Slf4j` (Lombok) nos pontos críticos (login bem-sucedido, falha de autenticação, token inválido, conta vinculada).
 5. Não expor informações sensíveis nos logs (nunca logar senha, token completo, etc).
-6. Todas as mensagens visíveis ao usuário devem vir do `messages.properties` via `MessageSource`.
+6. Todas as mensagens visíveis ao usuário devem vir do `messages.properties` via `MessageSource`, usando escaping unicode.
 7. Bean Validation annotations diretamente nas entidades (não apenas nos DTOs).
-8. Testes unitários para: `JwtTokenProvider` (geração, validação, expiração), `AuthService` (cenários de register, login, google login com account linking).
-9. A migration Flyway deve ser idempotente-safe e não quebrar dados existentes (o admin seed da V006 deve continuar válido).
-10. Manter compatibilidade total com os endpoints `/features/*` existentes e suas regras de `@PreAuthorize`.
+8. Usar as exceções existentes do projeto (`BusinessException`, `NotFoundException`, nova `ConflictException`). Não criar exceções específicas de auth.
+9. Testes unitários para: `JwtTokenProvider` (geração, validação, expiração), `AuthService` (cenários de register, login, google login com account linking).
+10. A migration Flyway deve ser idempotente-safe e não quebrar dados existentes (o admin seed da V006 deve continuar válido).
+11. Manter compatibilidade total com os endpoints `/features/*` existentes e suas regras de `@PreAuthorize`.
 
 ---
 
@@ -686,15 +836,16 @@ app:
 1. Migration Flyway (V008) — alterar tabela `user` (remover `username`, adicionar novos campos).
 2. Atualizar entidade `User.java` com Bean Validation + novos campos + métodos utilitários.
 3. Atualizar `UserRepository`, `UserInput`, `UserOutput` (remover `username`).
-4. Criar `messages.properties`.
-5. `JwtProperties`, `GoogleProperties`, `CorsProperties` + `application.yaml`.
-6. `JwtTokenProvider` + testes unitários.
-7. Modificar `DatabaseUserDetailsService` (`findByEmail`, `MessageSource`).
-8. `JwtAuthenticationFilter`.
-9. Refatorar `SecurityConfig` (remover HTTP Basic, adicionar JWT filter, CORS).
-10. `GoogleTokenVerifier`.
-11. DTOs (`LoginInput`, `RegisterInput`, `GoogleLoginInput`, `AuthOutput`).
-12. Exceções customizadas + `GlobalExceptionHandler`.
-13. `AuthService` + testes unitários.
-14. `AuthResource`.
-15. Testes de integração (opcional, mas recomendado).
+4. Adicionar chaves de auth ao `messages.properties` existente.
+5. Criar `ConflictException` em `exception/custom/`.
+6. Adicionar handlers de `AuthenticationException` e `ConflictException` no `GlobalExceptionHandler`.
+7. `JwtProperties`, `GoogleProperties`, `CorsProperties` + `application.yaml`.
+8. `JwtTokenProvider` + testes unitários.
+9. Modificar `DatabaseUserDetailsService` (`findByEmail`, `MessageSource`).
+10. `JwtAuthenticationFilter`.
+11. Refatorar `SecurityConfig` (remover HTTP Basic, adicionar JWT filter, CORS).
+12. `GoogleTokenVerifier`.
+13. DTOs (`LoginInput`, `RegisterInput`, `GoogleLoginInput`, `AuthOutput`).
+14. `AuthService` + testes unitários.
+15. `AuthResource`.
+16. Testes de integração (opcional, mas recomendado).
