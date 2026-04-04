@@ -56,18 +56,6 @@ spring:
             connectTimeout: 15000
             readTimeout: 60000
   
-  # Feign Client configuration
-  #feign:
-  #  client:
-  #    config:
-  #      default:
-  #        connectTimeout: 5000
-  #        readTimeout: 30000
-  #        loggerLevel: basic
-  #      
-  #  httpclient:
-  #    enabled: true
-
 synchronization:
   mediocrescan:
     api:

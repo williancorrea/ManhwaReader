@@ -1,4 +1,4 @@
-package dev.williancorrea.manhwa.reader.security;
+package dev.williancorrea.manhwa.reader.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
