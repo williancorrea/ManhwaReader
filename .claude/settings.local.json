@@ -2,13 +2,14 @@
   "permissions": {
     "allow": [
       "mcp__idea__get_file_problems",
-      "mcp__idea__build_project",
-      "Bash(npx skills:*)",
-      "Bash(npm config:*)",
+      "mcp__idea__build_project",      
       "mcp__idea__list_directory_tree",
       "mcp__idea__search_in_files_by_text",
       "mcp__idea__get_file_text_by_path",
-      "mcp__idea__replace_text_in_file"
+      "mcp__idea__replace_text_in_file",
+      "Bash(npx skills:*)",
+      "Bash(npm config:*)",
+      "Bash(npx ng:*)"
     ]
   }
 }
