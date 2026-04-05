@@ -1,10 +1,17 @@
-import { inject } from '@angular/core';
+import { inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CanActivateFn, Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
 import { TokenService } from '../services/token.service';
 import { AuthService } from '../services/auth.service';
 
 export const authGuard: CanActivateFn = (_route, state) => {
+  // On the server (SSR), the httpOnly cookie only exists in the browser.
+  // Return true to defer the real auth check to the client after hydration.
+  if (!isPlatformBrowser(inject(PLATFORM_ID))) {
+    return true;
+  }
+
   const tokenService = inject(TokenService);
   const authService = inject(AuthService);
   const router = inject(Router);
