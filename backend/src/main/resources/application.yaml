@@ -124,8 +124,8 @@ app:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
   auth:
     cookie:
-      secure: true
-      same-site: Strict
+      secure: false
+      same-site: Lax
 
 logging:
   level:

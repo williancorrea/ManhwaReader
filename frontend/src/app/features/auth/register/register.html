@@ -1,0 +1,124 @@
+<div class="register-page">
+  <div class="register-card">
+
+    <!-- Logo -->
+    <div class="register-card__logo">
+      <span class="register-card__logo-icon">M</span>
+      <span class="register-card__logo-text">ManhwaReader</span>
+    </div>
+
+    <h1 class="register-card__heading">Create an account</h1>
+    <p class="register-card__subheading">Start your reading journey today</p>
+
+    @if (errorMessage()) {
+      <div class="register-card__error" role="alert">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <form class="register-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+      <div class="form-field">
+        <label class="form-field__label" for="name">Name</label>
+        <input
+          id="name"
+          class="form-field__input"
+          [class.form-field__input--error]="form.controls.name.invalid && form.controls.name.touched"
+          type="text"
+          placeholder="Your name"
+          formControlName="name"
+          autocomplete="name"
+        />
+        @if (form.controls.name.invalid && form.controls.name.touched) {
+          <span class="form-field__hint form-field__hint--error">
+            @if (form.controls.name.hasError('required')) { Nome é obrigatório. }
+            @else if (form.controls.name.hasError('minlength')) { Mínimo de 2 caracteres. }
+            @else if (form.controls.name.hasError('maxlength')) { Máximo de 100 caracteres. }
+          </span>
+        }
+      </div>
+
+      <div class="form-field">
+        <label class="form-field__label" for="email">Email</label>
+        <input
+          id="email"
+          class="form-field__input"
+          [class.form-field__input--error]="form.controls.email.invalid && form.controls.email.touched"
+          type="email"
+          placeholder="you@example.com"
+          formControlName="email"
+          autocomplete="email"
+        />
+        @if (form.controls.email.invalid && form.controls.email.touched) {
+          <span class="form-field__hint form-field__hint--error">
+            @if (form.controls.email.hasError('required')) { Email é obrigatório. }
+            @else if (form.controls.email.hasError('email')) { Email inválido. }
+          </span>
+        }
+      </div>
+
+      <div class="form-field">
+        <label class="form-field__label" for="password">Password</label>
+        <input
+          id="password"
+          class="form-field__input"
+          [class.form-field__input--error]="form.controls.password.invalid && form.controls.password.touched"
+          type="password"
+          placeholder="••••••••"
+          formControlName="password"
+          autocomplete="new-password"
+        />
+        @if (form.controls.password.invalid && form.controls.password.touched) {
+          <span class="form-field__hint form-field__hint--error">
+            @if (form.controls.password.hasError('required')) { Senha é obrigatória. }
+            @else if (form.controls.password.hasError('minlength')) { Mínimo de 8 caracteres. }
+          </span>
+        }
+      </div>
+
+      <div class="form-field">
+        <label class="form-field__label" for="confirmPassword">Confirm password</label>
+        <input
+          id="confirmPassword"
+          class="form-field__input"
+          [class.form-field__input--error]="form.controls.confirmPassword.invalid && form.controls.confirmPassword.touched"
+          type="password"
+          placeholder="••••••••"
+          formControlName="confirmPassword"
+          autocomplete="new-password"
+        />
+        @if (form.controls.confirmPassword.invalid && form.controls.confirmPassword.touched) {
+          <span class="form-field__hint form-field__hint--error">
+            @if (form.controls.confirmPassword.hasError('required')) { Confirmação é obrigatória. }
+            @else if (form.controls.confirmPassword.hasError('passwordMismatch')) { As senhas não coincidem. }
+          </span>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn--primary btn--full"
+        [disabled]="isLoading()"
+      >
+        @if (isLoading()) {
+          <span class="btn__spinner" aria-hidden="true"></span>
+          Creating account...
+        } @else {
+          Create Account
+        }
+      </button>
+
+    </form>
+
+    <p class="register-card__footer">
+      Already have an account?
+      <a routerLink="/auth/login" class="register-card__link">Sign in</a>
+    </p>
+
+  </div>
+</div>
