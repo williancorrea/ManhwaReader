@@ -1,0 +1,37 @@
+<article class="card" [class.card--horizontal]="variant === 'horizontal'">
+  <div class="card__cover-wrap">
+    <img
+      class="card__cover"
+      [src]="manhwa.coverUrl"
+      [alt]="manhwa.title"
+      loading="lazy"
+    />
+    @if (manhwa.isNew) {
+      <span class="card__badge card__badge--new">NEW</span>
+    }
+    @if (manhwa.progress !== undefined) {
+      <div class="card__progress-bar">
+        <div
+          class="card__progress-fill"
+          [style.width.%]="manhwa.progress"
+        ></div>
+      </div>
+    }
+  </div>
+
+  <div class="card__body">
+    <h3 class="card__title">{{ manhwa.title }}</h3>
+    <p class="card__chapter">Ch. {{ manhwa.latestChapter }}</p>
+
+    <div class="card__genres">
+      @for (genre of visibleGenres; track genre) {
+        <span class="card__genre-tag" [style]="getGenreStyle(genre)">
+          {{ genre }}
+        </span>
+      }
+      @if (hiddenGenreCount > 0) {
+        <span class="card__genre-more">+{{ hiddenGenreCount }}</span>
+      }
+    </div>
+  </div>
+</article>

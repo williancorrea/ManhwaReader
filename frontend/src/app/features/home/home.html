@@ -1,0 +1,57 @@
+<div class="home">
+  <app-navbar />
+
+  <!-- Hero Banner -->
+  <section class="hero">
+    <div class="hero__inner">
+      <div class="hero__content">
+        <span class="hero__eyebrow">Featured This Week</span>
+        <h1 class="hero__title">Discover Your Next<br />Manhwa Adventure</h1>
+        <p class="hero__subtitle">
+          Thousands of titles updated daily. Track your progress, discover new genres,
+          and read anywhere.
+        </p>
+        <div class="hero__actions">
+          <button class="btn btn--primary">Browse All</button>
+          <button class="btn btn--outline">What's New</button>
+        </div>
+      </div>
+      <div class="hero__decoration" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- Continue Reading -->
+  <section class="section">
+    <div class="section__inner">
+      <div class="section__header">
+        <h2 class="section__title">Continue Reading</h2>
+        <button class="section__see-all">See All</button>
+      </div>
+      <div class="scroll-row">
+        @for (manhwa of continueReading; track manhwa.id) {
+          <app-manhwa-card [manhwa]="manhwa" variant="horizontal" />
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Latest Updates -->
+  <section class="section section--alt">
+    <div class="section__inner">
+      <div class="section__header">
+        <h2 class="section__title">Latest Updates</h2>
+        <button class="section__see-all">See All</button>
+      </div>
+      <div class="grid-cards">
+        @for (manhwa of latestUpdates; track manhwa.id) {
+          <app-manhwa-card [manhwa]="manhwa" variant="grid" />
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p class="footer__text">© 2026 ManhwaReader. All rights reserved.</p>
+  </footer>
+</div>

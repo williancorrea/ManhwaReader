@@ -1,0 +1,130 @@
+.card {
+  background: var(--surface-00);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: background-color 150ms ease, transform 150ms ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  background: var(--surface-hover);
+  transform: translateY(-2px);
+}
+
+.card--horizontal {
+  flex-direction: row;
+  min-width: 200px;
+  width: 200px;
+}
+
+.card--horizontal .card__cover-wrap {
+  width: 80px;
+  flex-shrink: 0;
+  aspect-ratio: auto;
+  height: 110px;
+}
+
+.card--horizontal .card__body {
+  padding: var(--space-3);
+}
+
+.card__cover-wrap {
+  position: relative;
+  aspect-ratio: 2/3;
+  overflow: hidden;
+  background: var(--bg-03);
+}
+
+.card__cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 200ms ease;
+}
+
+.card:hover .card__cover {
+  transform: scale(1.03);
+}
+
+.card__badge {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.card__badge--new {
+  background: var(--accent-ghost);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.card__progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--reader-progress-track);
+}
+
+.card__progress-fill {
+  height: 100%;
+  background: var(--reader-progress-bar);
+  transition: width 300ms ease;
+}
+
+.card__body {
+  padding: var(--space-3) var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1;
+}
+
+.card__title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card__chapter {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.card__genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
+
+.card__genre-tag {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.card__genre-more {
+  font-size: 10px;
+  color: var(--text-muted);
+  padding: 2px var(--space-2);
+}

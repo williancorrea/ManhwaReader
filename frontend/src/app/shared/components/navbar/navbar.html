@@ -1,0 +1,30 @@
+<nav class="navbar">
+  <div class="navbar__inner">
+    <a routerLink="/home" class="navbar__logo">
+      <span class="navbar__logo-icon">M</span>
+      <span class="navbar__logo-text">ManhwaReader</span>
+    </a>
+
+    <div class="navbar__search" [class.navbar__search--open]="isSearchOpen">
+      @if (isSearchOpen) {
+        <input
+          class="navbar__search-input"
+          type="text"
+          placeholder="Search manhwa..."
+          [(ngModel)]="searchQuery"
+          name="search"
+          autofocus
+        />
+      }
+      <button class="navbar__icon-btn" (click)="toggleSearch()" aria-label="Toggle search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+      </button>
+    </div>
+
+    <button class="navbar__avatar" aria-label="User menu">
+      <span>U</span>
+    </button>
+  </div>
+</nav>
