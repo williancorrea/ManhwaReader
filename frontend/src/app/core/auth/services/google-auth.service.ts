@@ -19,6 +19,7 @@ interface GoogleIdConfig {
   client_id: string;
   callback: (response: GoogleCredentialResponse) => void;
   auto_select?: boolean;
+  ux_mode: string,
 }
 
 interface GoogleCredentialResponse {
@@ -79,6 +80,7 @@ export class GoogleAuthService {
           this.googleCallback(response.credential);
         }
       },
+      ux_mode: 'popup',
       auto_select: false
     });
     this.available.set(true);
