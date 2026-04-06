@@ -8,9 +8,11 @@
       "mcp__idea__get_file_text_by_path",
       "mcp__idea__replace_text_in_file",
       "Bash(npx skills:*)",
-      "Bash(npm config:*)",
       "Bash(npx ng:*)",
-      "Bash(xargs grep:*)"
+      "Bash(npm config:*)",
+      "Bash(xargs grep:*)",
+      "Bash(./mvnw compile:*)",
+      "Bash(./mvnw test:*)"
     ]
   }
 }
