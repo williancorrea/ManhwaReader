@@ -24,6 +24,7 @@ spring:
         format_sql: false
         use_sql_comments: true
         time_zone: UTC # Padroniza o UTC 0 para todas as datas
+        default_batch_fetch_size: 50
         jdbc:
           time_zone=UTC # Padroniza o UTC 0 para todas as datas
   jackson:

@@ -38,6 +38,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Formula;
 
 @Entity
 @Table(name = "work")
@@ -125,6 +126,9 @@ public class Work implements Serializable {
 
   @OneToMany(mappedBy = "work", orphanRemoval = true, cascade = CascadeType.ALL)
   private List<WorkCover> covers;
+
+  @Formula("(SELECT MAX(CAST(c.number AS DECIMAL)) FROM chapter c WHERE c.work_id = id)")
+  private Long chapterCount;
 
   public boolean hasSynchronizationOrigin(SynchronizationOriginType origin) {
     if (synchronizations == null) {

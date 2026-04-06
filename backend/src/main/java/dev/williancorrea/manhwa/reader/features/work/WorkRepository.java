@@ -3,6 +3,7 @@ package dev.williancorrea.manhwa.reader.features.work;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -11,21 +12,10 @@ public interface WorkRepository extends JpaRepository<Work, UUID> {
 
   List<Work> findAllByType(WorkType type);
 
-  @Query(value = """
-      select w.* from work_synchronization ws
-        inner join work w on ws.work_id = w.id
-      where ws.external_id = :externalId
-            and ws.origin = :origin
-      """, nativeQuery = true)
-  Optional<Work> findBySynchronizationExternalID(String externalId, String origin);
+  @Query("SELECT w FROM Work w JOIN w.synchronizations ws WHERE ws.externalId = :externalId AND ws.origin = :origin")
+  Optional<Work> findBySynchronizationExternalID(String externalId, SynchronizationOriginType origin);
 
-  @Query(value = """
-      select w.* from work_title wt
-        inner join work w on wt.work_id = w.id
-      where  upper(wt.title) like  concat('%', upper(:title), '%')
-      """
-      , nativeQuery = true
-  )
+  @Query("SELECT w FROM Work w JOIN w.titles wt WHERE UPPER(CAST(wt.title AS string)) LIKE CONCAT('%', UPPER(:title), '%')")
   Optional<Work> findByTitle(String title);
 
   Optional<Work> findBySlug(String slug);

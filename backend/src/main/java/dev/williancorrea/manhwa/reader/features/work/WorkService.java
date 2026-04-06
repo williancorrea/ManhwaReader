@@ -6,6 +6,8 @@ import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
 import dev.williancorrea.manhwa.reader.scraper.base.ScraperHelper;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -68,11 +70,16 @@ public class WorkService {
   }
 
   public Optional<Work> findBySynchronizationExternalID(String externalId, SynchronizationOriginType origin) {
-    return repository.findBySynchronizationExternalID(externalId, origin.name());
+    return repository.findBySynchronizationExternalID(externalId, origin);
   }
 
   public Optional<Work> findBySlug(String slug) {
     return repository.findBySlug(slug);
+  }
+
+  @Transactional(readOnly = true)
+  public Page<Work> findAllWorks(Pageable pageable) {
+    return repository.findAll(pageable);
   }
 
 }
