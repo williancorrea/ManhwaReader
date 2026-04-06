@@ -1,4 +1,4 @@
-import { inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../../../environments/environment';
 
@@ -35,12 +35,8 @@ interface PromptMomentNotification {
 export class GoogleAuthService {
   private readonly platformId = inject(PLATFORM_ID);
   private googleCallback: ((idToken: string) => void) | null = null;
-  private scriptLoaded = false;
-  private scriptFailed = false;
 
-  get isAvailable(): boolean {
-    return this.scriptLoaded && !this.scriptFailed;
-  }
+  readonly available = signal(false);
 
   initialize(onCredential: (idToken: string) => void): void {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -70,12 +66,11 @@ export class GoogleAuthService {
     script.async = true;
     script.defer = true;
     script.onload = () => this.onScriptLoaded();
-    script.onerror = () => { this.scriptFailed = true; };
+    script.onerror = () => { /* script failed — available stays false */ };
     document.head.appendChild(script);
   }
 
   private onScriptLoaded(): void {
-    this.scriptLoaded = true;
     if (!window.google?.accounts?.id) return;
     window.google.accounts.id.initialize({
       client_id: environment.googleClientId,
@@ -86,5 +81,6 @@ export class GoogleAuthService {
       },
       auto_select: false
     });
+    this.available.set(true);
   }
 }

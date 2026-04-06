@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, afterNextRender, signal, PLATFORM_ID } from '@angular/core';
+import { Component, inject, OnInit, afterNextRender, signal, PLATFORM_ID, computed } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -28,7 +28,7 @@ export class LoginComponent implements OnInit {
 
   readonly isLoading = signal(false);
   readonly errorMessage = signal('');
-  readonly googleAvailable = signal(false);
+  readonly googleAvailable = computed(() => this.googleAuthService.available());
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -41,9 +41,6 @@ export class LoginComponent implements OnInit {
         this.googleAuthService.initialize((idToken: string) => {
           this.handleGoogleCredential(idToken);
         });
-        setTimeout(() => {
-          this.googleAvailable.set(this.googleAuthService.isAvailable);
-        }, 1500);
       });
     }
   }
