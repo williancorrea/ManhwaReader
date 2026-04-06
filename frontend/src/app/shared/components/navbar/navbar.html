@@ -5,6 +5,10 @@
       <span class="navbar__logo-text">ManhwaReader</span>
     </a>
 
+    <nav class="navbar__nav">
+      <a routerLink="/catalog" class="navbar__nav-link" routerLinkActive="navbar__nav-link--active">Catálogo</a>
+    </nav>
+
     <div class="navbar__search" [class.navbar__search--open]="isSearchOpen">
       @if (isSearchOpen) {
         <input

@@ -44,6 +44,34 @@
   color: var(--text-primary);
 }
 
+/* Nav links */
+.navbar__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: var(--space-4);
+}
+
+.navbar__nav-link {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+.navbar__nav-link:hover {
+  color: var(--text-primary);
+  background-color: var(--surface-hover);
+}
+
+.navbar__nav-link--active {
+  color: var(--primary);
+  background-color: var(--primary-ghost);
+}
+
 .navbar__search {
   flex: 1;
   display: flex;

@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 
 export interface Manhwa {
-  id: number;
+  id?: number;
   title: string;
   coverUrl: string;
   latestChapter: number;
@@ -29,7 +29,6 @@ export const GENRE_COLORS: Record<string, string> = {
 
 @Component({
   selector: 'app-manhwa-card',
-  imports: [],
   templateUrl: './manhwa-card.html',
   styleUrl: './manhwa-card.css'
 })

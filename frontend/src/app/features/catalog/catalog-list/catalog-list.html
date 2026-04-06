@@ -1,0 +1,46 @@
+<div class="catalog">
+  <app-navbar />
+
+  <section class="section">
+    <div class="section__inner">
+      <div class="section__header">
+        <h2 class="section__title">Catálogo</h2>
+      </div>
+
+      @if (isLoading()) {
+        <div class="catalog__loading">
+          <div class="catalog__spinner"></div>
+        </div>
+      } @else {
+        <div class="grid-cards">
+          @for (manhwa of items(); track manhwa.id) {
+            <app-manhwa-card [manhwa]="manhwa" variant="grid" />
+          }
+          @empty {
+            <p class="catalog__empty">Nenhuma obra encontrada.</p>
+          }
+        </div>
+
+        @if (totalPages() > 1) {
+          <div class="catalog__pagination">
+            <button
+              class="btn btn--outline"
+              [disabled]="currentPage() === 0"
+              (click)="previousPage()"
+            >
+              Anterior
+            </button>
+            <span class="catalog__page-info">{{ currentPage() + 1 }} / {{ totalPages() }}</span>
+            <button
+              class="btn btn--outline"
+              [disabled]="currentPage() >= totalPages() - 1"
+              (click)="nextPage()"
+            >
+              Próximo
+            </button>
+          </div>
+        }
+      }
+    </div>
+  </section>
+</div>
