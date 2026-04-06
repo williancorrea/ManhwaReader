@@ -17,12 +17,14 @@ public class UserOutput implements Serializable {
     private UUID id;
     private String name;
     private String email;
+    private String avatarUrl;
     private OffsetDateTime createdAt;
 
     public UserOutput(User user) {
         this.id = user.getId();
         this.name = user.getName();
         this.email = user.getEmail();
+        this.avatarUrl = user.getAvatarUrl();
         this.createdAt = user.getCreatedAt();
     }
 }

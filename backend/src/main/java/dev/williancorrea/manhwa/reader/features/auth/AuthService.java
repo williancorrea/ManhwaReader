@@ -5,6 +5,7 @@ import dev.williancorrea.manhwa.reader.config.JwtProperties;
 import dev.williancorrea.manhwa.reader.exception.custom.BusinessException;
 import dev.williancorrea.manhwa.reader.exception.custom.ConflictException;
 import dev.williancorrea.manhwa.reader.features.access.user.User;
+import dev.williancorrea.manhwa.reader.features.access.user.UserOutput;
 import dev.williancorrea.manhwa.reader.features.access.user.UserRepository;
 import dev.williancorrea.manhwa.reader.features.auth.dto.AuthOutput;
 import dev.williancorrea.manhwa.reader.features.auth.dto.GoogleLoginInput;
@@ -126,6 +127,12 @@ public class AuthService {
                 new AuthOutput(accessToken, jwtTokenProvider.getAccessTokenExpirationSeconds(), null),
                 null
         );
+    }
+
+    public UserOutput getMe(String email) {
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException("auth.error.user-not-found", null));
+        return new UserOutput(user);
     }
 
     public ResponseCookie buildLogoutCookie() {

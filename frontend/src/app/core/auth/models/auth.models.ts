@@ -25,6 +25,14 @@ export interface ApiErrorItem {
   detail: string | null;
 }
 
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl: string | null;
+  createdAt: string;
+}
+
 export interface ApiError {
   origin: string;
   method: string;

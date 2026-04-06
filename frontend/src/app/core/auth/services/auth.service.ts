@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { TokenService } from './token.service';
-import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.models';
+import { AuthResponse, LoginRequest, RegisterRequest, UserProfile } from '../models/auth.models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -36,6 +36,10 @@ export class AuthService {
     return this.http
       .post<AuthResponse>(`${this.apiUrl}/refresh`, null, this.options)
       .pipe(tap(res => this.tokenService.setToken(res.accessToken)));
+  }
+
+  getMe(): Observable<UserProfile> {
+    return this.http.get<UserProfile>(`${this.apiUrl}/me`, this.options);
   }
 
   logout(): void {
