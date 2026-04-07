@@ -23,11 +23,24 @@ export class CatalogListComponent implements OnInit, OnDestroy {
   readonly totalPages = signal(0);
   readonly isLoading = signal(false);
 
+  showFilters = false;
   filterTitle = '';
   filterType = '';
   filterDemographic = '';
   filterStatus = '';
   filterSort = '';
+
+  toggleFilters(): void {
+    if (this.showFilters) {
+      this.showFilters = false;
+      this.filterType = '';
+      this.filterDemographic = '';
+      this.filterStatus = '';
+      this.carregarPagina(0);
+    } else {
+      this.showFilters = true;
+    }
+  }
 
   readonly workTypes = WORK_TYPES;
   readonly workStatuses = WORK_STATUSES;
@@ -52,15 +65,6 @@ export class CatalogListComponent implements OnInit, OnDestroy {
   }
 
   aplicarFiltros(): void {
-    this.carregarPagina(0);
-  }
-
-  limparFiltros(): void {
-    this.filterTitle = '';
-    this.filterType = '';
-    this.filterDemographic = '';
-    this.filterStatus = '';
-    this.filterSort = '';
     this.carregarPagina(0);
   }
 
