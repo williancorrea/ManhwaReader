@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
@@ -13,15 +13,19 @@ import { CatalogFilter, WorkCatalogItem, WORK_TYPES, WORK_STATUSES, WORK_DEMOGRA
   templateUrl: './catalog-list.html',
   styleUrl: './catalog-list.css'
 })
-export class CatalogListComponent implements OnInit, OnDestroy {
+export class CatalogListComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('sentinel') private sentinelRef!: ElementRef<HTMLElement>;
+
   private readonly catalogService = inject(CatalogService);
   private readonly destroy$ = new Subject<void>();
   private readonly titleSubject = new Subject<string>();
+  private intersectionObserver?: IntersectionObserver;
 
   readonly items = signal<Manhwa[]>([]);
   readonly currentPage = signal(0);
-  readonly totalPages = signal(0);
+  readonly hasNextPage = signal(false);
   readonly isLoading = signal(false);
+  readonly showScrollTop = signal(false);
 
   showFilters = false;
   filterTitle = '';
@@ -29,6 +33,54 @@ export class CatalogListComponent implements OnInit, OnDestroy {
   filterDemographic = '';
   filterStatus = '';
   filterSort = '';
+
+  readonly workTypes = WORK_TYPES;
+  readonly workStatuses = WORK_STATUSES;
+  readonly workDemographics = WORK_DEMOGRAPHICS;
+  readonly sortOptions = SORT_OPTIONS;
+
+  @HostListener('window:scroll')
+  onScroll(): void {
+    const scrollY = window.scrollY;
+    this.showScrollTop.set(scrollY > 300);
+    if (scrollY > 50 && this.showFilters) {
+      this.showFilters = false;
+    }
+  }
+
+  ngOnInit(): void {
+    this.titleSubject.pipe(debounceTime(300), takeUntil(this.destroy$)).subscribe(() => {
+      this.aplicarFiltros();
+    });
+    this.carregarPagina(0);
+  }
+
+  ngAfterViewInit(): void {
+    this.intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !this.isLoading() && this.hasNextPage()) {
+          this.carregarPagina(this.currentPage() + 1);
+        }
+      },
+      { rootMargin: '300px' }
+    );
+    this.intersectionObserver.observe(this.sentinelRef.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.intersectionObserver?.disconnect();
+  }
+
+  onTitleChange(value: string): void {
+    this.filterTitle = value;
+    this.titleSubject.next(value);
+  }
+
+  aplicarFiltros(): void {
+    this.carregarPagina(0);
+  }
 
   toggleFilters(): void {
     if (this.showFilters) {
@@ -42,42 +94,16 @@ export class CatalogListComponent implements OnInit, OnDestroy {
     }
   }
 
-  readonly workTypes = WORK_TYPES;
-  readonly workStatuses = WORK_STATUSES;
-  readonly workDemographics = WORK_DEMOGRAPHICS;
-  readonly sortOptions = SORT_OPTIONS;
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
-  ngOnInit(): void {
-    this.titleSubject.pipe(debounceTime(300), takeUntil(this.destroy$)).subscribe(() => {
-      this.aplicarFiltros();
+  private recheckSentinel(): void {
+    if (!this.intersectionObserver || !this.sentinelRef) return;
+    setTimeout(() => {
+      this.intersectionObserver!.unobserve(this.sentinelRef.nativeElement);
+      this.intersectionObserver!.observe(this.sentinelRef.nativeElement);
     });
-    this.carregarPagina(0);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  onTitleChange(value: string): void {
-    this.filterTitle = value;
-    this.titleSubject.next(value);
-  }
-
-  aplicarFiltros(): void {
-    this.carregarPagina(0);
-  }
-
-  nextPage(): void {
-    if (this.currentPage() < this.totalPages() - 1) {
-      this.carregarPagina(this.currentPage() + 1);
-    }
-  }
-
-  previousPage(): void {
-    if (this.currentPage() > 0) {
-      this.carregarPagina(this.currentPage() - 1);
-    }
   }
 
   private carregarPagina(page: number): void {
@@ -91,10 +117,17 @@ export class CatalogListComponent implements OnInit, OnDestroy {
     };
     this.catalogService.listar(page, 20, filter).subscribe({
       next: (response) => {
-        this.items.set(response.content.map(toManhwa));
-        this.currentPage.set(response.number);
-        this.totalPages.set(response.totalPages);
+        const offset = page * response.page.size;
+        const newItems = response.content.map((item, i) => toManhwa(item, offset + i));
+        if (page === 0) {
+          this.items.set(newItems);
+        } else {
+          this.items.update(current => [...current, ...newItems]);
+        }
+        this.currentPage.set(response.page.number);
+        this.hasNextPage.set(response.page.number < response.page.totalPages - 1);
         this.isLoading.set(false);
+        this.recheckSentinel();
       },
       error: () => {
         this.isLoading.set(false);
@@ -103,9 +136,9 @@ export class CatalogListComponent implements OnInit, OnDestroy {
   }
 }
 
-function toManhwa(item: WorkCatalogItem, index: number): Manhwa {
+function toManhwa(item: WorkCatalogItem, id: number): Manhwa {
   return {
-    id: index,
+    id,
     title: item.title ?? '',
     coverUrl: item.coverUrl ?? '',
     latestChapter: item.chapterCount,
