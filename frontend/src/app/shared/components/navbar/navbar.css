@@ -76,6 +76,7 @@
 .navbar__user-menu {
   position: relative;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 /* Avatar button */
