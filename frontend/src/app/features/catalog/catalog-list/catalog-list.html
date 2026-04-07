@@ -7,6 +7,49 @@
         <h2 class="section__title">Catálogo</h2>
       </div>
 
+      <div class="catalog__filters">
+        <input
+          class="catalog__filter-input"
+          type="text"
+          placeholder="Buscar por título..."
+          [ngModel]="filterTitle"
+          (ngModelChange)="onTitleChange($event)"
+          name="filterTitle"
+        />
+
+        <select class="catalog__filter-select" [(ngModel)]="filterType" (ngModelChange)="aplicarFiltros()" name="filterType">
+          <option value="">Todos os tipos</option>
+          @for (type of workTypes; track type) {
+            <option [value]="type">{{ type }}</option>
+          }
+        </select>
+
+        <select class="catalog__filter-select" [(ngModel)]="filterDemographic" (ngModelChange)="aplicarFiltros()" name="filterDemographic">
+          <option value="">Todas as demografias</option>
+          @for (demo of workDemographics; track demo) {
+            <option [value]="demo">{{ demo }}</option>
+          }
+        </select>
+
+        <select class="catalog__filter-select" [(ngModel)]="filterStatus" (ngModelChange)="aplicarFiltros()" name="filterStatus">
+          <option value="">Todos os status</option>
+          @for (status of workStatuses; track status) {
+            <option [value]="status">{{ status }}</option>
+          }
+        </select>
+
+        <select class="catalog__filter-select" [(ngModel)]="filterSort" (ngModelChange)="aplicarFiltros()" name="filterSort">
+          <option value="">Ordenação padrão</option>
+          @for (opt of sortOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+
+        <button class="catalog__filter-btn" type="button" (click)="limparFiltros()">
+          Limpar filtros
+        </button>
+      </div>
+
       @if (isLoading()) {
         <div class="catalog__loading">
           <div class="catalog__spinner"></div>
