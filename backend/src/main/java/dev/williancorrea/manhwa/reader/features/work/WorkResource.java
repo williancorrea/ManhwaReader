@@ -1,5 +1,6 @@
 package dev.williancorrea.manhwa.reader.features.work;
 
+import dev.williancorrea.manhwa.reader.features.work.dto.WorkCatalogFilter;
 import dev.williancorrea.manhwa.reader.features.work.dto.WorkCatalogOutput;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,11 +30,18 @@ public class WorkResource {
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Page<WorkCatalogOutput>> findAllWorks(
       @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "20") int size
+      @RequestParam(defaultValue = "20") int size,
+      @RequestParam(required = false) String title,
+      @RequestParam(required = false) WorkType type,
+      @RequestParam(required = false) WorkPublicationDemographic publicationDemographic,
+      @RequestParam(required = false) WorkStatus status,
+      @RequestParam(required = false) String sort
   ) {
+    size = Math.min(size, 50);
+    var filter = new WorkCatalogFilter(title, type, publicationDemographic, status, sort);
     var pageable = PageRequest.of(page, size);
     return ResponseEntity.ok(
-        workService.findAllWorks(pageable)
+        workService.findAllWorks(filter, pageable)
             .map(work -> WorkCatalogOutput.fromEntity(work, minioUrl + "/" + bucketName))
     );
   }

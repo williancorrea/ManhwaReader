@@ -3,11 +3,14 @@ package dev.williancorrea.manhwa.reader.features.work;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import dev.williancorrea.manhwa.reader.features.work.dto.WorkCatalogFilter;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
 import dev.williancorrea.manhwa.reader.scraper.base.ScraperHelper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -78,8 +81,18 @@ public class WorkService {
   }
 
   @Transactional(readOnly = true)
-  public Page<Work> findAllWorks(Pageable pageable) {
-    return repository.findAll(pageable);
+  public Page<Work> findAllWorks(WorkCatalogFilter filter, Pageable pageable) {
+    Sort sort = resolveSort(filter.sort());
+    Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+    return repository.findAll(WorkSpecification.fromFilter(filter), sortedPageable);
+  }
+
+  private Sort resolveSort(String sortParam) {
+    if (sortParam == null) return Sort.by(Sort.Direction.DESC, "updatedAt");
+    return switch (sortParam) {
+      case "updated_at_asc" -> Sort.by(Sort.Direction.ASC, "updatedAt");
+      default -> Sort.by(Sort.Direction.DESC, "updatedAt");
+    };
   }
 
 }

@@ -1,0 +1,49 @@
+package dev.williancorrea.manhwa.reader.features.work;
+
+import dev.williancorrea.manhwa.reader.features.work.dto.WorkCatalogFilter;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaExpression;
+import org.springframework.data.jpa.domain.Specification;
+
+public class WorkSpecification {
+
+  public static Specification<Work> withTitle(String title) {
+    return (root, query, cb) -> {
+      if (title == null || title.isBlank()) return null;
+      if (!Long.class.equals(query.getResultType())) {
+        query.distinct(true);
+      }
+      Join<Work, WorkTitle> titlesJoin = root.join("titles", JoinType.LEFT);
+      HibernateCriteriaBuilder hcb = (HibernateCriteriaBuilder) cb;
+      @SuppressWarnings("unchecked")
+      JpaExpression<String> titleExpr = (JpaExpression<String>) titlesJoin.<String>get("title");
+      return cb.like(
+          cb.upper(hcb.cast(titleExpr, String.class)),
+          "%" + title.toUpperCase() + "%"
+      );
+    };
+  }
+
+  public static Specification<Work> withType(WorkType type) {
+    return (root, query, cb) -> type == null ? null : cb.equal(root.get("type"), type);
+  }
+
+  public static Specification<Work> withPublicationDemographic(WorkPublicationDemographic demographic) {
+    return (root, query, cb) -> demographic == null ? null : cb.equal(root.get("publicationDemographic"), demographic);
+  }
+
+  public static Specification<Work> withStatus(WorkStatus status) {
+    return (root, query, cb) -> status == null ? null : cb.equal(root.get("status"), status);
+  }
+
+  public static Specification<Work> fromFilter(WorkCatalogFilter filter) {
+    return Specification.allOf(
+        withTitle(filter.title()),
+        withType(filter.type()),
+        withPublicationDemographic(filter.publicationDemographic()),
+        withStatus(filter.status())
+    );
+  }
+}

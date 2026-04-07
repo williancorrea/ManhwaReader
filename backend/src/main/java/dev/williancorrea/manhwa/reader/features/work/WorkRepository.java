@@ -6,8 +6,9 @@ import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface WorkRepository extends JpaRepository<Work, UUID> {
+public interface WorkRepository extends JpaRepository<Work, UUID>, JpaSpecificationExecutor<Work> {
   List<Work> findAllByStatus(WorkStatus status);
 
   List<Work> findAllByType(WorkType type);
