@@ -3,6 +3,8 @@ package dev.williancorrea.manhwa.reader.features.rating;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import dev.williancorrea.manhwa.reader.features.access.user.User;
+import dev.williancorrea.manhwa.reader.features.work.Work;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -35,6 +37,10 @@ public class RatingService {
 
   public void deleteById(UUID id) {
     repository.deleteById(id);
+  }
+
+  public Optional<Rating> findByUserAndWork(User user, Work work) {
+    return repository.findByUser_IdAndWork_Id(user.getId(), work.getId());
   }
 }
 

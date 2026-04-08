@@ -6,6 +6,7 @@ import java.util.UUID;
 
 public record WorkCatalogOutput(
     UUID id,
+    String slug,
     String title,
     String coverUrl,
     String publicationDemographic,
@@ -24,6 +25,7 @@ public record WorkCatalogOutput(
 
     return new WorkCatalogOutput(
         work.getId(),
+        work.getSlug(),
         title,
         storage + "/" + work.getCoverUrl(),
         work.getPublicationDemographic() != null ? work.getPublicationDemographic().name() : null,
