@@ -42,6 +42,10 @@ public class ChapterService {
     repository.deleteById(id);
   }
 
+  public List<Chapter> findAllByWorkId(UUID workId) {
+    return repository.findAllByWork_Id(workId);
+  }
+
   public Optional<Chapter> findByNumberAndWorkIdAndScanlatorId(String numberFormatted,
                                                                String numberVersion,
                                                                Work workId,

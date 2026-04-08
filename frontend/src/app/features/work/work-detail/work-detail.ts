@@ -44,6 +44,7 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly showLibraryMenu = signal(false);
   readonly togglingChapterIds = signal<Set<string>>(new Set());
   readonly showScrollTop = signal(false);
+  readonly isTogglingAll = signal(false);
 
   @HostListener('window:scroll')
   onScroll(): void {
@@ -125,6 +126,26 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   toggleSort(): void {
     this.chapterSort = this.chapterSort === 'desc' ? 'asc' : 'desc';
     this.loadChapters(0);
+  }
+
+  get allChaptersRead(): boolean {
+    const list = this.chapters();
+    return list.length > 0 && list.every(c => c.isRead);
+  }
+
+  toggleAllChaptersRead(): void {
+    if (this.isTogglingAll()) return;
+    this.isTogglingAll.set(true);
+
+    const action = this.allChaptersRead
+      ? this.workService.markAllChaptersUnread(this.slug)
+      : this.workService.markAllChaptersRead(this.slug);
+
+    action.pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => this.loadChapters(0),
+      error: () => this.isTogglingAll.set(false),
+      complete: () => this.isTogglingAll.set(false)
+    });
   }
 
   toggleSynopsis(): void {

@@ -4,6 +4,7 @@ import dev.williancorrea.manhwa.reader.features.access.user.UserRepository;
 import dev.williancorrea.manhwa.reader.features.chapter.dto.ChapterListOutput;
 import dev.williancorrea.manhwa.reader.features.progress.ReadingProgress;
 import dev.williancorrea.manhwa.reader.features.progress.ReadingProgressService;
+import dev.williancorrea.manhwa.reader.features.work.WorkService;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -29,6 +30,7 @@ public class ChapterResource {
   private final ChapterService chapterService;
   private final ReadingProgressService readingProgressService;
   private final UserRepository userRepository;
+  private final WorkService workService;
 
   @GetMapping("/{slug}/chapters")
   @PreAuthorize("isAuthenticated()")
@@ -75,6 +77,31 @@ public class ChapterResource {
     var user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
     var chapter = chapterService.findById(chapterId).orElseThrow();
     readingProgressService.deleteByUserAndChapter(user, chapter);
+    return ResponseEntity.noContent().build();
+  }
+
+  @PostMapping("/{slug}/chapters/read-all")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<Void> markAllChaptersRead(
+      @PathVariable String slug,
+      @AuthenticationPrincipal UserDetails userDetails
+  ) {
+    var user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+    var work = workService.findBySlug(slug).orElseThrow();
+    List<Chapter> chapters = chapterService.findAllByWorkId(work.getId());
+    readingProgressService.markAllAsRead(user, chapters);
+    return ResponseEntity.ok().build();
+  }
+
+  @DeleteMapping("/{slug}/chapters/read-all")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<Void> markAllChaptersUnread(
+      @PathVariable String slug,
+      @AuthenticationPrincipal UserDetails userDetails
+  ) {
+    var user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+    var work = workService.findBySlug(slug).orElseThrow();
+    readingProgressService.unmarkAllByWorkId(user, work.getId());
     return ResponseEntity.noContent().build();
   }
 }

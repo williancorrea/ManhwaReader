@@ -37,4 +37,12 @@ export class WorkService {
   markChapterUnread(slug: string, chapterId: string): Observable<void> {
     return this.http.delete<void>(`${environment.apiUrl}/works/${slug}/chapters/${chapterId}/read`);
   }
+
+  markAllChaptersRead(slug: string): Observable<void> {
+    return this.http.post<void>(`${environment.apiUrl}/works/${slug}/chapters/read-all`, {});
+  }
+
+  markAllChaptersUnread(slug: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/works/${slug}/chapters/read-all`);
+  }
 }

@@ -140,12 +140,33 @@
             Capítulos
             @if (w.chapterCount) { <span class="work-chapters__count">{{ w.chapterCount }}</span> }
           </h2>
-          <button class="btn btn--ghost btn--sm" type="button" (click)="toggleSort()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M3 6h18M7 12h10M11 18h2"/>
-            </svg>
-            {{ chapterSort === 'desc' ? 'Mais recentes' : 'Mais antigos' }}
-          </button>
+          <div class="work-chapters__actions">
+            <button
+              class="btn btn--ghost btn--sm"
+              type="button"
+              [disabled]="isTogglingAll() || chapters().length === 0"
+              (click)="toggleAllChaptersRead()"
+            >
+              @if (isTogglingAll()) {
+                <div class="spinner spinner--xs"></div>
+              } @else if (allChaptersRead) {
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 12l5 5L21 4"/><line x1="1" y1="1" x2="23" y2="23" stroke-width="1.5"/>
+                </svg>
+              } @else {
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12l7 7L22 4"/>
+                </svg>
+              }
+              {{ allChaptersRead ? 'Desmarcar todos' : 'Marcar todos como lido' }}
+            </button>
+            <button class="btn btn--ghost btn--sm" type="button" (click)="toggleSort()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18M7 12h10M11 18h2"/>
+              </svg>
+              {{ chapterSort === 'desc' ? 'Mais recentes' : 'Mais antigos' }}
+            </button>
+          </div>
         </div>
 
         @if (isLoadingChapters() && chapters().length === 0) {

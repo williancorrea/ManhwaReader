@@ -60,6 +60,24 @@ public class ReadingProgressService {
     repository.deleteByUserIdAndChapterId(user.getId(), chapter.getId());
   }
 
+  @Transactional
+  public void markAllAsRead(User user, List<Chapter> chapters) {
+    for (Chapter chapter : chapters) {
+      if (repository.findByUser_IdAndChapter_Id(user.getId(), chapter.getId()).isEmpty()) {
+        repository.save(ReadingProgress.builder()
+            .user(user)
+            .chapter(chapter)
+            .lastReadAt(OffsetDateTime.now())
+            .build());
+      }
+    }
+  }
+
+  @Transactional
+  public void unmarkAllByWorkId(User user, UUID workId) {
+    repository.deleteAllByUserIdAndWorkId(user.getId(), workId);
+  }
+
   public Map<UUID, ReadingProgress> findAllByUserAndChapterIds(User user, List<UUID> chapterIds) {
     if (chapterIds == null || chapterIds.isEmpty()) return Map.of();
     return repository.findAllByUserIdAndChapterIdIn(user.getId(), chapterIds).stream()
