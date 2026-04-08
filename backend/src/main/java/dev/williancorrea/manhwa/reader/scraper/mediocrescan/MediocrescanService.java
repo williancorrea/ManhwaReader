@@ -639,7 +639,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
     var pageCount = pageService.countByChapterNumber(chapter);
 
     // Pool dedicado para este capítulo - permite cancelar apenas os downloads deste capítulo
-    ExecutorService chapterExecutor = Executors.newFixedThreadPool(5);
+    ExecutorService chapterExecutor = Executors.newFixedThreadPool(4);
     var cancelled = new AtomicBoolean(false);
     List<CompletableFuture<Void>> futures = new ArrayList<>();
 
