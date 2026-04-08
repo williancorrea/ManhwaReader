@@ -2,17 +2,20 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../shared/components/navbar/navbar';
 import { ManhwaCardComponent, Manhwa } from '../../shared/components/manhwa-card/manhwa-card';
+import { FeaturedCarouselComponent } from '../../shared/components/featured-carousel/featured-carousel';
 import { CatalogService } from '../catalog/services/catalog.service';
 import { WorkCatalogItem } from '../catalog/models/catalog.models';
 
 @Component({
   selector: 'app-home',
-  imports: [NavbarComponent, ManhwaCardComponent, RouterLink],
+  imports: [NavbarComponent, ManhwaCardComponent, FeaturedCarouselComponent, RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
 export class HomeComponent implements OnInit {
   private readonly catalogService = inject(CatalogService);
+
+  readonly featuredWorks = signal<Manhwa[]>([]);
 
   readonly continueReading: Manhwa[] = [
     { id: 1,  title: 'Solo Leveling',             coverUrl: 'https://picsum.photos/seed/manhwa1/200/300',  latestChapter: 179, genres: ['Action', 'Fantasy'],            progress: 65 },
@@ -26,6 +29,12 @@ export class HomeComponent implements OnInit {
   readonly latestUpdates = signal<Manhwa[]>([]);
 
   ngOnInit(): void {
+    this.catalogService.listar(0, 5).subscribe({
+      next: (response) => {
+        this.featuredWorks.set(response.content.map(toManhwa));
+      }
+    });
+
     this.catalogService.listar(0).subscribe({
       next: (response) => {
         this.latestUpdates.set(response.content.map(toManhwa));

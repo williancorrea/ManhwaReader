@@ -1,24 +1,10 @@
 <div class="home">
   <app-navbar />
 
-  <!-- Hero Banner -->
-  <section class="hero">
-    <div class="hero__inner">
-      <div class="hero__content">
-        <span class="hero__eyebrow">Featured This Week</span>
-        <h1 class="hero__title">Discover Your Next<br />Manhwa Adventure</h1>
-        <p class="hero__subtitle">
-          Thousands of titles updated daily. Track your progress, discover new genres,
-          and read anywhere.
-        </p>
-        <div class="hero__actions">
-          <button class="btn btn--primary">Browse All</button>
-          <button class="btn btn--outline">What's New</button>
-        </div>
-      </div>
-      <div class="hero__decoration" aria-hidden="true"></div>
-    </div>
-  </section>
+  <!-- Featured Carousel -->
+  @if (featuredWorks().length > 0) {
+    <app-featured-carousel [items]="featuredWorks()" />
+  }
 
   <!-- Continue Reading -->
   <section class="section">

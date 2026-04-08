@@ -1,0 +1,60 @@
+@if (items.length > 0) {
+  <section
+    class="carousel"
+    (mouseenter)="onMouseEnter()"
+    (mouseleave)="onMouseLeave()"
+  >
+    @for (item of items; track item.id; let i = $index) {
+      <div
+        class="carousel__slide"
+        [class.carousel__slide--active]="i === activeIndex()"
+      >
+        <img
+          class="carousel__image"
+          [src]="item.coverUrl"
+          [alt]="item.title"
+          loading="eager"
+        />
+        <div class="carousel__overlay"></div>
+        <div class="carousel__content">
+          <span class="carousel__badge">Latest Update</span>
+          <h2 class="carousel__title">{{ item.title }}</h2>
+          <div class="carousel__meta">
+            @for (genre of item.genres; track genre) {
+              <span class="carousel__genre">{{ genre }}</span>
+            }
+            @if (item.latestChapter) {
+              <span class="carousel__chapters">{{ item.latestChapter }} chapters</span>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <button
+      class="carousel__arrow carousel__arrow--prev"
+      (click)="prev()"
+      aria-label="Previous slide"
+    >
+      &#8249;
+    </button>
+    <button
+      class="carousel__arrow carousel__arrow--next"
+      (click)="next()"
+      aria-label="Next slide"
+    >
+      &#8250;
+    </button>
+
+    <div class="carousel__dots">
+      @for (item of items; track item.id; let i = $index) {
+        <button
+          class="carousel__dot"
+          [class.carousel__dot--active]="i === activeIndex()"
+          (click)="goTo(i)"
+          [attr.aria-label]="'Go to slide ' + (i + 1)"
+        ></button>
+      }
+    </div>
+  </section>
+}
