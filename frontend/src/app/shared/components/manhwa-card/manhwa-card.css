@@ -74,6 +74,15 @@
   border: 1px solid var(--accent);
 }
 
+.card__badge--unread {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  min-width: 20px;
+  text-align: center;
+  font-size: 15px;
+}
+
 .card__progress-bar {
   position: absolute;
   bottom: 0;

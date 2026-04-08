@@ -10,6 +10,7 @@ export interface Manhwa {
   genres: string[];
   isNew?: boolean;
   progress?: number;
+  unreadCount?: number;
 }
 
 export const GENRE_COLORS: Record<string, string> = {

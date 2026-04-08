@@ -11,6 +11,9 @@
         @if (manhwa.isNew) {
           <span class="card__badge card__badge--new">NEW</span>
         }
+        @if (manhwa.unreadCount && manhwa.unreadCount > 0) {
+          <span class="card__badge card__badge--unread">{{ manhwa.unreadCount }}</span>
+        }
         @if (manhwa.progress !== undefined) {
           <div class="card__progress-bar">
             <div
@@ -49,6 +52,9 @@
       />
       @if (manhwa.isNew) {
         <span class="card__badge card__badge--new">NEW</span>
+      }
+      @if (manhwa.unreadCount && manhwa.unreadCount > 0) {
+        <span class="card__badge card__badge--unread">{{ manhwa.unreadCount }}</span>
       }
       @if (manhwa.progress !== undefined) {
         <div class="card__progress-bar">
