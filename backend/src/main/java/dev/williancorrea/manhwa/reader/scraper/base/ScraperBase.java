@@ -140,7 +140,11 @@ public class ScraperBase {
       if (item.getTitle().isBlank()) {
         throw new IllegalArgumentException(VALIDATION_ERROR_TITLE_IS_BLANK);
       }
-
+      
+      if(item.getTitle().trim().equalsIgnoreCase("[]")) {
+        return;
+      }
+      
       var lang = item.getLanguage() == null
           ? null
           : languageService.findOrCreate(item.getLanguage(), item.getOrigin());
