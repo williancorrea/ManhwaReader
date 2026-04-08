@@ -37,12 +37,6 @@
             {{ showFilters ? 'Limpar filtros' : 'Filtros' }}
           </button>
 
-          <select class="catalog__filterbar-select" [(ngModel)]="filterSort" (ngModelChange)="aplicarFiltros()" name="filterSort">
-            <option value="">Mais Recentes</option>
-            @for (opt of sortOptions; track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
-            }
-          </select>
         </div>
       </div>
 
@@ -66,6 +60,12 @@
             <option value="">Status</option>
             @for (status of workStatuses; track status) {
               <option [value]="status">{{ status }}</option>
+            }
+          </select>
+
+          <select class="catalog__filter-select" [(ngModel)]="filterSort" (ngModelChange)="aplicarFiltros()" name="filterSort">
+            @for (opt of sortOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
             }
           </select>
         </div>
