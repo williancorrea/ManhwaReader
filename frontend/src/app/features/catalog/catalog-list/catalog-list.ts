@@ -39,12 +39,22 @@ export class CatalogListComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly workDemographics = WORK_DEMOGRAPHICS;
   readonly sortOptions = SORT_OPTIONS;
 
+  get hasActiveFilters(): boolean {
+    return !!(this.filterType || this.filterDemographic || this.filterStatus);
+  }
+
+  private filtersWereOpen = false;
+
   @HostListener('window:scroll')
   onScroll(): void {
     const scrollY = window.scrollY;
     this.showScrollTop.set(scrollY > 300);
     if (scrollY > 50 && this.showFilters) {
+      this.filtersWereOpen = true;
       this.showFilters = false;
+    } else if (scrollY <= 50 && this.filtersWereOpen) {
+      this.filtersWereOpen = false;
+      this.showFilters = true;
     }
   }
 

@@ -25,7 +25,7 @@
         <div class="catalog__filterbar-actions">
           <button
             class="catalog__toggle-btn"
-            [class.catalog__toggle-btn--active]="showFilters"
+            [class.catalog__toggle-btn--active]="showFilters || hasActiveFilters"
             type="button"
             (click)="toggleFilters()"
           >
@@ -34,7 +34,7 @@
               <line x1="8" y1="12" x2="16" y2="12"/>
               <line x1="11" y1="18" x2="13" y2="18"/>
             </svg>
-            {{ showFilters ? 'Limpar filtros' : 'Filtros' }}
+            {{ (showFilters || hasActiveFilters) ? 'Limpar filtros' : 'Filtros' }}
           </button>
 
         </div>
