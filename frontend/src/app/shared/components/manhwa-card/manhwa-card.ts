@@ -1,7 +1,9 @@
 import { Component, Input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 export interface Manhwa {
   id?: number;
+  slug?: string;
   title: string;
   coverUrl: string;
   latestChapter: number;
@@ -29,6 +31,7 @@ export const GENRE_COLORS: Record<string, string> = {
 
 @Component({
   selector: 'app-manhwa-card',
+  imports: [RouterLink],
   templateUrl: './manhwa-card.html',
   styleUrl: './manhwa-card.css'
 })

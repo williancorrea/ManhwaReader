@@ -1,0 +1,226 @@
+<div class="work-detail">
+  <app-navbar />
+
+  @if (isLoadingWork()) {
+    <div class="work-detail__loading">
+      <div class="spinner"></div>
+    </div>
+  } @else if (work(); as w) {
+    <!-- Hero / Header -->
+    <section class="work-hero">
+      @if (w.coverUrl) {
+        <div class="work-hero__blur" [style.backgroundImage]="'url(' + w.coverUrl + ')'"></div>
+      }
+      <div class="work-hero__overlay"></div>
+
+      <div class="work-hero__inner">
+        <div class="work-hero__cover-wrapper">
+          @if (w.coverUrl) {
+            <img class="work-hero__cover" [src]="w.coverUrl" [alt]="w.title" loading="eager" />
+          } @else {
+            <div class="work-hero__cover work-hero__cover--placeholder">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+              </svg>
+            </div>
+          }
+        </div>
+
+        <div class="work-hero__info">
+          <h1 class="work-hero__title">{{ w.title }}</h1>
+
+          @if (w.alternativeTitles.length) {
+            <p class="work-hero__alt-titles">
+              @for (alt of w.alternativeTitles; track $index) {
+                @if (alt.title !== w.title) {
+                  <span>{{ alt.title }}</span>
+                }
+              }
+            </p>
+          }
+
+          <div class="work-hero__badges">
+            @if (w.type) { <span class="badge badge--type">{{ w.type }}</span> }
+            @if (w.status) { <span class="badge badge--status" [class]="'badge--status-' + w.status.toLowerCase()">{{ w.status }}</span> }
+            @if (w.releaseYear) { <span class="badge">{{ w.releaseYear }}</span> }
+            @if (w.contentRating) { <span class="badge badge--rating">{{ w.contentRating }}</span> }
+            @if (w.publicationDemographic) { <span class="badge">{{ w.publicationDemographic }}</span> }
+          </div>
+
+          @if (w.tags.length) {
+            <div class="work-hero__tags">
+              @for (tag of w.tags; track $index) {
+                <span class="tag" [style]="getTagStyle(tag.name)">{{ tag.name }}</span>
+              }
+            </div>
+          }
+
+          @if (w.authors.length) {
+            <div class="work-hero__authors">
+              @for (author of w.authors; track $index) {
+                <span class="author">
+                  @if (author.type === 'WRITER') {
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  } @else {
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                  }
+                  {{ author.name }}
+                </span>
+              }
+            </div>
+          }
+
+          @if (w.synopsis) {
+            <div class="work-hero__synopsis" [class.work-hero__synopsis--expanded]="synopsisExpanded()">
+              <p>{{ w.synopsis }}</p>
+            </div>
+            <button class="work-hero__synopsis-toggle" type="button" (click)="toggleSynopsis()">
+              {{ synopsisExpanded() ? 'Ver menos' : 'Ver mais' }}
+            </button>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Action bar -->
+    <section class="work-actions">
+      <div class="work-actions__inner">
+        <div class="work-actions__library">
+          <button
+            class="btn btn--primary"
+            [class.btn--active]="!!w.userLibraryStatus"
+            type="button"
+            (click)="toggleLibraryMenu()"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+            </svg>
+            {{ getLibraryLabel(w.userLibraryStatus) }}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          @if (showLibraryMenu()) {
+            <div class="library-menu">
+              @for (s of libraryStatuses; track s.value) {
+                <button
+                  class="library-menu__item"
+                  [class.library-menu__item--active]="w.userLibraryStatus === s.value"
+                  type="button"
+                  (click)="setLibraryStatus(s.value)"
+                >{{ s.label }}</button>
+              }
+              @if (w.userLibraryStatus) {
+                <button class="library-menu__item library-menu__item--danger" type="button" (click)="removeFromLibrary()">
+                  Remover
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        @if (w.links.length) {
+          <div class="work-actions__links">
+            @for (link of w.links; track link.siteCode) {
+              <a class="btn btn--ghost" [href]="link.url" target="_blank" rel="noopener noreferrer">
+                {{ getSiteLabel(link.siteCode) }}
+              </a>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Chapters -->
+    <section class="work-chapters">
+      <div class="work-chapters__inner">
+        <div class="work-chapters__header">
+          <h2 class="work-chapters__title">
+            Capítulos
+            @if (w.chapterCount) { <span class="work-chapters__count">{{ w.chapterCount }}</span> }
+          </h2>
+          <button class="btn btn--ghost btn--sm" type="button" (click)="toggleSort()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 6h18M7 12h10M11 18h2"/>
+            </svg>
+            {{ chapterSort === 'desc' ? 'Mais recentes' : 'Mais antigos' }}
+          </button>
+        </div>
+
+        @if (isLoadingChapters() && chapters().length === 0) {
+          <div class="chapters__skeletons">
+            @for (_ of [1,2,3,4,5]; track $index) {
+              <div class="chapter-skeleton"></div>
+            }
+          </div>
+        } @else if (chapters().length === 0) {
+          <p class="chapters__empty">Nenhum capítulo disponível.</p>
+        } @else {
+          <div class="chapters__list">
+            @for (chapter of chapters(); track chapter.id) {
+              <div class="chapter-row" [class.chapter-row--read]="chapter.isRead">
+                <div class="chapter-row__status">
+                  <span class="chapter-row__dot" [class.chapter-row__dot--read]="chapter.isRead"></span>
+                </div>
+                <div class="chapter-row__info">
+                  <span class="chapter-row__number">Cap. {{ chapter.numberWithVersion }}</span>
+                  @if (chapter.title) {
+                    <span class="chapter-row__title">{{ chapter.title }}</span>
+                  }
+                  <span class="chapter-row__meta">
+                    {{ chapter.scanlator }}
+                    @if (chapter.releaseDate) { · {{ formatDate(chapter.releaseDate) }} }
+                  </span>
+                </div>
+                <div class="chapter-row__actions">
+                  <button
+                    class="chapter-action-btn"
+                    [class.chapter-action-btn--read]="chapter.isRead && !isTogglingChapter(chapter.id)"
+                    [class.chapter-action-btn--unread]="!chapter.isRead && !isTogglingChapter(chapter.id)"
+                    [disabled]="isTogglingChapter(chapter.id)"
+                    type="button"
+                    [title]="chapter.isRead ? 'Marcar como não lido' : 'Marcar como lido'"
+                    (click)="toggleChapterRead(chapter)"
+                  >
+                    @if (isTogglingChapter(chapter.id)) {
+                      <div class="spinner spinner--xs"></div>
+                    } @else if (chapter.isRead) {
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    } @else {
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                      </svg>
+                    }
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (isLoadingChapters() && chapters().length > 0) {
+          <div class="chapters__loading-more">
+            <div class="spinner spinner--sm"></div>
+          </div>
+        }
+
+        <div #chapterSentinel class="chapters__sentinel"></div>
+      </div>
+    </section>
+  } @else {
+    <div class="work-detail__not-found">
+      <p>Obra não encontrada.</p>
+    </div>
+  }
+
+  @if (showScrollTop()) {
+    <button class="work-detail__scroll-top" type="button" (click)="scrollToTop()" aria-label="Voltar ao topo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="18 15 12 9 6 15"/>
+      </svg>
+    </button>
+  }
+</div>

@@ -20,6 +20,12 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'work',
+    loadChildren: () =>
+      import('./features/work/work.routes').then(m => m.workRoutes),
+    canActivate: [authGuard]
+  },
+  {
     path: 'auth',
     loadChildren: () =>
       import('./features/auth/auth.routes').then(m => m.authRoutes)

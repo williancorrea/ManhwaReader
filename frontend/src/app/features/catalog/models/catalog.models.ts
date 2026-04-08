@@ -1,4 +1,5 @@
 export interface WorkCatalogItem {
+  slug: string;
   title: string;
   coverUrl: string;
   publicationDemographic: string;

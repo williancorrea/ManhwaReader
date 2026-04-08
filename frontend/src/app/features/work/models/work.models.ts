@@ -1,0 +1,73 @@
+export interface WorkDetail {
+  id: string;
+  slug: string;
+  title: string;
+  alternativeTitles: AlternativeTitle[];
+  synopsis: string;
+  coverUrl: string;
+  type: string;
+  status: string;
+  releaseYear: number;
+  contentRating: string;
+  publicationDemographic: string;
+  originalLanguage: string;
+  tags: WorkTagItem[];
+  authors: WorkAuthorItem[];
+  links: WorkLinkItem[];
+  chapterCount: number;
+  userLibraryStatus: string | null;
+  userRating: number | null;
+}
+
+export interface AlternativeTitle {
+  title: string;
+  language: string;
+  isOfficial: boolean;
+}
+
+export interface WorkTagItem {
+  name: string;
+  group: string;
+}
+
+export interface WorkAuthorItem {
+  name: string;
+  type: string;
+}
+
+export interface WorkLinkItem {
+  siteCode: string;
+  url: string;
+}
+
+export interface ChapterItem {
+  id: string;
+  number: string;
+  numberFormatted: string;
+  numberWithVersion: string;
+  title: string | null;
+  language: string;
+  releaseDate: string;
+  scanlator: string;
+  volume: number | null;
+  isRead: boolean;
+  readProgress: number;
+  publishedAt: string;
+}
+
+export const LIBRARY_STATUSES = [
+  { value: 'READING', label: 'Lendo' },
+  { value: 'COMPLETED', label: 'Completo' },
+  { value: 'PLAN_TO_READ', label: 'Quero ler' },
+  { value: 'DROPPED', label: 'Abandonado' },
+];
+
+export const SITE_LABELS: Record<string, string> = {
+  MANGADEX: 'MangaDex',
+  MY_ANIME_LIST: 'MyAnimeList',
+  ANI_LIST: 'AniList',
+  ANIME_PLANET: 'Anime-Planet',
+  NOVEL_UPDATES: 'Novel Updates',
+  MANGA_UPDATES: 'MangaUpdates',
+  KITSU: 'Kitsu',
+};

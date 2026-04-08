@@ -83,6 +83,31 @@
   color: var(--text-muted);
 }
 
+/* Scroll to top FAB */
+.home__scroll-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--primary);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transition: background-color 150ms ease, transform 150ms ease;
+  z-index: 50;
+}
+
+.home__scroll-top:hover {
+  background: var(--primary-hover, var(--primary));
+  transform: translateY(-2px);
+}
+
 @media (max-width: 768px) {
   .grid-cards {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));

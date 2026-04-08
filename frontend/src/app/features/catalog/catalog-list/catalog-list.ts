@@ -154,6 +154,7 @@ export class CatalogListComponent implements OnInit, AfterViewInit, OnDestroy {
 function toManhwa(item: WorkCatalogItem, id: number): Manhwa {
   return {
     id,
+    slug: item.slug,
     title: item.title ?? '',
     coverUrl: item.coverUrl ?? '',
     latestChapter: item.chapterCount,

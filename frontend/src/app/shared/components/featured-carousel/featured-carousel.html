@@ -16,7 +16,7 @@
           loading="eager"
         />
         <div class="carousel__overlay"></div>
-        <div class="carousel__content">
+        <a class="carousel__content" [routerLink]="item.slug ? ['/work', item.slug] : null">
           <span class="carousel__badge">Latest Update</span>
           <h2 class="carousel__title">{{ item.title }}</h2>
           <div class="carousel__meta">
@@ -27,7 +27,7 @@
               <span class="carousel__chapters">{{ item.latestChapter }} chapters</span>
             }
           </div>
-        </div>
+        </a>
       </div>
     }
 

@@ -1,8 +1,10 @@
 import { Component, Input, OnDestroy, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Manhwa } from '../manhwa-card/manhwa-card';
 
 @Component({
   selector: 'app-featured-carousel',
+  imports: [RouterLink],
   templateUrl: './featured-carousel.html',
   styleUrl: './featured-carousel.css'
 })

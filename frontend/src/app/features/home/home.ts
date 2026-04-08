@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, HostListener, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../shared/components/navbar/navbar';
 import { ManhwaCardComponent, Manhwa } from '../../shared/components/manhwa-card/manhwa-card';
@@ -14,8 +15,21 @@ import { WorkCatalogItem } from '../catalog/models/catalog.models';
 })
 export class HomeComponent implements OnInit {
   private readonly catalogService = inject(CatalogService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   readonly featuredWorks = signal<Manhwa[]>([]);
+  readonly showScrollTop = signal(false);
+
+  @HostListener('window:scroll')
+  onScroll(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    this.showScrollTop.set(window.scrollY > 300);
+  }
+
+  scrollToTop(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
   readonly continueReading: Manhwa[] = [
     { id: 1,  title: 'Solo Leveling',             coverUrl: 'https://picsum.photos/seed/manhwa1/200/300',  latestChapter: 179, genres: ['Action', 'Fantasy'],            progress: 65 },
@@ -46,6 +60,7 @@ export class HomeComponent implements OnInit {
 function toManhwa(item: WorkCatalogItem, index: number): Manhwa {
   return {
     id: index,
+    slug: item.slug,
     title: item.title ?? '',
     coverUrl: item.coverUrl ?? '',
     latestChapter: item.chapterCount,
