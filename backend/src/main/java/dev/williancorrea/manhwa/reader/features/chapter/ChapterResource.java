@@ -63,7 +63,10 @@ public class ChapterResource {
   ) {
     var user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
     var chapter = chapterService.findById(chapterId).orElseThrow();
-    readingProgressService.saveOrUpdate(user, chapter);
+    // Mark this chapter and all previous chapters as read
+    List<Chapter> chaptersToMark = chapterService.findChaptersUpTo(
+        chapter.getWork().getId(), chapter.getNumberFormatted(), chapter.getNumberVersion());
+    readingProgressService.markAllAsRead(user, chaptersToMark);
     return ResponseEntity.ok().build();
   }
 
@@ -76,7 +79,12 @@ public class ChapterResource {
   ) {
     var user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
     var chapter = chapterService.findById(chapterId).orElseThrow();
-    readingProgressService.deleteByUserAndChapter(user, chapter);
+    // Unmark this chapter and all subsequent chapters
+    List<Chapter> chaptersToUnmark = chapterService.findChaptersFrom(
+        chapter.getWork().getId(), chapter.getNumberFormatted(), chapter.getNumberVersion());
+    for (Chapter c : chaptersToUnmark) {
+      readingProgressService.deleteByUserAndChapter(user, c);
+    }
     return ResponseEntity.noContent().build();
   }
 

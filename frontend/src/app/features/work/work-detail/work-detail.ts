@@ -189,31 +189,15 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   toggleChapterRead(chapter: ChapterItem): void {
     if (this.isTogglingChapter(chapter.id)) return;
     this.addTogglingChapter(chapter.id);
-    if (chapter.isRead) {
-      this.workService.markChapterUnread(this.slug, chapter.id)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => {
-            this.chapters.update(list =>
-              list.map(c => c.id === chapter.id ? { ...c, isRead: false, readProgress: 0 } : c)
-            );
-          },
-          error: () => {},
-          complete: () => this.removeTogglingChapter(chapter.id)
-        });
-    } else {
-      this.workService.markChapterRead(this.slug, chapter.id)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => {
-            this.chapters.update(list =>
-              list.map(c => c.id === chapter.id ? { ...c, isRead: true } : c)
-            );
-          },
-          error: () => {},
-          complete: () => this.removeTogglingChapter(chapter.id)
-        });
-    }
+    const action = chapter.isRead
+      ? this.workService.markChapterUnread(this.slug, chapter.id)
+      : this.workService.markChapterRead(this.slug, chapter.id);
+
+    action.pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => this.loadChapters(0),
+      error: () => {},
+      complete: () => this.removeTogglingChapter(chapter.id)
+    });
   }
 
   getTagStyle(tagName: string): string {

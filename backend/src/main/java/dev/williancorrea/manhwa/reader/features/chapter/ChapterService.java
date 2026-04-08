@@ -46,6 +46,14 @@ public class ChapterService {
     return repository.findAllByWork_Id(workId);
   }
 
+  public List<Chapter> findChaptersUpTo(UUID workId, String numberFormatted, String numberVersion) {
+    return repository.findChaptersUpTo(workId, numberFormatted, numberVersion);
+  }
+
+  public List<Chapter> findChaptersFrom(UUID workId, String numberFormatted, String numberVersion) {
+    return repository.findChaptersFrom(workId, numberFormatted, numberVersion);
+  }
+
   public Optional<Chapter> findByNumberAndWorkIdAndScanlatorId(String numberFormatted,
                                                                String numberVersion,
                                                                Work workId,
