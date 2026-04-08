@@ -12,7 +12,8 @@
       "Bash(npm config:*)",
       "Bash(xargs grep:*)",
       "Bash(./mvnw compile:*)",
-      "Bash(./mvnw test:*)"
+      "Bash(./mvnw test:*)",
+      "Bash(find:*)"
     ]
   }
 }
