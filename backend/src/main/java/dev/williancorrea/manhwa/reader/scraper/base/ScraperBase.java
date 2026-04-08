@@ -343,7 +343,7 @@ public class ScraperBase {
     if (validateSlugUniqueFree(workSlug, isNovel)) {
       return workSlug;
     } else {
-      var random = workSlug + "__GENERATED_" + UUID.randomUUID();
+      var random = workSlug + "__generated_" + UUID.randomUUID();
       return Boolean.TRUE.equals(isNovel) ? random + "__novel" : random;
     }
   }
