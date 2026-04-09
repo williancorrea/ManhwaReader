@@ -45,6 +45,7 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly togglingChapterIds = signal<Set<string>>(new Set());
   readonly showScrollTop = signal(false);
   readonly isTogglingAll = signal(false);
+  readonly coverModalOpen = signal(false);
 
   @HostListener('window:scroll')
   onScroll(): void {
@@ -55,6 +56,14 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   scrollToTop(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  openCoverModal(): void {
+    this.coverModalOpen.set(true);
+  }
+
+  closeCoverModal(): void {
+    this.coverModalOpen.set(false);
   }
 
   chapterSort = 'desc';

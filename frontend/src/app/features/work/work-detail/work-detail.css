@@ -97,6 +97,60 @@
   color: var(--text-muted);
 }
 
+/* Cover expand overlay */
+.work-hero__cover-clickable {
+  position: relative;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.work-hero__cover-expand {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0);
+  color: transparent;
+  transition: background 200ms ease, color 200ms ease;
+  border-radius: var(--radius-md);
+}
+
+.work-hero__cover-clickable:hover .work-hero__cover-expand {
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+}
+
+/* Cover Modal */
+.cover-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+  padding: 2rem;
+  animation: fade-in 150ms ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.cover-modal__img {
+  max-height: calc(100vh - 4rem);
+  max-width: 100%;
+  width: auto;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: 0 16px 64px rgba(0, 0, 0, 0.8);
+  cursor: zoom-out;
+}
+
 /* Info */
 .work-hero__info {
   flex: 1;

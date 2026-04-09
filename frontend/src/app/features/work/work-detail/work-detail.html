@@ -16,7 +16,15 @@
       <div class="work-hero__inner">
         <div class="work-hero__cover-wrapper">
           @if (w.coverUrl) {
-            <img class="work-hero__cover" [src]="w.coverUrl" [alt]="w.title" loading="eager" />
+            <div class="work-hero__cover-clickable" (click)="openCoverModal()">
+              <img class="work-hero__cover" [src]="w.coverUrl" [alt]="w.title" loading="eager" />
+              <div class="work-hero__cover-expand">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+                  <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+                </svg>
+              </div>
+            </div>
           } @else {
             <div class="work-hero__cover work-hero__cover--placeholder">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -235,6 +243,14 @@
     <div class="work-detail__not-found">
       <p>Obra não encontrada.</p>
     </div>
+  }
+
+  @if (coverModalOpen()) {
+    @if (work(); as w) {
+      <div class="cover-modal" (click)="closeCoverModal()">
+        <img class="cover-modal__img" [src]="w.coverUrl" [alt]="w.title" (click)="$event.stopPropagation(); closeCoverModal()" />
+      </div>
+    }
   }
 
   @if (showScrollTop()) {
