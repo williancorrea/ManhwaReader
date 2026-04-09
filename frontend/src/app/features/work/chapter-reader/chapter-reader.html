@@ -58,7 +58,7 @@
             loading="lazy"
           />
         } @else {
-          <div class="reader-pages__markdown" [innerHTML]="page.content"></div>
+          <div class="reader-pages__markdown" [innerHTML]="renderMarkdown(page.content)"></div>
         }
       }
     </div>

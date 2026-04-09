@@ -144,6 +144,105 @@
   color: var(--text-primary);
   font-size: 16px;
   line-height: 1.75;
+
+}
+
+::ng-deep .reader-pages__markdown h1,
+::ng-deep .reader-pages__markdown h2,
+::ng-deep .reader-pages__markdown h3,
+::ng-deep .reader-pages__markdown h4,
+::ng-deep .reader-pages__markdown h5,
+::ng-deep .reader-pages__markdown h6 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+::ng-deep .reader-pages__markdown h1 { font-size: 2em; }
+::ng-deep .reader-pages__markdown h2 { font-size: 1.5em; }
+::ng-deep .reader-pages__markdown h3 { font-size: 1.25em; }
+
+::ng-deep .reader-pages__markdown p {
+  margin-bottom: 1em;
+  text-align: justify;
+}
+
+::ng-deep .reader-pages__markdown ul,
+::ng-deep .reader-pages__markdown ol {
+  margin-bottom: 1em;
+  padding-left: 2em;
+}
+
+::ng-deep .reader-pages__markdown ul { list-style: disc; }
+::ng-deep .reader-pages__markdown ol { list-style: decimal; }
+
+::ng-deep .reader-pages__markdown li {
+  margin-bottom: 0.25em;
+}
+
+::ng-deep .reader-pages__markdown blockquote {
+  border-left: 4px solid var(--border-default);
+  padding-left: 1em;
+  margin: 1em 0;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+::ng-deep .reader-pages__markdown code {
+  background: var(--surface-02);
+  border-radius: 4px;
+  padding: 0.2em 0.4em;
+  font-size: 0.875em;
+  font-family: monospace;
+}
+
+::ng-deep .reader-pages__markdown pre {
+  background: var(--surface-02);
+  border-radius: 6px;
+  padding: 1em;
+  overflow-x: auto;
+  margin-bottom: 1em;
+}
+
+::ng-deep .reader-pages__markdown pre code {
+  background: none;
+  padding: 0;
+}
+
+::ng-deep .reader-pages__markdown a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+::ng-deep .reader-pages__markdown hr {
+  border: none;
+  border-top: 1px solid var(--border-default);
+  margin: 1.5em 0;
+}
+
+::ng-deep .reader-pages__markdown img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+::ng-deep .reader-pages__markdown table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 1em;
+}
+
+::ng-deep .reader-pages__markdown th,
+::ng-deep .reader-pages__markdown td {
+  border: 1px solid var(--border-default);
+  padding: 0.5em 0.75em;
+  text-align: left;
+}
+
+::ng-deep .reader-pages__markdown th {
+  background: var(--surface-02);
+  font-weight: 600;
 }
 
 .reader-pages__sentinel {

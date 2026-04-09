@@ -11,9 +11,11 @@ import {
   ViewChild
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { marked } from 'marked';
 import { WorkService } from '../services/work.service';
 import { ChapterReaderData } from '../models/work.models';
 
@@ -29,6 +31,7 @@ export class ChapterReaderComponent implements OnInit, AfterViewInit, OnDestroy 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly workService = inject(WorkService);
+  private readonly sanitizer = inject(DomSanitizer);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly destroy$ = new Subject<void>();
   private intersectionObserver?: IntersectionObserver;
@@ -123,5 +126,11 @@ export class ChapterReaderComponent implements OnInit, AfterViewInit, OnDestroy 
   scrollToTop(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  renderMarkdown(content: string | null): SafeHtml {
+    if (!content) return '';
+    const html = marked.parse(content) as string;
+    return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 }
