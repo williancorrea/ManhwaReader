@@ -57,5 +57,29 @@ public interface ChapterRepository extends JpaRepository<Chapter, UUID> {
   List<Chapter> findChaptersFrom(@Param("workId") UUID workId,
                                  @Param("numberFormatted") String numberFormatted,
                                  @Param("numberVersion") String numberVersion);
+
+  @Query("""
+      SELECT c FROM Chapter c
+      WHERE c.work.id = :workId AND c.disabled = false
+        AND (c.numberFormatted < :numberFormatted
+             OR (c.numberFormatted = :numberFormatted AND c.numberVersion < :numberVersion))
+      ORDER BY c.numberFormatted DESC, c.numberVersion DESC
+      """)
+  List<Chapter> findPreviousChapter(@Param("workId") UUID workId,
+                                    @Param("numberFormatted") String numberFormatted,
+                                    @Param("numberVersion") String numberVersion,
+                                    Pageable pageable);
+
+  @Query("""
+      SELECT c FROM Chapter c
+      WHERE c.work.id = :workId AND c.disabled = false
+        AND (c.numberFormatted > :numberFormatted
+             OR (c.numberFormatted = :numberFormatted AND c.numberVersion > :numberVersion))
+      ORDER BY c.numberFormatted ASC, c.numberVersion ASC
+      """)
+  List<Chapter> findNextChapter(@Param("workId") UUID workId,
+                                @Param("numberFormatted") String numberFormatted,
+                                @Param("numberVersion") String numberVersion,
+                                Pageable pageable);
 }
 

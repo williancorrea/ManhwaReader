@@ -26,6 +26,10 @@ public class PageService {
     return repository.findByNumberNotDisabled(chapter.getId(), number);
   }
 
+  public List<Page> findAllByChapterIdNotDisabled(UUID chapterId) {
+    return repository.findAllByChapterIdNotDisabled(chapterId);
+  }
+
   public List<Page> findAll() {
     return repository.findAll();
   }

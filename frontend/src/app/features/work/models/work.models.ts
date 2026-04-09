@@ -62,6 +62,30 @@ export const LIBRARY_STATUSES = [
   { value: 'DROPPED', label: 'Abandonado' },
 ];
 
+export interface ChapterReaderData {
+  id: string;
+  number: string;
+  numberWithVersion: string;
+  title: string | null;
+  workTitle: string;
+  workSlug: string;
+  pages: ChapterPage[];
+  previousChapter: ChapterNav | null;
+  nextChapter: ChapterNav | null;
+}
+
+export interface ChapterPage {
+  pageNumber: number;
+  type: 'IMAGE' | 'MARKDOWN';
+  imageUrl: string | null;
+  content: string | null;
+}
+
+export interface ChapterNav {
+  id: string;
+  numberWithVersion: string;
+}
+
 export const SITE_LABELS: Record<string, string> = {
   MANGADEX: 'MangaDex',
   MY_ANIME_LIST: 'MyAnimeList',

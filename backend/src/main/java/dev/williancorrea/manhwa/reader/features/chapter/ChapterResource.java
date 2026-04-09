@@ -2,11 +2,18 @@ package dev.williancorrea.manhwa.reader.features.chapter;
 
 import dev.williancorrea.manhwa.reader.features.access.user.UserRepository;
 import dev.williancorrea.manhwa.reader.features.chapter.dto.ChapterListOutput;
+import dev.williancorrea.manhwa.reader.features.chapter.dto.ChapterNavOutput;
+import dev.williancorrea.manhwa.reader.features.chapter.dto.ChapterPageOutput;
+import dev.williancorrea.manhwa.reader.features.chapter.dto.ChapterReaderOutput;
 import dev.williancorrea.manhwa.reader.features.library.LibraryService;
 import dev.williancorrea.manhwa.reader.features.library.LibraryStatus;
+import dev.williancorrea.manhwa.reader.features.page.PageService;
+import dev.williancorrea.manhwa.reader.features.page.PageType;
 import dev.williancorrea.manhwa.reader.features.progress.ReadingProgress;
 import dev.williancorrea.manhwa.reader.features.progress.ReadingProgressService;
 import dev.williancorrea.manhwa.reader.features.work.WorkService;
+import dev.williancorrea.manhwa.reader.features.work.WorkTitle;
+import dev.williancorrea.manhwa.reader.storage.StorageInterface;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -34,6 +41,8 @@ public class ChapterResource {
   private final LibraryService libraryService;
   private final UserRepository userRepository;
   private final WorkService workService;
+  private final PageService pageService;
+  private final StorageInterface storageService;
 
   @GetMapping("/{slug}/chapters")
   @PreAuthorize("isAuthenticated()")
@@ -119,5 +128,77 @@ public class ChapterResource {
     var work = workService.findBySlug(slug).orElseThrow();
     readingProgressService.unmarkAllByWorkId(user, work.getId());
     return ResponseEntity.noContent().build();
+  }
+
+  @GetMapping("/{slug}/chapters/{chapterId}/reader")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<ChapterReaderOutput> getChapterForReader(
+      @PathVariable String slug,
+      @PathVariable UUID chapterId
+  ) {
+    var chapter = chapterService.findById(chapterId).orElseThrow();
+    var work = chapter.getWork();
+
+    if (!work.getSlug().equals(slug)) {
+      return ResponseEntity.notFound().build();
+    }
+
+    // Get work title
+    String workTitle = null;
+    if (work.getTitles() != null && !work.getTitles().isEmpty()) {
+      workTitle = work.getTitles().stream()
+          .filter(t -> Boolean.TRUE.equals(t.getIsOfficial()))
+          .map(WorkTitle::getTitle)
+          .findFirst()
+          .orElse(work.getTitles().getFirst().getTitle());
+    }
+
+    // Build page list with presigned URLs
+    var pages = pageService.findAllByChapterIdNotDisabled(chapterId);
+    var pageOutputs = pages.stream().map(page -> {
+      String imageUrl = null;
+      String content = null;
+
+      if (page.getType() == PageType.IMAGE) {
+        var path = work.getPublicationDemographic().name().toLowerCase()
+            + "/" + work.getSlug()
+            + "/chapters/" + chapter.getNumberFormatted()
+            + "/" + chapter.getScanlator().getCode().toLowerCase()
+            + "/" + chapter.getLanguage().getCode().toLowerCase()
+            + "/" + chapter.getNumberVersion()
+            + "/" + page.getFileName();
+        imageUrl = storageService.findObjectByNamePresigned(path.toLowerCase());
+      } else {
+        content = page.getContent();
+      }
+
+      return new ChapterPageOutput(
+          page.getPageNumber(),
+          page.getType().name(),
+          imageUrl,
+          content
+      );
+    }).toList();
+
+    // Find previous and next chapters
+    ChapterNavOutput previousChapter = chapterService.findPreviousChapter(chapter)
+        .map(c -> new ChapterNavOutput(c.getId(), c.getNumberWithVersionInteger()))
+        .orElse(null);
+
+    ChapterNavOutput nextChapter = chapterService.findNextChapter(chapter)
+        .map(c -> new ChapterNavOutput(c.getId(), c.getNumberWithVersionInteger()))
+        .orElse(null);
+
+    return ResponseEntity.ok(new ChapterReaderOutput(
+        chapter.getId(),
+        chapter.getNumber(),
+        chapter.getNumberWithVersionInteger(),
+        chapter.getTitle(),
+        workTitle,
+        work.getSlug(),
+        pageOutputs,
+        previousChapter,
+        nextChapter
+    ));
   }
 }

@@ -1,0 +1,107 @@
+<div class="chapter-reader">
+  <!-- Header -->
+  <header class="reader-header">
+    <button class="reader-header__back" type="button" (click)="goBackToWork()" title="Voltar aos capítulos">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      <span>Voltar</span>
+    </button>
+    @if (chapterData(); as ch) {
+      <span class="reader-header__title">{{ ch.workTitle }} - Cap. {{ ch.numberWithVersion }}</span>
+    }
+  </header>
+
+  @if (isLoading()) {
+    <div class="reader-loading">
+      <div class="spinner"></div>
+    </div>
+  } @else if (chapterData(); as ch) {
+    <!-- Navigation top -->
+    <nav class="reader-nav">
+      <button
+        class="reader-nav__btn"
+        type="button"
+        [disabled]="!ch.previousChapter"
+        (click)="ch.previousChapter && navigateToChapter(ch.previousChapter.id)"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Anterior
+      </button>
+      <span class="reader-nav__label">
+        Cap. {{ ch.numberWithVersion }}
+        @if (ch.title) { — {{ ch.title }} }
+      </span>
+      <button
+        class="reader-nav__btn"
+        type="button"
+        [disabled]="!ch.nextChapter"
+        (click)="ch.nextChapter && navigateToChapter(ch.nextChapter.id)"
+      >
+        Próximo
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    </nav>
+
+    <!-- Pages -->
+    <div class="reader-pages">
+      @for (page of ch.pages; track page.pageNumber) {
+        @if (page.type === 'IMAGE') {
+          <img
+            class="reader-pages__image"
+            [src]="page.imageUrl"
+            [alt]="'Página ' + page.pageNumber"
+            loading="lazy"
+          />
+        } @else {
+          <div class="reader-pages__markdown" [innerHTML]="page.content"></div>
+        }
+      }
+    </div>
+
+    <div #lastPageSentinel class="reader-pages__sentinel"></div>
+
+    <!-- Navigation bottom -->
+    <nav class="reader-nav reader-nav--bottom">
+      <button
+        class="reader-nav__btn"
+        type="button"
+        [disabled]="!ch.previousChapter"
+        (click)="ch.previousChapter && navigateToChapter(ch.previousChapter.id)"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Anterior
+      </button>
+      <span class="reader-nav__label">Cap. {{ ch.numberWithVersion }}</span>
+      <button
+        class="reader-nav__btn"
+        type="button"
+        [disabled]="!ch.nextChapter"
+        (click)="ch.nextChapter && navigateToChapter(ch.nextChapter.id)"
+      >
+        Próximo
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    </nav>
+  } @else {
+    <div class="reader-empty">
+      <p>Capítulo não encontrado.</p>
+    </div>
+  }
+
+  @if (showScrollTop()) {
+    <button class="reader__scroll-top" type="button" (click)="scrollToTop()" aria-label="Voltar ao topo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="18 15 12 9 6 15"/>
+      </svg>
+    </button>
+  }
+</div>

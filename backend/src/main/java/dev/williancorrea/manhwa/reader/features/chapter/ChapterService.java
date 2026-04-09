@@ -67,6 +67,24 @@ public class ChapterService {
         language.getId());
   }
 
+  public Optional<Chapter> findPreviousChapter(Chapter chapter) {
+    var result = repository.findPreviousChapter(
+        chapter.getWork().getId(),
+        chapter.getNumberFormatted(),
+        chapter.getNumberVersion(),
+        PageRequest.of(0, 1));
+    return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
+  }
+
+  public Optional<Chapter> findNextChapter(Chapter chapter) {
+    var result = repository.findNextChapter(
+        chapter.getWork().getId(),
+        chapter.getNumberFormatted(),
+        chapter.getNumberVersion(),
+        PageRequest.of(0, 1));
+    return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
+  }
+
   @Transactional(readOnly = true)
   public Page<Chapter> findPagedByWorkSlug(String slug, int page, int size, String sort, String language) {
     Sort.Direction direction = "asc".equalsIgnoreCase(sort) ? Sort.Direction.ASC : Sort.Direction.DESC;

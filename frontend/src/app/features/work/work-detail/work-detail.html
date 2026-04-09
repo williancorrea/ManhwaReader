@@ -186,23 +186,12 @@
         } @else if (chapters().length === 0) {
           <p class="chapters__empty">Nenhum capítulo disponível.</p>
         } @else {
-          <div class="chapters__list">
+          <div class="chapters__grid">
             @for (chapter of chapters(); track chapter.id) {
-              <div class="chapter-row" [class.chapter-row--read]="chapter.isRead">
-                <div class="chapter-row__status">
-                  <span class="chapter-row__dot" [class.chapter-row__dot--read]="chapter.isRead"></span>
-                </div>
-                <div class="chapter-row__info">
-                  <span class="chapter-row__number">Cap. {{ chapter.numberWithVersion }}</span>
-                  @if (chapter.title) {
-                    <span class="chapter-row__title">{{ chapter.title }}</span>
-                  }
-                  <span class="chapter-row__meta">
-                    {{ chapter.scanlator }}
-                    @if (chapter.releaseDate) { · {{ formatDate(chapter.releaseDate) }} }
-                  </span>
-                </div>
-                <div class="chapter-row__actions">
+              <div class="chapter-card" [class.chapter-card--read]="chapter.isRead" (click)="openChapter(chapter)" style="cursor: pointer;">
+                <div class="chapter-card__header">
+                  <span class="chapter-card__dot" [class.chapter-card__dot--read]="chapter.isRead"></span>
+                  <span class="chapter-card__number">Cap. {{ chapter.numberWithVersion }}</span>
                   <button
                     class="chapter-action-btn"
                     [class.chapter-action-btn--read]="chapter.isRead && !isTogglingChapter(chapter.id)"
@@ -210,20 +199,36 @@
                     [disabled]="isTogglingChapter(chapter.id)"
                     type="button"
                     [title]="chapter.isRead ? 'Marcar como não lido' : 'Marcar como lido'"
-                    (click)="toggleChapterRead(chapter)"
+                    (click)="$event.stopPropagation(); toggleChapterRead(chapter)"
                   >
                     @if (isTogglingChapter(chapter.id)) {
                       <div class="spinner spinner--xs"></div>
                     } @else if (chapter.isRead) {
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <polyline points="20 6 9 17 4 12"/>
                       </svg>
                     } @else {
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"/>
                       </svg>
                     }
                   </button>
+                </div>
+                @if (chapter.title) {
+                  <span class="chapter-card__title">{{ chapter.title }}</span>
+                }
+                <div class="chapter-card__meta">
+                  @if (chapter.scanlator) {
+                    <span class="chapter-card__scanlator">{{ chapter.scanlator }}</span>
+                  }
+                  @if (chapter.publishedAt) {
+                    <span class="chapter-card__date">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                      </svg>
+                      {{ formatDate(chapter.publishedAt) }}
+                    </span>
+                  }
                 </div>
               </div>
             }

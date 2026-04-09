@@ -11,7 +11,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar';
@@ -29,6 +29,7 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('chapterSentinel') private chapterSentinel!: ElementRef<HTMLElement>;
 
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly workService = inject(WorkService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly destroy$ = new Subject<void>();
@@ -213,6 +214,10 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       error: () => {},
       complete: () => this.removeTogglingChapter(chapter.id)
     });
+  }
+
+  openChapter(chapter: ChapterItem): void {
+    this.router.navigate(['/work', this.slug, 'chapter', chapter.id]);
   }
 
   getTagStyle(tagName: string): string {
