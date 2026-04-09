@@ -193,7 +193,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
           //      titulo = "Reencarnei no Corpo de um Príncipe Canalha"; //COMIC
           //      titulo = "I Became a Munchkin Skill Thief"; // ENGLISH
           //      titulo = "Irmãs Ki"; // ENGLISH - 1 Caps
-          //      titulo = "Necromante! Eu Sou Um Desastre"; //COMIC e NOVEL
+                titulo = "Necromante! Eu Sou Um Desastre"; //COMIC e NOVEL
           //      titulo = "O Gênio Que Lê O Mundo"; // COMIC - Testando titulos alternativos
 //                titulo = "O Começo Depois do Fim";
 
@@ -203,7 +203,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
               24, //Padrao 24
               pageIndex.intValue(),
               "data_ultimo_cap",
-              "1,5",  // 1,3,4
+              "3",  // 1,3,5
               titulo
           );
 

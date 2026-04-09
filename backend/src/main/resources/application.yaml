@@ -5,7 +5,7 @@ spring:
   application:
     name: reader
   datasource:
-    url: jdbc:mariadb://${DATABASE_CONTAINER_NAME:localhost}:3306/${DATABASE_NAME:reader}?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+    url: jdbc:mariadb://${DATABASE_CONTAINER_NAME:localhost}:3306/${DATABASE_NAME:reader}?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&characterEncoding=utf8mb4
     username: ${DATABASE_USER:root}
     password: ${DATABASE_PASS:root}
     driver-class-name: org.mariadb.jdbc.Driver
