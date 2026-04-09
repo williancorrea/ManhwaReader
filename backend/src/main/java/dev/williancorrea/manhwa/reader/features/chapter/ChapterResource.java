@@ -2,6 +2,8 @@ package dev.williancorrea.manhwa.reader.features.chapter;
 
 import dev.williancorrea.manhwa.reader.features.access.user.UserRepository;
 import dev.williancorrea.manhwa.reader.features.chapter.dto.ChapterListOutput;
+import dev.williancorrea.manhwa.reader.features.library.LibraryService;
+import dev.williancorrea.manhwa.reader.features.library.LibraryStatus;
 import dev.williancorrea.manhwa.reader.features.progress.ReadingProgress;
 import dev.williancorrea.manhwa.reader.features.progress.ReadingProgressService;
 import dev.williancorrea.manhwa.reader.features.work.WorkService;
@@ -29,6 +31,7 @@ public class ChapterResource {
 
   private final ChapterService chapterService;
   private final ReadingProgressService readingProgressService;
+  private final LibraryService libraryService;
   private final UserRepository userRepository;
   private final WorkService workService;
 
@@ -63,9 +66,14 @@ public class ChapterResource {
   ) {
     var user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
     var chapter = chapterService.findById(chapterId).orElseThrow();
+    var work = chapter.getWork();
+    // Add to library as READING if not already in library
+    if (libraryService.findByUserAndWork(user, work).isEmpty()) {
+      libraryService.saveOrUpdate(user, work, LibraryStatus.READING);
+    }
     // Mark this chapter and all previous chapters as read
     List<Chapter> chaptersToMark = chapterService.findChaptersUpTo(
-        chapter.getWork().getId(), chapter.getNumberFormatted(), chapter.getNumberVersion());
+        work.getId(), chapter.getNumberFormatted(), chapter.getNumberVersion());
     readingProgressService.markAllAsRead(user, chaptersToMark);
     return ResponseEntity.ok().build();
   }

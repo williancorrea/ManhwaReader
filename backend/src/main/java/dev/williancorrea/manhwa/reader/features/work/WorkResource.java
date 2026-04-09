@@ -4,6 +4,7 @@ import dev.williancorrea.manhwa.reader.features.access.user.User;
 import dev.williancorrea.manhwa.reader.features.access.user.UserRepository;
 import dev.williancorrea.manhwa.reader.features.library.LibraryService;
 import dev.williancorrea.manhwa.reader.features.library.LibraryStatus;
+import dev.williancorrea.manhwa.reader.features.progress.ReadingProgressService;
 import dev.williancorrea.manhwa.reader.features.rating.RatingService;
 import dev.williancorrea.manhwa.reader.features.work.dto.LibraryInput;
 import dev.williancorrea.manhwa.reader.features.work.dto.WorkCatalogFilter;
@@ -34,6 +35,7 @@ public class WorkResource {
   private final WorkService workService;
   private final LibraryService libraryService;
   private final RatingService ratingService;
+  private final ReadingProgressService readingProgressService;
   private final UserRepository userRepository;
 
   @Value("${minio.url.public}")
@@ -97,6 +99,7 @@ public class WorkResource {
     var work = workService.findBySlug(slug).orElseThrow();
     User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
     libraryService.deleteByUserAndWork(user, work);
+    readingProgressService.unmarkAllByWorkId(user, work.getId());
     return ResponseEntity.noContent().build();
   }
 }

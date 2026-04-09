@@ -171,6 +171,7 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.work.update(w => w ? { ...w, userLibraryStatus: null } : w);
+        this.loadChapters(0);
       });
   }
 
@@ -194,7 +195,12 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       : this.workService.markChapterRead(this.slug, chapter.id);
 
     action.pipe(takeUntil(this.destroy$)).subscribe({
-      next: () => this.loadChapters(0),
+      next: () => {
+        this.loadChapters(0);
+        if (!chapter.isRead && !this.work()?.userLibraryStatus) {
+          this.work.update(w => w ? { ...w, userLibraryStatus: 'READING' } : w);
+        }
+      },
       error: () => {},
       complete: () => this.removeTogglingChapter(chapter.id)
     });

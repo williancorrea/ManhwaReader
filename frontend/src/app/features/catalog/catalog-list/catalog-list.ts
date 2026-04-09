@@ -16,6 +16,7 @@ import { CatalogFilter, WorkCatalogItem, WORK_TYPES, WORK_STATUSES, WORK_DEMOGRA
 })
 export class CatalogListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('sentinel') private sentinelRef!: ElementRef<HTMLElement>;
+  @ViewChild('searchInput') private searchInputRef!: ElementRef<HTMLInputElement>;
 
   private readonly catalogService = inject(CatalogService);
   private readonly platformId = inject(PLATFORM_ID);
@@ -79,6 +80,7 @@ export class CatalogListComponent implements OnInit, AfterViewInit, OnDestroy {
       { rootMargin: '300px' }
     );
     this.intersectionObserver.observe(this.sentinelRef.nativeElement);
+    this.searchInputRef?.nativeElement.focus();
   }
 
   ngOnDestroy(): void {
