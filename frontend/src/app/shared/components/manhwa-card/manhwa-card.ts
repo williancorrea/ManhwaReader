@@ -11,6 +11,7 @@ export interface Manhwa {
   isNew?: boolean;
   progress?: number;
   unreadCount?: number;
+  inLibrary?: boolean;
 }
 
 export const GENRE_COLORS: Record<string, string> = {

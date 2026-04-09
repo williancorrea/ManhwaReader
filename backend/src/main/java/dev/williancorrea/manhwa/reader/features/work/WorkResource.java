@@ -10,6 +10,9 @@ import dev.williancorrea.manhwa.reader.features.work.dto.LibraryInput;
 import dev.williancorrea.manhwa.reader.features.work.dto.WorkCatalogFilter;
 import dev.williancorrea.manhwa.reader.features.work.dto.WorkCatalogOutput;
 import dev.williancorrea.manhwa.reader.features.work.dto.WorkDetailOutput;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -53,14 +56,25 @@ public class WorkResource {
       @RequestParam(required = false) WorkType type,
       @RequestParam(required = false) WorkPublicationDemographic publicationDemographic,
       @RequestParam(required = false) WorkStatus status,
-      @RequestParam(required = false) String sort
+      @RequestParam(required = false) String sort,
+      @AuthenticationPrincipal UserDetails userDetails
   ) {
     size = Math.min(size, 50);
     var filter = new WorkCatalogFilter(title, type, publicationDemographic, status, sort);
-    var pageable = PageRequest.of(page, size);
+    var storageBase = minioUrl + "/" + bucketName;
+
+    Page<Work> worksPage = workService.findAllWorks(filter, PageRequest.of(page, size));
+
+    User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+    List<UUID> workIds = worksPage.map(Work::getId).getContent();
+    Map<UUID, LibraryStatus> libraryMap = libraryService.findStatusMapByUserAndWorkIds(user, workIds);
+
     return ResponseEntity.ok(
-        workService.findAllWorks(filter, pageable)
-            .map(work -> WorkCatalogOutput.fromEntity(work, minioUrl + "/" + bucketName))
+        worksPage.map(work -> WorkCatalogOutput.fromEntity(
+            work,
+            storageBase,
+            libraryMap.containsKey(work.getId()) ? libraryMap.get(work.getId()).name() : null
+        ))
     );
   }
 

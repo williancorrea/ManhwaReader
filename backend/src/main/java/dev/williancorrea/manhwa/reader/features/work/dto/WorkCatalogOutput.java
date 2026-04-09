@@ -11,9 +11,14 @@ public record WorkCatalogOutput(
     String coverUrl,
     String publicationDemographic,
     String status,
-    Long chapterCount
+    Long chapterCount,
+    String userLibraryStatus
 ) {
   public static WorkCatalogOutput fromEntity(Work work, String storage) {
+    return fromEntity(work, storage, null);
+  }
+
+  public static WorkCatalogOutput fromEntity(Work work, String storage, String userLibraryStatus) {
     String title = null;
     if (work.getTitles() != null && !work.getTitles().isEmpty()) {
       title = work.getTitles().stream()
@@ -30,7 +35,8 @@ public record WorkCatalogOutput(
         storage + "/" + work.getCoverUrl(),
         work.getPublicationDemographic() != null ? work.getPublicationDemographic().name() : null,
         work.getStatus() != null ? work.getStatus().name() : null,
-        work.getChapterCount() != null ? work.getChapterCount() : 0L
+        work.getChapterCount() != null ? work.getChapterCount() : 0L,
+        userLibraryStatus
     );
   }
 }

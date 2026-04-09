@@ -5,6 +5,7 @@ export interface WorkCatalogItem {
   publicationDemographic: string;
   status: string;
   chapterCount: number;
+  userLibraryStatus: string | null;
 }
 
 export interface PageResponse<T> {

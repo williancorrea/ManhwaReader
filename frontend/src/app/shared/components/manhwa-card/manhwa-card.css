@@ -20,6 +20,11 @@
   transform: translateY(-2px);
 }
 
+.card--in-library {
+  border-color: #f5c518;
+  box-shadow: 0 0 0 1px #f5c518, 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
 .card--horizontal {
   flex-direction: row;
   min-width: 200px;
@@ -73,6 +78,7 @@
   color: var(--accent);
   border: 1px solid var(--accent);
 }
+
 
 .card__badge--unread {
   background: var(--primary);

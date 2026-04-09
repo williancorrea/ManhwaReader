@@ -1,6 +1,6 @@
 @if (manhwa.slug) {
   <a class="card-link" [routerLink]="['/work', manhwa.slug]">
-    <article class="card" [class.card--horizontal]="variant === 'horizontal'">
+    <article class="card" [class.card--horizontal]="variant === 'horizontal'" [class.card--in-library]="manhwa.inLibrary">
       <div class="card__cover-wrap">
         <img
           class="card__cover"
@@ -42,7 +42,7 @@
     </article>
   </a>
 } @else {
-  <article class="card" [class.card--horizontal]="variant === 'horizontal'">
+  <article class="card" [class.card--horizontal]="variant === 'horizontal'" [class.card--in-library]="manhwa.inLibrary">
     <div class="card__cover-wrap">
       <img
         class="card__cover"

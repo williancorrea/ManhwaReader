@@ -1,8 +1,10 @@
 package dev.williancorrea.manhwa.reader.features.library;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import dev.williancorrea.manhwa.reader.features.access.user.User;
 import dev.williancorrea.manhwa.reader.features.library.dto.LibraryItemOutput;
 import dev.williancorrea.manhwa.reader.features.work.Work;
@@ -41,6 +43,16 @@ public class LibraryService {
 
   public void deleteById(UUID id) {
     repository.deleteById(id);
+  }
+
+  public Map<UUID, LibraryStatus> findStatusMapByUserAndWorkIds(User user, List<UUID> workIds) {
+    if (workIds == null || workIds.isEmpty()) return Map.of();
+    return repository.findByUserIdAndWorkIdIn(user.getId(), workIds)
+        .stream()
+        .collect(Collectors.toMap(
+            l -> l.getWork().getId(),
+            Library::getStatus
+        ));
   }
 
   public Optional<Library> findByUserAndWork(User user, Work work) {

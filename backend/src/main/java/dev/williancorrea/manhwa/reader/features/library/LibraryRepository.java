@@ -14,6 +14,12 @@ public interface LibraryRepository extends JpaRepository<Library, UUID> {
 
   Optional<Library> findByUser_IdAndWork_Id(UUID userId, UUID workId);
 
+  @Query("SELECT l FROM Library l WHERE l.user.id = :userId AND l.work.id IN :workIds")
+  List<Library> findByUserIdAndWorkIdIn(
+      @Param("userId") UUID userId,
+      @Param("workIds") List<UUID> workIds
+  );
+
   @Modifying
   @Query("DELETE FROM Library l WHERE l.user.id = :userId AND l.work.id = :workId")
   void deleteByUserIdAndWorkId(@Param("userId") UUID userId, @Param("workId") UUID workId);
