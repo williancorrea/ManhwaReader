@@ -63,6 +63,41 @@
   flex-shrink: 0;
 }
 
+/* "Tudo em dia" empty state */
+.up-to-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+}
+
+.up-to-date__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-2);
+}
+
+.up-to-date__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.up-to-date__sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  max-width: 320px;
+}
+
 /* Grid for "Latest Updates" */
 .grid-cards {
   display: grid;

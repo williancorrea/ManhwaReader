@@ -44,6 +44,44 @@ public interface LibraryRepository extends JpaRepository<Library, UUID> {
         COALESCE(
           (SELECT COUNT(c2.id) FROM chapter c2
            WHERE c2.work_id = w.id AND c2.disabled = false
+           AND c2.id NOT IN (SELECT rp2.chapter_id FROM reading_progress rp2 WHERE rp2.user_id = :userId)
+          ), 0
+        ) AS unread_count,
+        MAX(rp.last_read_at) AS last_read_at
+      FROM library l
+      JOIN work w ON l.work_id = w.id
+      LEFT JOIN chapter ch ON ch.work_id = w.id
+      LEFT JOIN reading_progress rp ON rp.chapter_id = ch.id AND rp.user_id = :userId
+      WHERE l.user_id = :userId
+      GROUP BY l.id, w.id, w.slug, l.status, w.publication_demographic, w.status
+      ORDER BY last_read_at DESC
+      LIMIT :limit
+      """)
+  List<Object[]> findContinueReadingByUserId(
+      @Param("userId") UUID userId,
+      @Param("limit") int limit
+  );
+
+  @Query(nativeQuery = true, value = """
+      SELECT
+        l.id AS id,
+        w.id AS work_id,
+        w.slug AS slug,
+        l.status AS library_status,
+        w.publication_demographic AS publication_demographic,
+        w.status AS work_status,
+        COALESCE((SELECT MAX(CAST(c.number AS DECIMAL)) FROM chapter c WHERE c.work_id = w.id), 0) AS chapter_count,
+        COALESCE(
+          (SELECT wt.title FROM work_title wt WHERE wt.work_id = w.id AND wt.is_official = 1 LIMIT 1),
+          (SELECT wt.title FROM work_title wt WHERE wt.work_id = w.id LIMIT 1)
+        ) AS title,
+        COALESCE(
+          (SELECT wc.file_name FROM work_cover wc WHERE wc.work_id = w.id AND wc.is_official = 1 LIMIT 1),
+          (SELECT wc.file_name FROM work_cover wc WHERE wc.work_id = w.id LIMIT 1)
+        ) AS cover_file_name,
+        COALESCE(
+          (SELECT COUNT(c2.id) FROM chapter c2
+           WHERE c2.work_id = w.id AND c2.disabled = false
            AND c2.id NOT IN (SELECT rp.chapter_id FROM reading_progress rp WHERE rp.user_id = :userId)
           ), 0
         ) AS unread_count

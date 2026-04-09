@@ -2,6 +2,7 @@ package dev.williancorrea.manhwa.reader.features.library;
 
 import dev.williancorrea.manhwa.reader.features.access.user.UserRepository;
 import dev.williancorrea.manhwa.reader.features.library.dto.LibraryItemOutput;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,19 @@ public class LibraryResource {
 
   @Value("${minio.bucket.name}")
   private String bucketName;
+
+  @GetMapping("/continue-reading")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<List<LibraryItemOutput>> getContinueReading(
+      @RequestParam(defaultValue = "6") int size,
+      @AuthenticationPrincipal UserDetails userDetails
+  ) {
+    size = Math.min(size, 20);
+    var user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+    return ResponseEntity.ok(
+        libraryService.findContinueReading(user.getId(), size, minioUrl + "/" + bucketName)
+    );
+  }
 
   @GetMapping
   @PreAuthorize("isAuthenticated()")

@@ -14,4 +14,9 @@ export class LibraryService {
     if (status) params = params.set('status', status);
     return this.http.get<PageResponse<LibraryItem>>(`${environment.apiUrl}/library`, { params });
   }
+
+  continueReading(size: number = 6): Observable<LibraryItem[]> {
+    const params = new HttpParams().set('size', size);
+    return this.http.get<LibraryItem[]>(`${environment.apiUrl}/library/continue-reading`, { params });
+  }
 }

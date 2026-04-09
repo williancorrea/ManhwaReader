@@ -39,7 +39,7 @@ export const GENRE_COLORS: Record<string, string> = {
 })
 export class ManhwaCardComponent {
   @Input({ required: true }) manhwa!: Manhwa;
-  @Input() variant: 'grid' | 'horizontal' = 'grid';
+  @Input() variant: 'grid' | 'horizontal' | 'compact' = 'grid';
 
   get visibleGenres(): string[] {
     return this.manhwa.genres.slice(0, 3);

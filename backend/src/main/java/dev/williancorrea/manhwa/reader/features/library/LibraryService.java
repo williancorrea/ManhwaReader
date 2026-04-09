@@ -45,6 +45,34 @@ public class LibraryService {
     repository.deleteById(id);
   }
 
+  @Transactional(readOnly = true)
+  public List<LibraryItemOutput> findContinueReading(UUID userId, int limit, String storageBaseUrl) {
+    List<Object[]> rows = repository.findContinueReadingByUserId(userId, limit);
+    return rows.stream().map(row -> {
+      String workId = row[1] != null ? row[1].toString() : null;
+      String slug = row[2] != null ? row[2].toString() : null;
+      String libraryStatus = row[3] != null ? row[3].toString() : null;
+      String publicationDemographic = row[4] != null ? row[4].toString() : null;
+      String workStatus = row[5] != null ? row[5].toString() : null;
+      Long chapterCount = row[6] != null ? ((Number) row[6]).longValue() : 0L;
+      String title = row[7] != null ? row[7].toString() : null;
+      String coverFileName = row[8] != null ? row[8].toString() : null;
+      Long unreadCount = row[9] != null ? ((Number) row[9]).longValue() : 0L;
+
+      String coverUrl = null;
+      if (slug != null && coverFileName != null) {
+        String basePath = publicationDemographic != null ? publicationDemographic.toLowerCase() : "unknown";
+        coverUrl = storageBaseUrl + "/" + basePath + "/" + slug + "/covers/" + coverFileName;
+      }
+
+      return new LibraryItemOutput(
+          workId != null ? UUID.fromString(workId) : null,
+          slug, title, coverUrl, publicationDemographic, workStatus,
+          chapterCount, libraryStatus, unreadCount
+      );
+    }).toList();
+  }
+
   public Map<UUID, LibraryStatus> findStatusMapByUserAndWorkIds(User user, List<UUID> workIds) {
     if (workIds == null || workIds.isEmpty()) return Map.of();
     return repository.findByUserIdAndWorkIdIn(user.getId(), workIds)

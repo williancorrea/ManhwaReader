@@ -6,20 +6,35 @@
     <app-featured-carousel [items]="featuredWorks()" />
   }
 
-  <!-- Continue Reading -->
-  <section class="section">
-    <div class="section__inner">
-      <div class="section__header">
-        <h2 class="section__title">Continue Reading</h2>
-        <button class="section__see-all">See All</button>
-      </div>
-      <div class="scroll-row">
-        @for (manhwa of continueReading; track manhwa.id) {
-          <app-manhwa-card [manhwa]="manhwa" variant="horizontal" />
+  <!-- Continue Lendo -->
+  @if (continueReadingLoaded() && (pendingReads().length > 0 || allUpToDate())) {
+    <section class="section">
+      <div class="section__inner">
+        <div class="section__header">
+          <h2 class="section__title">Continue Lendo</h2>
+          <a routerLink="/library" class="section__see-all">Ver tudo</a>
+        </div>
+        @if (allUpToDate()) {
+          <div class="up-to-date">
+            <div class="up-to-date__icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <p class="up-to-date__title">Tudo em dia!</p>
+            <p class="up-to-date__sub">Você está em dia com todas as obras da sua biblioteca.</p>
+          </div>
+        } @else {
+          <div class="scroll-row scroll-row--compact">
+            @for (manhwa of pendingReads(); track manhwa.id) {
+              <app-manhwa-card [manhwa]="manhwa" variant="compact" />
+            }
+          </div>
         }
       </div>
-    </div>
-  </section>
+    </section>
+  }
 
   <!-- Latest Updates -->
   <section class="section section--alt">

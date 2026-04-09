@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
+import { Component, computed, HostListener, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../shared/components/navbar/navbar';
@@ -6,6 +6,8 @@ import { ManhwaCardComponent, Manhwa } from '../../shared/components/manhwa-card
 import { FeaturedCarouselComponent } from '../../shared/components/featured-carousel/featured-carousel';
 import { CatalogService } from '../catalog/services/catalog.service';
 import { WorkCatalogItem } from '../catalog/models/catalog.models';
+import { LibraryService } from '../library/services/library.service';
+import { LibraryItem } from '../library/models/library.models';
 
 @Component({
   selector: 'app-home',
@@ -15,10 +17,17 @@ import { WorkCatalogItem } from '../catalog/models/catalog.models';
 })
 export class HomeComponent implements OnInit {
   private readonly catalogService = inject(CatalogService);
+  private readonly libraryService = inject(LibraryService);
   private readonly platformId = inject(PLATFORM_ID);
 
   readonly featuredWorks = signal<Manhwa[]>([]);
   readonly showScrollTop = signal(false);
+  readonly latestUpdates = signal<Manhwa[]>([]);
+
+  private readonly allRecentlyRead = signal<Manhwa[]>([]);
+  readonly continueReadingLoaded = signal(false);
+  readonly pendingReads = computed(() => this.allRecentlyRead().filter(m => (m.unreadCount ?? 0) > 0));
+  readonly allUpToDate = computed(() => this.continueReadingLoaded() && this.allRecentlyRead().length > 0 && this.pendingReads().length === 0);
 
   @HostListener('window:scroll')
   onScroll(): void {
@@ -31,17 +40,6 @@ export class HomeComponent implements OnInit {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  readonly continueReading: Manhwa[] = [
-    { id: 1,  title: 'Solo Leveling',             coverUrl: 'https://picsum.photos/seed/manhwa1/200/300',  latestChapter: 179, genres: ['Action', 'Fantasy'],            progress: 65 },
-    { id: 2,  title: 'Tower of God',               coverUrl: 'https://picsum.photos/seed/manhwa2/200/300',  latestChapter: 598, genres: ['Fantasy', 'Mystery'],           progress: 42 },
-    { id: 3,  title: 'The Beginning After End',    coverUrl: 'https://picsum.photos/seed/manhwa3/200/300',  latestChapter: 190, genres: ['Fantasy', 'Isekai', 'Action'],   progress: 78 },
-    { id: 4,  title: 'Omniscient Reader',          coverUrl: 'https://picsum.photos/seed/manhwa4/200/300',  latestChapter: 147, genres: ['Action', 'Drama'],              progress: 30 },
-    { id: 5,  title: 'Windbreaker',                coverUrl: 'https://picsum.photos/seed/manhwa5/200/300',  latestChapter: 464, genres: ['Sports', 'Drama'],              progress: 55 },
-    { id: 6,  title: 'Nano Machine',               coverUrl: 'https://picsum.photos/seed/manhwa6/200/300',  latestChapter: 183, genres: ['Martial Arts', 'Sci-Fi'],        progress: 20 },
-  ];
-
-  readonly latestUpdates = signal<Manhwa[]>([]);
-
   ngOnInit(): void {
     this.catalogService.listar(0, 5).subscribe({
       next: (response) => {
@@ -52,6 +50,13 @@ export class HomeComponent implements OnInit {
     this.catalogService.listar(0).subscribe({
       next: (response) => {
         this.latestUpdates.set(response.content.map(toManhwa));
+      }
+    });
+
+    this.libraryService.continueReading(12).subscribe({
+      next: (items) => {
+        this.allRecentlyRead.set(items.map(toLibraryManhwa));
+        this.continueReadingLoaded.set(true);
       }
     });
   }
@@ -66,5 +71,17 @@ function toManhwa(item: WorkCatalogItem, index: number): Manhwa {
     latestChapter: item.chapterCount,
     genres: [item.publicationDemographic, item.status].filter(Boolean) as string[],
     inLibrary: item.userLibraryStatus != null,
+  };
+}
+
+function toLibraryManhwa(item: LibraryItem, index: number): Manhwa {
+  return {
+    id: index,
+    slug: item.slug,
+    title: item.title ?? '',
+    coverUrl: item.coverUrl ?? '',
+    latestChapter: item.chapterCount,
+    genres: [],
+    unreadCount: item.unreadCount || undefined,
   };
 }
