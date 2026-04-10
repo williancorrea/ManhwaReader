@@ -539,6 +539,126 @@
   word-break: break-all;
 }
 
+.admin__mangadex-cover-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.admin__btn--compare {
+  width: 100%;
+  background: rgba(124, 92, 252, 0.12);
+  color: var(--primary);
+  font-size: 12px;
+  padding: 5px 8px;
+  gap: var(--space-1);
+}
+
+.admin__btn--compare:hover:not(:disabled) {
+  background: rgba(124, 92, 252, 0.22);
+}
+
+/* Compare modal */
+.admin__compare-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+
+.admin__compare-modal {
+  background: var(--surface-00);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg, var(--radius-md));
+  padding: var(--space-5);
+  max-width: 680px;
+  width: 90vw;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.admin__compare-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin__compare-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.admin__compare-body {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.admin__compare-side {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.admin__compare-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.admin__compare-img {
+  width: 100%;
+  max-height: 340px;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.admin__compare-no-cover {
+  width: 100%;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.admin__compare-name {
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: center;
+  font-weight: 500;
+}
+
+.admin__compare-divider {
+  display: flex;
+  align-items: center;
+  padding-top: 60px;
+  opacity: 0.4;
+}
+
+.admin__compare-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
 /* Lightbox */
 .admin__lightbox {
   position: fixed;

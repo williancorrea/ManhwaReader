@@ -1,5 +1,55 @@
 <app-navbar />
 
+<!-- Cover compare modal -->
+@if (comparingItem()) {
+  <div class="admin__compare-overlay" (click)="closeCompare()">
+    <div class="admin__compare-modal" (click)="$event.stopPropagation()">
+      <div class="admin__compare-header">
+        <span class="admin__compare-title">Comparar Capas</span>
+        <button class="admin__lightbox-close" (click)="closeCompare()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="admin__compare-body">
+        <div class="admin__compare-side">
+          <span class="admin__compare-label">Obra cadastrada</span>
+          @if (selectedWork()?.coverUrl) {
+            <img class="admin__compare-img" [src]="selectedWork()!.coverUrl" [alt]="selectedWork()!.title" />
+          } @else {
+            <div class="admin__compare-no-cover">Sem capa</div>
+          }
+          <span class="admin__compare-name">{{ selectedWork()?.title }}</span>
+        </div>
+        <div class="admin__compare-divider">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4">
+            <line x1="12" y1="0" x2="12" y2="24"/>
+          </svg>
+        </div>
+        <div class="admin__compare-side">
+          <span class="admin__compare-label">MangaDex</span>
+          @if (comparingItem()?.coverUrl) {
+            <img class="admin__compare-img" [src]="comparingItem()!.coverUrl" [alt]="comparingItem()!.titles[0]" />
+          } @else {
+            <div class="admin__compare-no-cover">Sem capa</div>
+          }
+          <span class="admin__compare-name">{{ comparingItem()!.titles[0] }}</span>
+        </div>
+      </div>
+      <div class="admin__compare-footer">
+        <button class="admin__btn admin__btn--link" (click)="linkToMangaDex(comparingItem()!); closeCompare()">
+          Vincular esta obra
+        </button>
+        <button class="admin__btn admin__btn--clear" (click)="closeCompare()">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
 <!-- Cover lightbox -->
 @if (expandedCover()) {
   <div class="admin__lightbox" (click)="closeCover()">
@@ -198,11 +248,22 @@
             <div class="admin__mangadex-list">
               @for (item of mangaDexResults(); track item.id) {
                 <div class="admin__mangadex-item">
-                  <div class="admin__mangadex-cover" [class.admin__work-cover--clickable]="item.coverUrl" (click)="item.coverUrl && openCover(item.coverUrl)">
-                    @if (item.coverUrl) {
-                      <img [src]="item.coverUrl" [alt]="item.titles[0]" loading="lazy" />
-                    } @else {
-                      <div class="admin__work-cover-placeholder">?</div>
+                  <div class="admin__mangadex-cover-wrap">
+                    <div class="admin__mangadex-cover" [class.admin__work-cover--clickable]="item.coverUrl" (click)="item.coverUrl && openCover(item.coverUrl)">
+                      @if (item.coverUrl) {
+                        <img [src]="item.coverUrl" [alt]="item.titles[0]" loading="lazy" />
+                      } @else {
+                        <div class="admin__work-cover-placeholder">?</div>
+                      }
+                    </div>
+                    @if (!linking()) {
+                      <button class="admin__btn admin__btn--compare" (click)="openCompare(item)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect x="3" y="3" width="7" height="18" rx="1"/>
+                          <rect x="14" y="3" width="7" height="18" rx="1"/>
+                        </svg>
+                        Comparar
+                      </button>
                     }
                   </div>
                   <div class="admin__mangadex-info">
@@ -225,10 +286,7 @@
                       <div class="admin__spinner admin__spinner--sm"></div>
                     </button>
                   } @else if (!linking()) {
-                    <button
-                      class="admin__btn admin__btn--link"
-                      (click)="linkToMangaDex(item)"
-                    >
+                    <button class="admin__btn admin__btn--link" (click)="linkToMangaDex(item)">
                       Vincular
                     </button>
                   }

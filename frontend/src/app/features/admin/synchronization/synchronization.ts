@@ -46,6 +46,7 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
   readonly linkSuccess = signal<string | null>(null);
   readonly linkError = signal<string | null>(null);
   readonly expandedCover = signal<string | null>(null);
+  readonly comparingItem = signal<MangaDexSearchItem | null>(null);
   readonly encodeURIComponent = encodeURIComponent;
 
   ngOnInit(): void {
@@ -163,6 +164,14 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
 
   closeCover(): void {
     this.expandedCover.set(null);
+  }
+
+  openCompare(item: MangaDexSearchItem): void {
+    this.comparingItem.set(item);
+  }
+
+  closeCompare(): void {
+    this.comparingItem.set(null);
   }
 
   clearMangaDexSearch(): void {
