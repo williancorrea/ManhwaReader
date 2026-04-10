@@ -429,11 +429,17 @@
 
 /* Linked works list */
 .admin__linked-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--space-3);
   max-height: 600px;
   overflow-y: auto;
+}
+
+@media (max-width: 1024px) {
+  .admin__linked-list {
+    grid-template-columns: 1fr;
+  }
 }
 
 .admin__linked-item {
