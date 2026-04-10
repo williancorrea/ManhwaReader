@@ -1,13 +1,13 @@
 package dev.williancorrea.manhwa.reader.features.work.dto;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.library.Library;
 import dev.williancorrea.manhwa.reader.features.rating.Rating;
 import dev.williancorrea.manhwa.reader.features.work.Work;
 import dev.williancorrea.manhwa.reader.features.work.WorkSynopsis;
 import dev.williancorrea.manhwa.reader.features.work.WorkTitle;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 public record WorkDetailOutput(
     UUID id,
@@ -30,13 +30,17 @@ public record WorkDetailOutput(
     Integer userRating
 ) {
 
-  public record AlternativeTitleOutput(String title, String language, Boolean isOfficial) {}
+  public record AlternativeTitleOutput(String title, String language, Boolean isOfficial) {
+  }
 
-  public record TagOutput(String name, String group) {}
+  public record TagOutput(String name, String group) {
+  }
 
-  public record AuthorOutput(String name, String type) {}
+  public record AuthorOutput(String name, String type) {
+  }
 
-  public record LinkOutput(String siteCode, String url) {}
+  public record LinkOutput(String siteCode, String url) {
+  }
 
   public static WorkDetailOutput fromEntity(Work work, String storage,
                                             Optional<Library> library,
@@ -76,20 +80,20 @@ public record WorkDetailOutput(
 
     List<TagOutput> tags = work.getTags() != null
         ? work.getTags().stream()
-            .map(wt -> new TagOutput(wt.getTag().getName(), wt.getTag().getGroup().name()))
-            .toList()
+          .map(wt -> new TagOutput(wt.getTag().getName(), wt.getTag().getGroup().name()))
+          .toList()
         : List.of();
 
     List<AuthorOutput> authors = work.getAuthors() != null
         ? work.getAuthors().stream()
-            .map(wa -> new AuthorOutput(wa.getAuthor().getName(), wa.getAuthor().getType().name()))
-            .toList()
+          .map(wa -> new AuthorOutput(wa.getAuthor().getName(), wa.getAuthor().getType().name()))
+          .toList()
         : List.of();
 
     List<LinkOutput> links = work.getLinks() != null
         ? work.getLinks().stream()
-            .map(wl -> new LinkOutput(wl.getCode().name(), wl.getLink()))
-            .toList()
+          .map(wl -> new LinkOutput(wl.getCode().name(), wl.getSite().getUrl() + "/" + wl.getLink()))
+          .toList()
         : List.of();
 
     return new WorkDetailOutput(
