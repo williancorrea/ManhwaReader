@@ -7,6 +7,7 @@ import dev.williancorrea.manhwa.reader.exception.custom.BusinessException;
 import dev.williancorrea.manhwa.reader.exception.custom.ConflictException;
 import dev.williancorrea.manhwa.reader.features.work.Work;
 import dev.williancorrea.manhwa.reader.features.work.WorkService;
+import dev.williancorrea.manhwa.reader.features.work.WorkSpecification;
 import dev.williancorrea.manhwa.reader.features.work.dto.WorkCatalogFilter;
 import dev.williancorrea.manhwa.reader.scraper.mangadex.MangaDexApiService;
 import dev.williancorrea.manhwa.reader.scraper.mangadex.client.MangaDexClient;
@@ -16,7 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,10 +48,20 @@ public class AdminSynchronizationService {
   }
 
   @Transactional(readOnly = true)
-  public Page<AdminWorkOutput> listWorks(String title, Pageable pageable) {
+  public Page<AdminWorkOutput> listWorks(String title, Boolean linkedToMangaDex, Pageable pageable) {
     var filter = new WorkCatalogFilter(title, null, null, null, null);
     var storageBase = minioUrl + "/" + bucketName;
-    Page<Work> worksPage = workService.findAllWorks(filter, pageable);
+
+    Specification<Work> spec = WorkSpecification.fromFilter(filter);
+    if (Boolean.FALSE.equals(linkedToMangaDex)) {
+      spec = spec.and(WorkSpecification.withoutSynchronizationOrigin(SynchronizationOriginType.MANGADEX));
+    } else if (Boolean.TRUE.equals(linkedToMangaDex)) {
+      spec = spec.and(WorkSpecification.withSynchronizationOrigin(SynchronizationOriginType.MANGADEX));
+    }
+
+    Sort sort = Sort.by(Sort.Direction.DESC, "updatedAt");
+    Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+    Page<Work> worksPage = workService.findAll(spec, sortedPageable);
     return worksPage.map(work -> AdminWorkOutput.fromEntity(work, storageBase));
   }
 
@@ -89,5 +103,20 @@ public class AdminSynchronizationService {
     log.info("Work '{}' linked to MangaDex ID '{}'", work.getSlug(), mangaDexId);
 
     mangaDexApiService.searchMangaByIDFromExternalApi(mangaDexId);
+  }
+
+  @Transactional
+  public void syncWorkWithMangaDex(UUID workId) {
+    Work work = workService.findById(workId)
+        .orElseThrow(() -> new BusinessException("work.not-found", null));
+
+    var mangaDexSync = work.getSynchronizations().stream()
+        .filter(s -> s.getOrigin() == SynchronizationOriginType.MANGADEX)
+        .findFirst()
+        .orElseThrow(() -> new BusinessException("work.not-linked-to-mangadex", null));
+
+    log.info("Manual sync triggered for work '{}' with MangaDex ID '{}'", work.getSlug(), mangaDexSync.getExternalId());
+
+    mangaDexApiService.searchMangaByIDFromExternalApi(mangaDexSync.getExternalId());
   }
 }

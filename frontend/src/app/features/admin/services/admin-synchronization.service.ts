@@ -9,9 +9,10 @@ export class AdminSynchronizationService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/admin/synchronization`;
 
-  listWorks(page = 0, size = 20, title?: string): Observable<PageResponse<AdminWorkItem>> {
+  listWorks(page = 0, size = 20, title?: string, linkedToMangaDex?: boolean): Observable<PageResponse<AdminWorkItem>> {
     let params = new HttpParams().set('page', page).set('size', size);
     if (title) params = params.set('title', title);
+    if (linkedToMangaDex !== undefined) params = params.set('linkedToMangaDex', linkedToMangaDex);
     return this.http.get<PageResponse<AdminWorkItem>>(`${this.baseUrl}/works`, { params });
   }
 
@@ -25,5 +26,9 @@ export class AdminSynchronizationService {
 
   linkWorkToMangaDex(workId: string, mangaDexId: string): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/mangadex/link`, { workId, mangaDexId });
+  }
+
+  syncWorkWithMangaDex(workId: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/mangadex/sync/${workId}`, {});
   }
 }

@@ -26,6 +26,14 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
   readonly worksTotalElements = signal(0);
   worksSearch = '';
 
+  readonly linkedWorks = signal<AdminWorkItem[]>([]);
+  readonly linkedWorksLoading = signal(false);
+  readonly linkedWorksPage = signal(0);
+  readonly linkedWorksHasNext = signal(false);
+  readonly linkedWorksTotalElements = signal(0);
+  linkedWorksSearch = '';
+  private readonly linkedWorksSearchSubject = new Subject<string>();
+
   readonly selectedWork = signal<AdminWorkItem | null>(null);
 
   readonly mangaDexResults = signal<MangaDexSearchItem[]>([]);
@@ -33,6 +41,7 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
   mangaDexSearch = '';
 
   readonly linking = signal(false);
+  readonly syncing = signal<string | null>(null);
   readonly linkSuccess = signal<string | null>(null);
   readonly linkError = signal<string | null>(null);
 
@@ -42,7 +51,13 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe(() => this.loadWorks(0));
 
+    this.linkedWorksSearchSubject.pipe(
+      debounceTime(300),
+      takeUntil(this.destroy$)
+    ).subscribe(() => this.loadLinkedWorks(0));
+
     this.loadWorks(0);
+    this.loadLinkedWorks(0);
   }
 
   ngOnDestroy(): void {
@@ -57,7 +72,7 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
 
   loadWorks(page: number): void {
     this.worksLoading.set(true);
-    this.service.listWorks(page, 20, this.worksSearch || undefined).subscribe({
+    this.service.listWorks(page, 20, this.worksSearch || undefined, false).subscribe({
       next: (response) => {
         this.works.set(response.content);
         this.worksPage.set(response.page.number);
@@ -66,6 +81,55 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
         this.worksLoading.set(false);
       },
       error: () => this.worksLoading.set(false)
+    });
+  }
+
+  onLinkedWorksSearchChange(value: string): void {
+    this.linkedWorksSearch = value;
+    this.linkedWorksSearchSubject.next(value);
+  }
+
+  loadLinkedWorks(page: number): void {
+    this.linkedWorksLoading.set(true);
+    this.service.listWorks(page, 20, this.linkedWorksSearch || undefined, true).subscribe({
+      next: (response) => {
+        this.linkedWorks.set(response.content);
+        this.linkedWorksPage.set(response.page.number);
+        this.linkedWorksHasNext.set(response.page.number < response.page.totalPages - 1);
+        this.linkedWorksTotalElements.set(response.page.totalElements);
+        this.linkedWorksLoading.set(false);
+      },
+      error: () => this.linkedWorksLoading.set(false)
+    });
+  }
+
+  prevLinkedWorksPage(): void {
+    if (this.linkedWorksPage() > 0) {
+      this.loadLinkedWorks(this.linkedWorksPage() - 1);
+    }
+  }
+
+  nextLinkedWorksPage(): void {
+    if (this.linkedWorksHasNext()) {
+      this.loadLinkedWorks(this.linkedWorksPage() + 1);
+    }
+  }
+
+  triggerManualSync(work: AdminWorkItem): void {
+    if (this.syncing()) return;
+    this.syncing.set(work.id);
+    this.linkSuccess.set(null);
+    this.linkError.set(null);
+
+    this.service.syncWorkWithMangaDex(work.id).subscribe({
+      next: () => {
+        this.syncing.set(null);
+        this.linkSuccess.set(`Sincronização manual de "${work.title}" iniciada com sucesso!`);
+      },
+      error: () => {
+        this.syncing.set(null);
+        this.linkError.set('Erro ao iniciar sincronização. Tente novamente.');
+      }
     });
   }
 
@@ -118,6 +182,7 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
         this.mangaDexResults.set([]);
         this.selectedWork.set(null);
         this.loadWorks(this.worksPage());
+        this.loadLinkedWorks(this.linkedWorksPage());
       },
       error: (err) => {
         this.linking.set(false);

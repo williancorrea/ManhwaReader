@@ -12,8 +12,14 @@ public record AdminWorkOutput(
     String status,
     String type,
     String coverUrl,
-    List<String> synchronizationOrigins
+    List<String> synchronizationOrigins,
+    List<SynchronizationDetail> synchronizations
 ) {
+
+  public record SynchronizationDetail(
+      String origin,
+      String externalId
+  ) {}
 
   public static AdminWorkOutput fromEntity(Work work, String storageBase) {
     String title = null;
@@ -35,6 +41,12 @@ public record AdminWorkOutput(
             .toList()
         : List.of();
 
+    List<SynchronizationDetail> syncDetails = work.getSynchronizations() != null
+        ? work.getSynchronizations().stream()
+            .map(s -> new SynchronizationDetail(s.getOrigin().name(), s.getExternalId()))
+            .toList()
+        : List.of();
+
     return new AdminWorkOutput(
         work.getId(),
         title,
@@ -42,7 +54,8 @@ public record AdminWorkOutput(
         work.getStatus() != null ? work.getStatus().name() : null,
         work.getType() != null ? work.getType().name() : null,
         coverUrl,
-        origins
+        origins,
+        syncDetails
     );
   }
 }

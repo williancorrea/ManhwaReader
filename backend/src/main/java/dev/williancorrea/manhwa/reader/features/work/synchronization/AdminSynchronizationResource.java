@@ -1,6 +1,7 @@
 package dev.williancorrea.manhwa.reader.features.work.synchronization;
 
 import java.util.List;
+import java.util.UUID;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,9 +30,10 @@ public class AdminSynchronizationResource {
   public ResponseEntity<Page<AdminWorkOutput>> listWorks(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "20") int size,
-      @RequestParam(required = false) String title) {
+      @RequestParam(required = false) String title,
+      @RequestParam(required = false) Boolean linkedToMangaDex) {
     size = Math.min(size, 50);
-    return ResponseEntity.ok(service.listWorks(title, PageRequest.of(page, size)));
+    return ResponseEntity.ok(service.listWorks(title, linkedToMangaDex, PageRequest.of(page, size)));
   }
 
   @GetMapping("/mangadex/search")
@@ -46,5 +49,11 @@ public class AdminSynchronizationResource {
   public ResponseEntity<Void> linkWorkToMangaDex(@RequestBody @Valid LinkWorkInput input) {
     service.linkWorkToMangaDex(input.workId(), input.mangaDexId());
     return ResponseEntity.status(HttpStatus.CREATED).build();
+  }
+
+  @PostMapping("/mangadex/sync/{workId}")
+  public ResponseEntity<Void> syncWorkWithMangaDex(@PathVariable UUID workId) {
+    service.syncWorkWithMangaDex(workId);
+    return ResponseEntity.ok().build();
   }
 }

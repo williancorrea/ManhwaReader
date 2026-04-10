@@ -1,8 +1,11 @@
 package dev.williancorrea.manhwa.reader.features.work;
 
 import dev.williancorrea.manhwa.reader.features.work.dto.WorkCatalogFilter;
+import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
+import dev.williancorrea.manhwa.reader.features.work.synchronization.WorkSynchronization;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Subquery;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaExpression;
 import org.springframework.data.jpa.domain.Specification;
@@ -36,6 +39,34 @@ public class WorkSpecification {
 
   public static Specification<Work> withStatus(WorkStatus status) {
     return (root, query, cb) -> status == null ? null : cb.equal(root.get("status"), status);
+  }
+
+  public static Specification<Work> withoutSynchronizationOrigin(SynchronizationOriginType origin) {
+    return (root, query, cb) -> {
+      if (origin == null) return null;
+      Subquery<Long> subquery = query.subquery(Long.class);
+      var syncRoot = subquery.from(WorkSynchronization.class);
+      subquery.select(cb.literal(1L))
+          .where(
+              cb.equal(syncRoot.get("work"), root),
+              cb.equal(syncRoot.get("origin"), origin)
+          );
+      return cb.not(cb.exists(subquery));
+    };
+  }
+
+  public static Specification<Work> withSynchronizationOrigin(SynchronizationOriginType origin) {
+    return (root, query, cb) -> {
+      if (origin == null) return null;
+      Subquery<Long> subquery = query.subquery(Long.class);
+      var syncRoot = subquery.from(WorkSynchronization.class);
+      subquery.select(cb.literal(1L))
+          .where(
+              cb.equal(syncRoot.get("work"), root),
+              cb.equal(syncRoot.get("origin"), origin)
+          );
+      return cb.exists(subquery);
+    };
   }
 
   public static Specification<Work> fromFilter(WorkCatalogFilter filter) {

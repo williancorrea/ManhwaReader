@@ -1,3 +1,8 @@
+export interface SynchronizationDetail {
+  origin: string;
+  externalId: string;
+}
+
 export interface AdminWorkItem {
   id: string;
   title: string;
@@ -6,6 +11,7 @@ export interface AdminWorkItem {
   type: string;
   coverUrl: string;
   synchronizationOrigins: string[];
+  synchronizations: SynchronizationDetail[];
 }
 
 export interface MangaDexSearchItem {

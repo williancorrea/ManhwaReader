@@ -2,7 +2,7 @@
 
 <div class="admin">
   <div class="admin__inner">
-    <h1 class="admin__title">Sincronização de Obras</h1>
+    <h1 class="admin__title">Sincronizacao de Obras</h1>
     <p class="admin__subtitle">Vincule obras existentes ao MangaDex para sincronizar dados.</p>
 
     <!-- Success / Error messages -->
@@ -27,9 +27,9 @@
     }
 
     <div class="admin__layout">
-      <!-- Section 1: Works list -->
+      <!-- Section 1: Unlinked works list -->
       <section class="admin__section">
-        <h2 class="admin__section-title">Obras Cadastradas</h2>
+        <h2 class="admin__section-title">Obras sem vinculo</h2>
 
         <div class="admin__search">
           <svg class="admin__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -39,7 +39,7 @@
           <input
             class="admin__search-input"
             type="text"
-            placeholder="Buscar obra por título..."
+            placeholder="Buscar obra por titulo..."
             [ngModel]="worksSearch"
             (ngModelChange)="onWorksSearchChange($event)"
           />
@@ -50,14 +50,13 @@
             <div class="admin__spinner"></div>
           </div>
         } @else if (works().length === 0) {
-          <p class="admin__empty">Nenhuma obra encontrada.</p>
+          <p class="admin__empty">Nenhuma obra sem vinculo encontrada.</p>
         } @else {
           <div class="admin__works-list">
             @for (work of works(); track work.id) {
               <div
                 class="admin__work-item"
                 [class.admin__work-item--selected]="selectedWork()?.id === work.id"
-                [class.admin__work-item--linked]="hasMangaDexSync(work)"
                 (click)="selectWork(work)"
               >
                 <div class="admin__work-cover">
@@ -68,7 +67,7 @@
                   }
                 </div>
                 <div class="admin__work-info">
-                  <span class="admin__work-title">{{ work.title ?? 'Sem título' }}</span>
+                  <span class="admin__work-title">{{ work.title || 'Sem titulo' }}</span>
                   <div class="admin__work-meta">
                     @if (work.type) {
                       <span class="admin__badge">{{ work.type }}</span>
@@ -77,16 +76,7 @@
                       <span class="admin__badge">{{ work.status }}</span>
                     }
                   </div>
-                  <div class="admin__work-origins">
-                    @for (origin of work.synchronizationOrigins; track origin) {
-                      <span class="admin__origin-badge" [class.admin__origin-badge--mangadex]="origin === 'MANGADEX'">
-                        {{ origin }}
-                      </span>
-                    }
-                    @if (!hasMangaDexSync(work)) {
-                      <span class="admin__origin-badge admin__origin-badge--missing">Sem MangaDex</span>
-                    }
-                  </div>
+                  <span class="admin__origin-badge admin__origin-badge--missing">Sem MangaDex</span>
                 </div>
               </div>
             }
@@ -105,14 +95,14 @@
               Anterior
             </button>
             <span class="admin__pagination-info">
-              Página {{ worksPage() + 1 }} &middot; {{ worksTotalElements() }} obras
+              Pagina {{ worksPage() + 1 }} &middot; {{ worksTotalElements() }} obras
             </span>
             <button
               class="admin__pagination-btn"
               [disabled]="!worksHasNext()"
               (click)="nextWorksPage()"
             >
-              Próxima
+              Proxima
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="9 18 15 12 9 6"/>
               </svg>
@@ -142,7 +132,7 @@
             <input
               class="admin__search-input admin__search-input--flex"
               type="text"
-              placeholder="Título para buscar no MangaDex..."
+              placeholder="Titulo para buscar no MangaDex..."
               [(ngModel)]="mangaDexSearch"
               (keyup.enter)="searchMangaDex()"
             />
@@ -200,5 +190,114 @@
         }
       </section>
     </div>
+
+    <!-- Section 3: Linked works -->
+    <section class="admin__section admin__section--full">
+      <h2 class="admin__section-title">Obras vinculadas ao MangaDex</h2>
+
+      <div class="admin__search">
+        <svg class="admin__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          class="admin__search-input"
+          type="text"
+          placeholder="Buscar obra vinculada por titulo..."
+          [ngModel]="linkedWorksSearch"
+          (ngModelChange)="onLinkedWorksSearchChange($event)"
+        />
+      </div>
+
+      @if (linkedWorksLoading() && linkedWorks().length === 0) {
+        <div class="admin__loading">
+          <div class="admin__spinner"></div>
+        </div>
+      } @else if (linkedWorks().length === 0) {
+        <p class="admin__empty">Nenhuma obra vinculada encontrada.</p>
+      } @else {
+        <div class="admin__linked-list">
+          @for (work of linkedWorks(); track work.id) {
+            <div class="admin__linked-item">
+              <div class="admin__linked-header">
+                <div class="admin__work-cover">
+                  @if (work.coverUrl) {
+                    <img [src]="work.coverUrl" [alt]="work.title" loading="lazy" />
+                  } @else {
+                    <div class="admin__work-cover-placeholder">?</div>
+                  }
+                </div>
+                <div class="admin__work-info">
+                  <span class="admin__work-title">{{ work.title || 'Sem titulo' }}</span>
+                  <div class="admin__work-meta">
+                    @if (work.type) {
+                      <span class="admin__badge">{{ work.type }}</span>
+                    }
+                    @if (work.status) {
+                      <span class="admin__badge">{{ work.status }}</span>
+                    }
+                  </div>
+                </div>
+                <button
+                  class="admin__btn admin__btn--sync"
+                  [disabled]="syncing() !== null"
+                  (click)="triggerManualSync(work)"
+                >
+                  @if (syncing() === work.id) {
+                    <div class="admin__spinner admin__spinner--sm"></div>
+                    Sincronizando...
+                  } @else {
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="23 4 23 10 17 10"/>
+                      <polyline points="1 20 1 14 7 14"/>
+                      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
+                      <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/>
+                    </svg>
+                    Sincronizar
+                  }
+                </button>
+              </div>
+              <div class="admin__linked-syncs">
+                @for (sync of work.synchronizations; track sync.externalId) {
+                  <div class="admin__sync-detail">
+                    <span class="admin__origin-badge" [class.admin__origin-badge--mangadex]="sync.origin === 'MANGADEX'">
+                      {{ sync.origin }}
+                    </span>
+                    <span class="admin__sync-external-id">{{ sync.externalId }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Pagination -->
+        <div class="admin__pagination">
+          <button
+            class="admin__pagination-btn"
+            [disabled]="linkedWorksPage() === 0"
+            (click)="prevLinkedWorksPage()"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Anterior
+          </button>
+          <span class="admin__pagination-info">
+            Pagina {{ linkedWorksPage() + 1 }} &middot; {{ linkedWorksTotalElements() }} obras
+          </span>
+          <button
+            class="admin__pagination-btn"
+            [disabled]="!linkedWorksHasNext()"
+            (click)="nextLinkedWorksPage()"
+          >
+            Proxima
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+      }
+    </section>
   </div>
 </div>
