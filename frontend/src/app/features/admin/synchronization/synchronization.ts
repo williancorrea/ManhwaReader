@@ -40,7 +40,7 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
   readonly mangaDexLoading = signal(false);
   mangaDexSearch = '';
 
-  readonly linking = signal(false);
+  readonly linking = signal<string | null>(null);
   readonly syncing = signal<string | null>(null);
   readonly linkSuccess = signal<string | null>(null);
   readonly linkError = signal<string | null>(null);
@@ -171,21 +171,22 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
     const work = this.selectedWork();
     if (!work || this.linking()) return;
 
-    this.linking.set(true);
+    this.linking.set(mangaDexItem.id);
     this.linkSuccess.set(null);
     this.linkError.set(null);
 
     this.service.linkWorkToMangaDex(work.id, mangaDexItem.id).subscribe({
       next: () => {
-        this.linking.set(false);
+        this.linking.set(null);
         this.linkSuccess.set(`"${work.title}" vinculado com sucesso ao MangaDex!`);
         this.mangaDexResults.set([]);
+        this.mangaDexSearch = '';
         this.selectedWork.set(null);
         this.loadWorks(this.worksPage());
         this.loadLinkedWorks(this.linkedWorksPage());
       },
       error: (err) => {
-        this.linking.set(false);
+        this.linking.set(null);
         if (err.status === 409) {
           this.linkError.set('Esta obra já está vinculada ao MangaDex.');
         } else {

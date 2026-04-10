@@ -172,17 +172,18 @@
                       }
                     </div>
                   </div>
-                  <button
-                    class="admin__btn admin__btn--link"
-                    [disabled]="linking()"
-                    (click)="linkToMangaDex(item)"
-                  >
-                    @if (linking()) {
+                  @if (linking() === item.id) {
+                    <button class="admin__btn admin__btn--link" disabled>
                       <div class="admin__spinner admin__spinner--sm"></div>
-                    } @else {
+                    </button>
+                  } @else if (!linking()) {
+                    <button
+                      class="admin__btn admin__btn--link"
+                      (click)="linkToMangaDex(item)"
+                    >
                       Vincular
-                    }
-                  </button>
+                    </button>
+                  }
                 </div>
               }
             </div>
