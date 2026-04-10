@@ -46,6 +46,7 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
   readonly linkSuccess = signal<string | null>(null);
   readonly linkError = signal<string | null>(null);
   readonly expandedCover = signal<string | null>(null);
+  readonly encodeURIComponent = encodeURIComponent;
 
   ngOnInit(): void {
     this.worksSearchSubject.pipe(
