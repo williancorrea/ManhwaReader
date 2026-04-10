@@ -31,6 +31,7 @@ export interface UserProfile {
   email: string;
   avatarUrl: string | null;
   createdAt: string;
+  roles: string[];
 }
 
 export interface ApiError {

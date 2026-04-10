@@ -1,0 +1,445 @@
+.admin {
+  min-height: 100vh;
+  background-color: var(--bg-00);
+}
+
+.admin__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-6);
+}
+
+.admin__title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.admin__subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: var(--space-6);
+}
+
+/* Alerts */
+.admin__alert {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  margin-bottom: var(--space-4);
+}
+
+.admin__alert--success {
+  background: rgba(0, 212, 170, 0.1);
+  border: 1px solid rgba(0, 212, 170, 0.3);
+  color: var(--success, #00d4aa);
+}
+
+.admin__alert--error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--error, #ef4444);
+}
+
+/* Layout */
+.admin__layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .admin__layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Sections */
+.admin__section {
+  background: var(--surface-00);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg, var(--radius-md));
+  padding: var(--space-5);
+}
+
+.admin__section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+}
+
+/* Search */
+.admin__search {
+  position: relative;
+  margin-bottom: var(--space-4);
+}
+
+.admin__search-icon {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.admin__search-input {
+  width: 100%;
+  background: var(--bg-00);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: var(--font-family);
+  padding: 8px var(--space-3) 8px calc(var(--space-3) + 16px + var(--space-2));
+  transition: border-color 150ms ease, box-shadow 100ms ease-out;
+  box-sizing: border-box;
+}
+
+.admin__search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.admin__search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: var(--focus-ring);
+}
+
+.admin__search-input--flex {
+  padding-left: var(--space-3);
+  flex: 1;
+}
+
+.admin__search-row {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+/* Works list */
+.admin__works-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.admin__work-item {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.admin__work-item:hover {
+  border-color: var(--border-default);
+  background: var(--bg-00);
+}
+
+.admin__work-item--selected {
+  border-color: var(--primary);
+  background: var(--primary-ghost, rgba(124, 92, 252, 0.06));
+}
+
+.admin__work-item--linked {
+  opacity: 0.6;
+}
+
+.admin__work-cover {
+  width: 48px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-01, var(--bg-00));
+}
+
+.admin__work-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin__work-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 18px;
+}
+
+.admin__work-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.admin__work-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin__work-meta {
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+.admin__badge {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-01, rgba(255, 255, 255, 0.05));
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.admin__work-origins {
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+.admin__origin-badge {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 212, 170, 0.15);
+  color: var(--success, #00d4aa);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.admin__origin-badge--mangadex {
+  background: rgba(255, 103, 64, 0.15);
+  color: #ff6740;
+}
+
+.admin__origin-badge--missing {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error, #ef4444);
+}
+
+/* Pagination */
+.admin__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.admin__pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-family: var(--font-family);
+  padding: 6px var(--space-3);
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease;
+}
+
+.admin__pagination-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.admin__pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.admin__pagination-info {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Placeholder */
+.admin__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-10) var(--space-4);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* Selected work info */
+.admin__selected-info {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--primary-ghost, rgba(124, 92, 252, 0.06));
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(124, 92, 252, 0.15);
+}
+
+.admin__selected-info strong {
+  color: var(--text-primary);
+}
+
+/* Buttons */
+.admin__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-family: var(--font-family);
+  font-weight: 500;
+  padding: 8px var(--space-4);
+  cursor: pointer;
+  transition: background-color 150ms ease, opacity 150ms ease;
+  white-space: nowrap;
+}
+
+.admin__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.admin__btn--primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.admin__btn--primary:hover:not(:disabled) {
+  background: var(--primary-hover, var(--primary));
+}
+
+.admin__btn--link {
+  background: rgba(0, 212, 170, 0.15);
+  color: var(--success, #00d4aa);
+  flex-shrink: 0;
+}
+
+.admin__btn--link:hover:not(:disabled) {
+  background: rgba(0, 212, 170, 0.25);
+}
+
+/* MangaDex results */
+.admin__mangadex-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.admin__mangadex-item {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  align-items: flex-start;
+}
+
+.admin__mangadex-cover {
+  width: 60px;
+  height: 85px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-01, var(--bg-00));
+}
+
+.admin__mangadex-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin__mangadex-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.admin__mangadex-id {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: monospace;
+  word-break: break-all;
+}
+
+.admin__mangadex-titles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.admin__mangadex-title-tag {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-01, rgba(255, 255, 255, 0.05));
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Loading / Empty */
+.admin__loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-8) 0;
+}
+
+.admin__spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: admin-spin 0.8s linear infinite;
+}
+
+.admin__spinner--sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 2px;
+}
+
+@keyframes admin-spin {
+  to { transform: rotate(360deg); }
+}
+
+.admin__empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: var(--space-6) 0;
+  font-size: 14px;
+}

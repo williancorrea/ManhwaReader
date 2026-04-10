@@ -11,12 +11,14 @@ import dev.williancorrea.manhwa.reader.features.auth.dto.AuthOutput;
 import dev.williancorrea.manhwa.reader.features.auth.dto.GoogleLoginInput;
 import dev.williancorrea.manhwa.reader.features.auth.dto.LoginInput;
 import dev.williancorrea.manhwa.reader.features.auth.dto.RegisterInput;
+import dev.williancorrea.manhwa.reader.security.DatabaseUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,7 @@ public class AuthService {
     private final GoogleTokenVerifier googleTokenVerifier;
     private final JwtProperties jwtProperties;
     private final CookieProperties cookieProperties;
+    private final DatabaseUserDetailsService databaseUserDetailsService;
 
     @Transactional
     public AuthResult register(RegisterInput input) {
@@ -132,7 +135,11 @@ public class AuthService {
     public UserOutput getMe(String email) {
         var user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException("auth.error.user-not-found", null));
-        return new UserOutput(user);
+        var userDetails = databaseUserDetailsService.loadUserByUsername(email);
+        var roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+        return new UserOutput(user, roles);
     }
 
     public ResponseCookie buildLogoutCookie() {

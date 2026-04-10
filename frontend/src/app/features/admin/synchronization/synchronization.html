@@ -1,0 +1,204 @@
+<app-navbar />
+
+<div class="admin">
+  <div class="admin__inner">
+    <h1 class="admin__title">Sincronização de Obras</h1>
+    <p class="admin__subtitle">Vincule obras existentes ao MangaDex para sincronizar dados.</p>
+
+    <!-- Success / Error messages -->
+    @if (linkSuccess()) {
+      <div class="admin__alert admin__alert--success">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        {{ linkSuccess() }}
+      </div>
+    }
+    @if (linkError()) {
+      <div class="admin__alert admin__alert--error">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="15" y1="9" x2="9" y2="15"/>
+          <line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+        {{ linkError() }}
+      </div>
+    }
+
+    <div class="admin__layout">
+      <!-- Section 1: Works list -->
+      <section class="admin__section">
+        <h2 class="admin__section-title">Obras Cadastradas</h2>
+
+        <div class="admin__search">
+          <svg class="admin__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            class="admin__search-input"
+            type="text"
+            placeholder="Buscar obra por título..."
+            [ngModel]="worksSearch"
+            (ngModelChange)="onWorksSearchChange($event)"
+          />
+        </div>
+
+        @if (worksLoading() && works().length === 0) {
+          <div class="admin__loading">
+            <div class="admin__spinner"></div>
+          </div>
+        } @else if (works().length === 0) {
+          <p class="admin__empty">Nenhuma obra encontrada.</p>
+        } @else {
+          <div class="admin__works-list">
+            @for (work of works(); track work.id) {
+              <div
+                class="admin__work-item"
+                [class.admin__work-item--selected]="selectedWork()?.id === work.id"
+                [class.admin__work-item--linked]="hasMangaDexSync(work)"
+                (click)="selectWork(work)"
+              >
+                <div class="admin__work-cover">
+                  @if (work.coverUrl) {
+                    <img [src]="work.coverUrl" [alt]="work.title" loading="lazy" />
+                  } @else {
+                    <div class="admin__work-cover-placeholder">?</div>
+                  }
+                </div>
+                <div class="admin__work-info">
+                  <span class="admin__work-title">{{ work.title ?? 'Sem título' }}</span>
+                  <div class="admin__work-meta">
+                    @if (work.type) {
+                      <span class="admin__badge">{{ work.type }}</span>
+                    }
+                    @if (work.status) {
+                      <span class="admin__badge">{{ work.status }}</span>
+                    }
+                  </div>
+                  <div class="admin__work-origins">
+                    @for (origin of work.synchronizationOrigins; track origin) {
+                      <span class="admin__origin-badge" [class.admin__origin-badge--mangadex]="origin === 'MANGADEX'">
+                        {{ origin }}
+                      </span>
+                    }
+                    @if (!hasMangaDexSync(work)) {
+                      <span class="admin__origin-badge admin__origin-badge--missing">Sem MangaDex</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Pagination -->
+          <div class="admin__pagination">
+            <button
+              class="admin__pagination-btn"
+              [disabled]="worksPage() === 0"
+              (click)="prevWorksPage()"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+              Anterior
+            </button>
+            <span class="admin__pagination-info">
+              Página {{ worksPage() + 1 }} &middot; {{ worksTotalElements() }} obras
+            </span>
+            <button
+              class="admin__pagination-btn"
+              [disabled]="!worksHasNext()"
+              (click)="nextWorksPage()"
+            >
+              Próxima
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </div>
+        }
+      </section>
+
+      <!-- Section 2: MangaDex search -->
+      <section class="admin__section">
+        <h2 class="admin__section-title">Busca no MangaDex</h2>
+
+        @if (!selectedWork()) {
+          <div class="admin__placeholder">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+            <p>Selecione uma obra na lista para buscar no MangaDex.</p>
+          </div>
+        } @else {
+          <div class="admin__selected-info">
+            Vinculando: <strong>{{ selectedWork()!.title }}</strong>
+          </div>
+
+          <div class="admin__search-row">
+            <input
+              class="admin__search-input admin__search-input--flex"
+              type="text"
+              placeholder="Título para buscar no MangaDex..."
+              [(ngModel)]="mangaDexSearch"
+              (keyup.enter)="searchMangaDex()"
+            />
+            <button
+              class="admin__btn admin__btn--primary"
+              [disabled]="mangaDexLoading() || !mangaDexSearch.trim()"
+              (click)="searchMangaDex()"
+            >
+              @if (mangaDexLoading()) {
+                <div class="admin__spinner admin__spinner--sm"></div>
+              } @else {
+                Buscar
+              }
+            </button>
+          </div>
+
+          @if (mangaDexLoading()) {
+            <div class="admin__loading">
+              <div class="admin__spinner"></div>
+            </div>
+          } @else if (mangaDexResults().length > 0) {
+            <div class="admin__mangadex-list">
+              @for (item of mangaDexResults(); track item.id) {
+                <div class="admin__mangadex-item">
+                  <div class="admin__mangadex-cover">
+                    @if (item.coverUrl) {
+                      <img [src]="item.coverUrl" [alt]="item.titles[0]" loading="lazy" />
+                    } @else {
+                      <div class="admin__work-cover-placeholder">?</div>
+                    }
+                  </div>
+                  <div class="admin__mangadex-info">
+                    <span class="admin__mangadex-id">{{ item.id }}</span>
+                    <div class="admin__mangadex-titles">
+                      @for (title of item.titles; track $index) {
+                        <span class="admin__mangadex-title-tag">{{ title }}</span>
+                      }
+                    </div>
+                  </div>
+                  <button
+                    class="admin__btn admin__btn--link"
+                    [disabled]="linking()"
+                    (click)="linkToMangaDex(item)"
+                  >
+                    @if (linking()) {
+                      <div class="admin__spinner admin__spinner--sm"></div>
+                    } @else {
+                      Vincular
+                    }
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        }
+      </section>
+    </div>
+  </div>
+</div>

@@ -2,6 +2,7 @@ package dev.williancorrea.manhwa.reader.features.access.user;
 
 import java.io.Serializable;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -19,6 +20,7 @@ public class UserOutput implements Serializable {
     private String email;
     private String avatarUrl;
     private OffsetDateTime createdAt;
+    private List<String> roles;
 
     public UserOutput(User user) {
         this.id = user.getId();
@@ -26,5 +28,10 @@ public class UserOutput implements Serializable {
         this.email = user.getEmail();
         this.avatarUrl = user.getAvatarUrl();
         this.createdAt = user.getCreatedAt();
+    }
+
+    public UserOutput(User user, List<String> roles) {
+        this(user);
+        this.roles = roles;
     }
 }

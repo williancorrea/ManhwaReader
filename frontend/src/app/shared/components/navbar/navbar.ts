@@ -1,4 +1,4 @@
-import { Component, inject, signal, HostListener } from '@angular/core';
+import { Component, computed, inject, signal, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/auth/services/auth.service';
 import { UserService } from '../../../core/auth/services/user.service';
@@ -14,6 +14,7 @@ export class NavbarComponent {
   readonly userService = inject(UserService);
 
   readonly isMenuOpen = signal(false);
+  readonly isAdmin = computed(() => this.userService.profile()?.roles?.includes('ADMINISTRATOR') ?? false);
 
   toggleMenu(): void {
     this.isMenuOpen.update(v => !v);
