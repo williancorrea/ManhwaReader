@@ -1,5 +1,18 @@
 <app-navbar />
 
+<!-- Cover lightbox -->
+@if (expandedCover()) {
+  <div class="admin__lightbox" (click)="closeCover()">
+    <img class="admin__lightbox-img" [src]="expandedCover()!" alt="Capa expandida" (click)="$event.stopPropagation()" />
+    <button class="admin__lightbox-close" (click)="closeCover()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+}
+
 <div class="admin">
   <div class="admin__inner">
     <h1 class="admin__title">Sincronizacao de Obras</h1>
@@ -59,7 +72,7 @@
                 [class.admin__work-item--selected]="selectedWork()?.id === work.id"
                 (click)="selectWork(work)"
               >
-                <div class="admin__work-cover">
+                <div class="admin__work-cover" [class.admin__work-cover--clickable]="work.coverUrl" (click)="work.coverUrl && openCover(work.coverUrl); $event.stopPropagation()">
                   @if (work.coverUrl) {
                     <img [src]="work.coverUrl" [alt]="work.title" loading="lazy" />
                   } @else {
@@ -167,7 +180,7 @@
             <div class="admin__mangadex-list">
               @for (item of mangaDexResults(); track item.id) {
                 <div class="admin__mangadex-item">
-                  <div class="admin__mangadex-cover">
+                  <div class="admin__mangadex-cover" [class.admin__work-cover--clickable]="item.coverUrl" (click)="item.coverUrl && openCover(item.coverUrl)">
                     @if (item.coverUrl) {
                       <img [src]="item.coverUrl" [alt]="item.titles[0]" loading="lazy" />
                     } @else {
@@ -231,7 +244,7 @@
           @for (work of linkedWorks(); track work.id) {
             <div class="admin__linked-item">
               <div class="admin__linked-header">
-                <div class="admin__work-cover">
+                <div class="admin__work-cover" [class.admin__work-cover--clickable]="work.coverUrl" (click)="work.coverUrl && openCover(work.coverUrl)">
                   @if (work.coverUrl) {
                     <img [src]="work.coverUrl" [alt]="work.title" loading="lazy" />
                   } @else {

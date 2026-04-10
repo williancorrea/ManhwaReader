@@ -45,6 +45,7 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
   readonly syncing = signal<string | null>(null);
   readonly linkSuccess = signal<string | null>(null);
   readonly linkError = signal<string | null>(null);
+  readonly expandedCover = signal<string | null>(null);
 
   ngOnInit(): void {
     this.worksSearchSubject.pipe(
@@ -153,6 +154,14 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
     this.mangaDexSearched.set(false);
     this.linkSuccess.set(null);
     this.linkError.set(null);
+  }
+
+  openCover(url: string): void {
+    this.expandedCover.set(url);
+  }
+
+  closeCover(): void {
+    this.expandedCover.set(null);
   }
 
   clearMangaDexSearch(): void {
