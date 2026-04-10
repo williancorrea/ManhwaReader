@@ -38,6 +38,7 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
 
   readonly mangaDexResults = signal<MangaDexSearchItem[]>([]);
   readonly mangaDexLoading = signal(false);
+  readonly mangaDexSearched = signal(false);
   mangaDexSearch = '';
 
   readonly linking = signal<string | null>(null);
@@ -149,21 +150,33 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
     this.selectedWork.set(work);
     this.mangaDexSearch = work.title || '';
     this.mangaDexResults.set([]);
+    this.mangaDexSearched.set(false);
     this.linkSuccess.set(null);
     this.linkError.set(null);
+  }
+
+  clearMangaDexSearch(): void {
+    this.mangaDexSearch = '';
+    this.mangaDexResults.set([]);
+    this.mangaDexSearched.set(false);
   }
 
   searchMangaDex(): void {
     if (!this.mangaDexSearch.trim()) return;
     this.mangaDexLoading.set(true);
+    this.mangaDexSearched.set(false);
     this.linkSuccess.set(null);
     this.linkError.set(null);
     this.service.searchMangaDex(this.mangaDexSearch.trim()).subscribe({
       next: (results) => {
         this.mangaDexResults.set(results);
+        this.mangaDexSearched.set(true);
         this.mangaDexLoading.set(false);
       },
-      error: () => this.mangaDexLoading.set(false)
+      error: () => {
+        this.mangaDexSearched.set(true);
+        this.mangaDexLoading.set(false);
+      }
     });
   }
 
@@ -181,6 +194,7 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
         this.linkSuccess.set(`"${work.title}" vinculado com sucesso ao MangaDex!`);
         this.mangaDexResults.set([]);
         this.mangaDexSearch = '';
+        this.mangaDexSearched.set(false);
         this.selectedWork.set(null);
         this.loadWorks(this.worksPage());
         this.loadLinkedWorks(this.linkedWorksPage());

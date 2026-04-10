@@ -147,12 +147,22 @@
                 Buscar
               }
             </button>
+            @if (mangaDexResults().length > 0) {
+              <button
+                class="admin__btn admin__btn--clear"
+                (click)="clearMangaDexSearch()"
+              >
+                Limpar
+              </button>
+            }
           </div>
 
           @if (mangaDexLoading()) {
             <div class="admin__loading">
               <div class="admin__spinner"></div>
             </div>
+          } @else if (mangaDexSearched() && mangaDexResults().length === 0) {
+            <p class="admin__empty">Nenhum resultado encontrado no MangaDex para "<strong>{{ mangaDexSearch }}</strong>".</p>
           } @else if (mangaDexResults().length > 0) {
             <div class="admin__mangadex-list">
               @for (item of mangaDexResults(); track item.id) {

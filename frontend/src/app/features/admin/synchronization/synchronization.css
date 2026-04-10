@@ -340,6 +340,18 @@
   background: var(--primary-hover, var(--primary));
 }
 
+.admin__btn--clear {
+  background: transparent;
+  border: 1px solid var(--border-default);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.admin__btn--clear:hover {
+  border-color: var(--error, #ef4444);
+  color: var(--error, #ef4444);
+}
+
 .admin__btn--link {
   background: rgba(0, 212, 170, 0.15);
   color: var(--success, #00d4aa);
