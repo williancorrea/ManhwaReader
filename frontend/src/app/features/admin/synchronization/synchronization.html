@@ -89,7 +89,25 @@
                       <span class="admin__badge">{{ work.status }}</span>
                     }
                   </div>
-                  <span class="admin__origin-badge admin__origin-badge--missing">Sem MangaDex</span>
+                  <div class="admin__work-actions">
+                    <span class="admin__origin-badge admin__origin-badge--missing">Sem MangaDex</span>
+                    @if (work.coverUrl) {
+                      <a
+                        class="admin__btn-icon"
+                        [href]="'https://lens.google.com/uploadbyurl?url=' + encodeURIComponent(work.coverUrl)"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Buscar capa no Google Lens"
+                        (click)="$event.stopPropagation()"
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="11" cy="11" r="8"/>
+                          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        Google Lens
+                      </a>
+                    }
+                  </div>
                 </div>
               </div>
             }
@@ -188,7 +206,14 @@
                     }
                   </div>
                   <div class="admin__mangadex-info">
-                    <span class="admin__mangadex-id">{{ item.id }}</span>
+                    <a class="admin__mangadex-id admin__mangadex-link" href="https://mangadex.org/title/{{ item.id }}" target="_blank" rel="noopener noreferrer">
+                      {{ item.id }}
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                      </svg>
+                    </a>
                     <div class="admin__mangadex-titles">
                       @for (title of item.titles; track $index) {
                         <span class="admin__mangadex-title-tag">{{ title }}</span>

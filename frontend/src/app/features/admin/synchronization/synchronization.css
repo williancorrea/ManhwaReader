@@ -417,6 +417,20 @@
   word-break: break-all;
 }
 
+.admin__mangadex-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  color: var(--text-muted);
+  transition: color 150ms ease;
+}
+
+.admin__mangadex-link:hover {
+  color: #ff6740;
+  text-decoration: underline;
+}
+
 .admin__mangadex-titles {
   display: flex;
   flex-wrap: wrap;
