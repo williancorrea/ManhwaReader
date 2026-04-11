@@ -21,7 +21,8 @@ export interface WorkDetail {
 
 export interface AlternativeTitle {
   title: string;
-  language: string;
+  language: string | null;
+  languageFlag: string | null;
   isOfficial: boolean;
 }
 

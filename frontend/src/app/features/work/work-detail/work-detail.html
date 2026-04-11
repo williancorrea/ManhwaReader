@@ -37,14 +37,24 @@
         <div class="work-hero__info">
           <h1 class="work-hero__title">{{ w.title }}</h1>
 
-          @if (w.alternativeTitles.length) {
-            <p class="work-hero__alt-titles">
-              @for (alt of w.alternativeTitles; track $index) {
-                @if (alt.title !== w.title) {
-                  <span>{{ alt.title }}</span>
-                }
+          @if (filteredAltTitles().length) {
+            <div class="work-hero__alt-titles">
+              @for (alt of visibleAltTitles(); track $index) {
+                <span class="alt-title-chip">
+                  @if (alt.languageFlag) {
+                    <img class="alt-title-chip__flag" [src]="alt.languageFlag" [alt]="alt.language ?? ''" />
+                  } @else {
+                    <span class="alt-title-chip__flag alt-title-chip__flag--unknown">❓</span>
+                  }
+                  <span class="alt-title-chip__text">{{ alt.title }}</span>
+                </span>
               }
-            </p>
+              @if (filteredAltTitles().length > 5) {
+                <button class="alt-titles-toggle" type="button" (click)="toggleAltTitles()">
+                  {{ altTitlesExpanded() ? 'ver menos' : '+' + (filteredAltTitles().length - 5) + ' mais' }}
+                </button>
+              }
+            </div>
           }
 
           <div class="work-hero__badges">

@@ -39,4 +39,7 @@ public class Language implements Serializable {
   @Size(min = 3, max = 50)
   @Column(nullable = false, length = 50)
   private String name;
+
+  @Column(columnDefinition = "MEDIUMTEXT")
+  private String flag;
 }

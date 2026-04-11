@@ -171,18 +171,64 @@
 .work-hero__alt-titles {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: 6px;
   margin: 0;
+  padding: 0;
 }
 
-.work-hero__alt-titles span {
-  font-size: 13px;
+.alt-title-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  max-width: 280px;
+}
+
+.alt-title-chip__flag {
+  width: 22px;
+  height: 14px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 2px;
+  display: block;
+}
+
+.alt-title-chip__flag--unknown {
+  width: auto;
+  height: auto;
+  font-size: 12px;
+  line-height: 1;
+  border-radius: 0;
+}
+
+.alt-title-chip__text {
+  font-size: 12px;
   color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.work-hero__alt-titles span:not(:last-child)::after {
-  content: ' / ';
-  margin-left: var(--space-1);
+.alt-titles-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: none;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-family: var(--font-family);
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: color 150ms ease, border-color 150ms ease;
+}
+
+.alt-titles-toggle:hover {
+  color: var(--text-secondary);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Badges */

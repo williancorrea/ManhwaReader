@@ -1,5 +1,6 @@
 package dev.williancorrea.manhwa.reader.features.work.dto;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,7 +31,7 @@ public record WorkDetailOutput(
     Integer userRating
 ) {
 
-  public record AlternativeTitleOutput(String title, String language, Boolean isOfficial) {
+  public record AlternativeTitleOutput(String title, String language, String languageFlag, Boolean isOfficial) {
   }
 
   public record TagOutput(String name, String group) {
@@ -59,7 +60,11 @@ public record WorkDetailOutput(
           .map(t -> new AlternativeTitleOutput(
               t.getTitle(),
               t.getLanguage() != null ? t.getLanguage().getCode() : null,
+              t.getLanguage() != null ? t.getLanguage().getFlag() : null,
               t.getIsOfficial()))
+          .sorted(Comparator.comparing(
+              AlternativeTitleOutput::language,
+              Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
           .toList();
     }
 

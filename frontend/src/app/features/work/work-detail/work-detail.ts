@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   Component,
+  computed,
   ElementRef,
   HostListener,
   inject,
@@ -47,6 +48,18 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly showScrollTop = signal(false);
   readonly isTogglingAll = signal(false);
   readonly coverModalOpen = signal(false);
+  readonly altTitlesExpanded = signal(false);
+
+  readonly filteredAltTitles = computed(() => {
+    const w = this.work();
+    if (!w) return [];
+    return w.alternativeTitles;
+  });
+
+  readonly visibleAltTitles = computed(() => {
+    const titles = this.filteredAltTitles();
+    return this.altTitlesExpanded() ? titles : titles.slice(0, 5);
+  });
 
   @HostListener('window:scroll')
   onScroll(): void {
@@ -232,6 +245,10 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getSiteLabel(code: string): string {
     return this.siteLabels[code] ?? code;
+  }
+
+  toggleAltTitles(): void {
+    this.altTitlesExpanded.update(v => !v);
   }
 
   formatDate(dateStr: string): string {
