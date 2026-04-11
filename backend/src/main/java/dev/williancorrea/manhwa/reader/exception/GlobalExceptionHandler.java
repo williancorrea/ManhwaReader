@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import dev.williancorrea.manhwa.reader.exception.custom.BusinessException;
 import dev.williancorrea.manhwa.reader.exception.custom.ConflictException;
 import dev.williancorrea.manhwa.reader.exception.custom.NotFoundException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
@@ -99,6 +100,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
    * @param request The request that triggered the exception.
    * @return A ResponseEntity containing an ApiError object with the appropriate error details.
    */
+  /**
+   * Re-throw AccessDeniedException so Spring Security's ExceptionTranslationFilter
+   * can handle it properly (returning 401 for unauthenticated or 403 for unauthorized).
+   */
+  @ExceptionHandler(AccessDeniedException.class)
+  public void handleAccessDeniedException(AccessDeniedException ex) throws AccessDeniedException {
+    throw ex;
+  }
+
   @ExceptionHandler(Exception.class)
   public ResponseEntity<Object> handleUnknown(Exception ex, WebRequest request) {
     String messageCode = "exception.internal.error";
