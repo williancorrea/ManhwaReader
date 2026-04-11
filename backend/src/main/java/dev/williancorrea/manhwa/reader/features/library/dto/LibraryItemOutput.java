@@ -11,6 +11,8 @@ public record LibraryItemOutput(
     String workStatus,
     Long chapterCount,
     String libraryStatus,
-    Long unreadCount
+    Long unreadCount,
+    String originalLanguageCode,
+    String originalLanguageFlag
 ) {
 }

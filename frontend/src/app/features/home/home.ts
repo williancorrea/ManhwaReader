@@ -71,6 +71,7 @@ function toManhwa(item: WorkCatalogItem, index: number): Manhwa {
     latestChapter: item.chapterCount,
     genres: [item.publicationDemographic, item.status].filter(Boolean) as string[],
     inLibrary: item.userLibraryStatus != null,
+    originalLanguageFlag: item.originalLanguageFlag,
   };
 }
 
@@ -83,5 +84,6 @@ function toLibraryManhwa(item: LibraryItem, index: number): Manhwa {
     latestChapter: item.chapterCount,
     genres: [],
     unreadCount: item.unreadCount || undefined,
+    originalLanguageFlag: item.originalLanguageFlag,
   };
 }

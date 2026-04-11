@@ -8,6 +8,8 @@ export interface LibraryItem {
   chapterCount: number;
   libraryStatus: string;
   unreadCount: number;
+  originalLanguageCode: string | null;
+  originalLanguageFlag: string | null;
 }
 
 export const LIBRARY_STATUSES = [

@@ -129,6 +129,17 @@
   font-size: 15px;
 }
 
+.card__lang-flag {
+  position: absolute;
+  bottom: var(--space-2);
+  left: var(--space-2);
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  object-fit: cover;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
 .card__progress-bar {
   position: absolute;
   bottom: 0;

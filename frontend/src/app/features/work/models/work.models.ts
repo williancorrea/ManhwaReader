@@ -11,6 +11,7 @@ export interface WorkDetail {
   contentRating: string;
   publicationDemographic: string;
   originalLanguage: string;
+  originalLanguageFlag: string | null;
   tags: WorkTagItem[];
   authors: WorkAuthorItem[];
   links: WorkLinkItem[];

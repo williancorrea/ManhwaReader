@@ -47,13 +47,15 @@ public interface LibraryRepository extends JpaRepository<Library, UUID> {
            AND c2.id NOT IN (SELECT rp2.chapter_id FROM reading_progress rp2 WHERE rp2.user_id = :userId)
           ), 0
         ) AS unread_count,
+        (SELECT lang.code FROM language lang WHERE lang.id = w.original_language_id) AS original_language_code,
+        (SELECT lang.flag FROM language lang WHERE lang.id = w.original_language_id) AS original_language_flag,
         MAX(rp.last_read_at) AS last_read_at
       FROM library l
       JOIN work w ON l.work_id = w.id
       LEFT JOIN chapter ch ON ch.work_id = w.id
       LEFT JOIN reading_progress rp ON rp.chapter_id = ch.id AND rp.user_id = :userId
       WHERE l.user_id = :userId
-      GROUP BY l.id, w.id, w.slug, l.status, w.publication_demographic, w.status
+      GROUP BY l.id, w.id, w.slug, l.status, w.publication_demographic, w.status, w.original_language_id
       ORDER BY last_read_at DESC
       LIMIT :limit
       """)
@@ -84,7 +86,9 @@ public interface LibraryRepository extends JpaRepository<Library, UUID> {
            WHERE c2.work_id = w.id AND c2.disabled = false
            AND c2.id NOT IN (SELECT rp.chapter_id FROM reading_progress rp WHERE rp.user_id = :userId)
           ), 0
-        ) AS unread_count
+        ) AS unread_count,
+        (SELECT lang.code FROM language lang WHERE lang.id = w.original_language_id) AS original_language_code,
+        (SELECT lang.flag FROM language lang WHERE lang.id = w.original_language_id) AS original_language_flag
       FROM library l
       JOIN work w ON l.work_id = w.id
       WHERE l.user_id = :userId

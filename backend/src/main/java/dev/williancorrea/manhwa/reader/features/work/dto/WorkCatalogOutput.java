@@ -12,7 +12,9 @@ public record WorkCatalogOutput(
     String publicationDemographic,
     String status,
     Long chapterCount,
-    String userLibraryStatus
+    String userLibraryStatus,
+    String originalLanguageCode,
+    String originalLanguageFlag
 ) {
   public static WorkCatalogOutput fromEntity(Work work, String storage) {
     return fromEntity(work, storage, null);
@@ -28,6 +30,9 @@ public record WorkCatalogOutput(
           .orElse(work.getTitles().getFirst().getTitle());
     }
 
+    String originalLanguageCode = work.getOriginalLanguage() != null ? work.getOriginalLanguage().getCode() : null;
+    String originalLanguageFlag = work.getOriginalLanguage() != null ? work.getOriginalLanguage().getFlag() : null;
+
     return new WorkCatalogOutput(
         work.getId(),
         work.getSlug(),
@@ -36,7 +41,9 @@ public record WorkCatalogOutput(
         work.getPublicationDemographic() != null ? work.getPublicationDemographic().name() : null,
         work.getStatus() != null ? work.getStatus().name() : null,
         work.getChapterCount() != null ? work.getChapterCount() : 0L,
-        userLibraryStatus
+        userLibraryStatus,
+        originalLanguageCode,
+        originalLanguageFlag
     );
   }
 }

@@ -58,6 +58,8 @@ public class LibraryService {
       String title = row[7] != null ? row[7].toString() : null;
       String coverFileName = row[8] != null ? row[8].toString() : null;
       Long unreadCount = row[9] != null ? ((Number) row[9]).longValue() : 0L;
+      String originalLanguageCode = row[10] != null ? row[10].toString() : null;
+      String originalLanguageFlag = row[11] != null ? row[11].toString() : null;
 
       String coverUrl = null;
       if (slug != null && coverFileName != null) {
@@ -68,7 +70,7 @@ public class LibraryService {
       return new LibraryItemOutput(
           workId != null ? UUID.fromString(workId) : null,
           slug, title, coverUrl, publicationDemographic, workStatus,
-          chapterCount, libraryStatus, unreadCount
+          chapterCount, libraryStatus, unreadCount, originalLanguageCode, originalLanguageFlag
       );
     }).toList();
   }
@@ -115,6 +117,8 @@ public class LibraryService {
       String title = row[7] != null ? row[7].toString() : null;
       String coverFileName = row[8] != null ? row[8].toString() : null;
       Long unreadCount = row[9] != null ? ((Number) row[9]).longValue() : 0L;
+      String originalLanguageCode = row[10] != null ? row[10].toString() : null;
+      String originalLanguageFlag = row[11] != null ? row[11].toString() : null;
 
       String coverUrl = null;
       if (slug != null && coverFileName != null) {
@@ -131,7 +135,9 @@ public class LibraryService {
           workStatus,
           chapterCount,
           libraryStatus,
-          unreadCount
+          unreadCount,
+          originalLanguageCode,
+          originalLanguageFlag
       );
     });
   }

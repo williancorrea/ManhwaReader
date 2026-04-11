@@ -162,5 +162,6 @@ function toManhwa(item: WorkCatalogItem, id: number): Manhwa {
     latestChapter: item.chapterCount,
     genres: [item.publicationDemographic, item.status].filter(Boolean) as string[],
     inLibrary: item.userLibraryStatus != null,
+    originalLanguageFlag: item.originalLanguageFlag,
   };
 }

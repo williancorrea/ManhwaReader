@@ -128,6 +128,9 @@
                   } @else {
                     <div class="admin__work-cover-placeholder">?</div>
                   }
+                  @if (work.originalLanguageFlag) {
+                    <img class="admin__work-lang-flag" [src]="work.originalLanguageFlag" alt="" loading="lazy" />
+                  }
                 </div>
                 <div class="admin__work-info">
                   <span class="admin__work-title">{{ work.title || 'Sem titulo' }}</span>
@@ -332,6 +335,9 @@
                     <img [src]="work.coverUrl" [alt]="work.title" loading="lazy" />
                   } @else {
                     <div class="admin__work-cover-placeholder">?</div>
+                  }
+                  @if (work.originalLanguageFlag) {
+                    <img class="admin__work-lang-flag" [src]="work.originalLanguageFlag" alt="" loading="lazy" />
                   }
                 </div>
                 <div class="admin__work-info">

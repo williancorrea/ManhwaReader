@@ -6,6 +6,8 @@ export interface WorkCatalogItem {
   status: string;
   chapterCount: number;
   userLibraryStatus: string | null;
+  originalLanguageCode: string | null;
+  originalLanguageFlag: string | null;
 }
 
 export interface PageResponse<T> {
