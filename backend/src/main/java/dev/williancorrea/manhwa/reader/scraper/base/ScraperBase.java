@@ -133,6 +133,7 @@ public class ScraperBase {
       work.setTitles(new ArrayList<>());
     }
 
+    AtomicBoolean findOfficialTitle = new AtomicBoolean(false);
     titles.forEach(item -> {
       Objects.requireNonNull(item.getOrigin(), VALIDATION_ERROR_SYNCHRONIZATION_ORIGIN_IS_NULL);
       Objects.requireNonNull(item.getTitle(), VALIDATION_ERROR_TITLE_IS_NULL);
@@ -152,12 +153,16 @@ public class ScraperBase {
       AtomicBoolean found = new AtomicBoolean(false);
       log.debug("--> [SynchronizationBase][syncTitle] ({}) Syncing title", item.getTitle());
       work.getTitles().forEach(obj -> {
-        if (obj.getTitle().equalsIgnoreCase(item.getTitle()) && obj.getLanguage() == null) {
+        if (obj.getTitle().equalsIgnoreCase(item.getTitle()) 
+            && (obj.getLanguage() == null || obj.getLanguage().getCode().equalsIgnoreCase("xx-XX"))) {
           obj.setLanguage(lang);
           found.set(true);
         } else if (obj.getTitle().equalsIgnoreCase(item.getTitle())
             && obj.getLanguage().getCode().equalsIgnoreCase(item.getLanguage())) {
           found.set(true);
+        }
+        if(!findOfficialTitle.get() && obj.getIsOfficial()) {
+          findOfficialTitle.set(true);
         }
       });
       if (!found.get()) {
@@ -168,7 +173,20 @@ public class ScraperBase {
             .work(work)
             .build());
       }
+
+     
     });
+    
+    if (!findOfficialTitle.get()) {
+      work.getTitles().forEach(obj -> {
+        if (!findOfficialTitle.get()) {
+          if (obj.getLanguage().getCode().equalsIgnoreCase("pt-BR")) {
+            obj.setIsOfficial(true);
+            findOfficialTitle.set(true);
+          }
+        }
+      });
+    }
   }
 
   public void syncSynopses(Work work,
