@@ -128,9 +128,6 @@
                   } @else {
                     <div class="admin__work-cover-placeholder">?</div>
                   }
-                  @if (work.originalLanguageFlag) {
-                    <img class="admin__work-lang-flag" [src]="work.originalLanguageFlag" alt="" loading="lazy" />
-                  }
                 </div>
                 <div class="admin__work-info">
                   <span class="admin__work-title">{{ work.title || 'Sem titulo' }}</span>
@@ -147,7 +144,7 @@
                     @if (work.coverUrl) {
                       <a
                         class="admin__btn-icon"
-                        [href]="'https://www.google.com/searchbyimage?image_url=' + encodeURIComponent(work.coverUrl) + '&q=Titulo Original'"
+                        [href]="'https://lens.google.com/uploadbyurl?url=' + encodeURIComponent(work.coverUrl) + '&q=Mostrar titulo Original e alternativos'"
                         target="_blank"
                         rel="noopener noreferrer"
                         title="Buscar capa no Google Lens"
@@ -335,9 +332,6 @@
                     <img [src]="work.coverUrl" [alt]="work.title" loading="lazy" />
                   } @else {
                     <div class="admin__work-cover-placeholder">?</div>
-                  }
-                  @if (work.originalLanguageFlag) {
-                    <img class="admin__work-lang-flag" [src]="work.originalLanguageFlag" alt="" loading="lazy" />
                   }
                 </div>
                 <div class="admin__work-info">

@@ -12,8 +12,6 @@ export interface AdminWorkItem {
   coverUrl: string;
   synchronizationOrigins: string[];
   synchronizations: SynchronizationDetail[];
-  originalLanguageCode: string | null;
-  originalLanguageFlag: string | null;
 }
 
 export interface MangaDexSearchItem {

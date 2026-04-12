@@ -13,9 +13,7 @@ public record AdminWorkOutput(
     String type,
     String coverUrl,
     List<String> synchronizationOrigins,
-    List<SynchronizationDetail> synchronizations,
-    String originalLanguageCode,
-    String originalLanguageFlag
+    List<SynchronizationDetail> synchronizations
 ) {
 
   public record SynchronizationDetail(
@@ -49,9 +47,6 @@ public record AdminWorkOutput(
             .toList()
         : List.of();
 
-    String originalLanguageCode = work.getOriginalLanguage() != null ? work.getOriginalLanguage().getCode() : null;
-    String originalLanguageFlag = work.getOriginalLanguage() != null ? work.getOriginalLanguage().getFlag() : null;
-
     return new AdminWorkOutput(
         work.getId(),
         title,
@@ -60,9 +55,7 @@ public record AdminWorkOutput(
         work.getType() != null ? work.getType().name() : null,
         coverUrl,
         origins,
-        syncDetails,
-        originalLanguageCode,
-        originalLanguageFlag
+        syncDetails
     );
   }
 }
