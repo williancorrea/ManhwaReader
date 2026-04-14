@@ -15,6 +15,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import dev.williancorrea.manhwa.reader.exception.custom.BusinessException;
 import dev.williancorrea.manhwa.reader.features.chapter.Chapter;
 import dev.williancorrea.manhwa.reader.features.chapter.ChapterService;
 import dev.williancorrea.manhwa.reader.features.chapter.notify.ChapterNotify;
@@ -343,7 +344,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
         log.error("--> [MediocrescanService][syncAttributes] ({}) Unknown status: {}",
             dto.getNome(),
             dto.getStatus().getNome());
-        throw new RuntimeException("Status not found: " + dto.getStatus().getNome());
+        throw new BusinessException("scraper.mediocrescan.error.status-not-found", new Object[]{dto.getStatus().getNome()});
       }
     };
   }
@@ -694,7 +695,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
             log.error("--> [MediocrescanService][syncPage] ({}) Error downloading file: {}",
                 chapterDto.getObra().getObraNome(),
                 fileSrc, e);
-            throw new RuntimeException("Error downloading page", e);
+            throw new BusinessException("scraper.mediocrescan.error.download-page", null, e);
           }
         }, chapterExecutor);
 
@@ -706,7 +707,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
       cancelled.set(true);
       futures.forEach(f -> f.cancel(true));
       chapterExecutor.shutdownNow();
-      throw new RuntimeException("Error downloading pages for chapter " + chapterDto.getNumero(), e.getCause());
+      throw new BusinessException("scraper.mediocrescan.error.download-chapter-pages", new Object[]{chapterDto.getNumero()}, e.getCause());
     } finally {
       chapterExecutor.shutdown();
     }

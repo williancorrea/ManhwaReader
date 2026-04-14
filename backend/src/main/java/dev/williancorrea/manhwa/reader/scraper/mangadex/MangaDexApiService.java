@@ -1,6 +1,7 @@
 package dev.williancorrea.manhwa.reader.scraper.mangadex;
 
 import java.util.List;
+import dev.williancorrea.manhwa.reader.exception.custom.BusinessException;
 import dev.williancorrea.manhwa.reader.features.work.Work;
 import dev.williancorrea.manhwa.reader.features.work.WorkService;
 import dev.williancorrea.manhwa.reader.scraper.mangadex.client.MangaDexClient;
@@ -44,7 +45,7 @@ public class MangaDexApiService {
     } catch (FeignException e) {
       log.error("Error searchMangaFromExternalApi manga from MangaDex API: {}", e.getMessage());
       //TODO: Implementar um tratamento mais adequado de exceções
-      throw new RuntimeException("Failed to search manga from MangaDex API", e);
+      throw new BusinessException("scraper.mangadex.error.search-failed", null, e);
     }
   }
 
@@ -65,7 +66,7 @@ public class MangaDexApiService {
     } catch (FeignException e) {
       log.error("Error searchMangaFromExternalApi manga from MangaDex API: {}", e.getMessage());
       //TODO: Implementar um tratamento mais adequado de exceções
-      throw new RuntimeException("Failed to search manga from MangaDex API", e);
+      throw new BusinessException("scraper.mangadex.error.search-failed", null, e);
     }
   }
 

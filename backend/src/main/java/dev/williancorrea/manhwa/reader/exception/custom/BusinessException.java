@@ -13,4 +13,10 @@ public class BusinessException extends RuntimeException {
     this.messageKey = messageKey;
     this.messageArgs = messageArgs;
   }
+
+  public BusinessException(String messageKey, Object[] messageArgs, Throwable cause) {
+    super(messageKey, cause);
+    this.messageKey = messageKey;
+    this.messageArgs = messageArgs;
+  }
 }

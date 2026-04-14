@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import dev.williancorrea.manhwa.reader.exception.custom.BusinessException;
 import dev.williancorrea.manhwa.reader.storage.minio.MinioService;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -39,7 +40,7 @@ public class ExternalFileService {
     HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
     if (response.statusCode() != 200) {
-      throw new RuntimeException("Falha no download: HTTP " + response.statusCode());
+      throw new BusinessException("storage.error.download-failed", new Object[]{response.statusCode()});
     }
 
     minioService.uploadStream(

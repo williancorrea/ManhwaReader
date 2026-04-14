@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import dev.williancorrea.manhwa.reader.exception.custom.BusinessException;
 import dev.williancorrea.manhwa.reader.scraper.mangotoons.MangoCrypto;
 import feign.Response;
 import feign.codec.Decoder;
@@ -29,7 +30,7 @@ public class MangoDecoder implements Decoder {
       try {
         body = MangoCrypto.decrypt(body);
       } catch (Exception e) {
-        throw new RuntimeException("Erro ao descriptografar resposta MangoToons", e);
+        throw new BusinessException("scraper.mangotoons.error.decryption-failed", null, e);
       }
     }
 

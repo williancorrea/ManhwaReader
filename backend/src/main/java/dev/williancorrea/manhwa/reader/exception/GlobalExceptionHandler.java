@@ -224,7 +224,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
       }
     } else {
       log.error("NOT IMPLEMENTED --> {0}", ex.getCause());
-      throw new BusinessException("NOT IMPLEMENTED --> {0}", null);
+      throw new BusinessException("exception.not-implemented", new Object[]{ex.getCause()});
     }
 
     String uri = ((ServletWebRequest) request).getRequest().getRequestURI();

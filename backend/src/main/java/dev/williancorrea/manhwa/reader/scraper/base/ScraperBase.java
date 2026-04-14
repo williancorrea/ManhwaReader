@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import dev.williancorrea.manhwa.reader.exception.custom.BusinessException;
 import dev.williancorrea.manhwa.reader.features.author.Author;
 import dev.williancorrea.manhwa.reader.features.author.AuthorService;
 import dev.williancorrea.manhwa.reader.features.language.Language;
@@ -598,7 +599,7 @@ public class ScraperBase {
       return node.get("exp").asLong();
     } catch (Exception e) {
       log.error("[SynchronizationBase][jwtExtractExpiration] Error reading exp from JWT.: {}", e.getMessage());
-      throw new RuntimeException("Error reading exp from JWT.", e);
+      throw new BusinessException("scraper.error.jwt-exp-read-failed", null, e);
     }
   }
 

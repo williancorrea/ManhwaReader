@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import dev.williancorrea.manhwa.reader.exception.custom.BusinessException;
 import dev.williancorrea.manhwa.reader.features.author.Author;
 import dev.williancorrea.manhwa.reader.features.author.AuthorService;
 import dev.williancorrea.manhwa.reader.features.author.AuthorType;
@@ -94,7 +95,7 @@ public class MangaDexMapperService implements Scraper<MangaDexData> {
           e.getMessage(),
           Arrays.toString(e.getStackTrace())
       );
-      throw new RuntimeException("Error mapping MangaDex data to Work entity");
+      throw new BusinessException("scraper.mangadex.error.mapping-failed", null);
     }
   }
 

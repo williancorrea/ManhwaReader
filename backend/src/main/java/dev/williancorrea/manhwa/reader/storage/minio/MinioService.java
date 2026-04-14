@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
-import dev.williancorrea.manhwa.reader.exception.custom.ObjectNotFoundException;
+import dev.williancorrea.manhwa.reader.exception.custom.BusinessException;
 import dev.williancorrea.manhwa.reader.storage.StorageInterface;
 import dev.williancorrea.manhwa.reader.utils.RemoveAccentuationUtils;
 import io.minio.BucketExistsArgs;
@@ -63,7 +63,7 @@ public class MinioService implements StorageInterface {
       }
       return objects;
     } catch (Exception e) {
-      throw new ObjectNotFoundException("Error listing object: " + e.getMessage());
+      throw new BusinessException("storage.error.list-objects", new Object[]{e.getMessage()}, e);
     }
   }
 
@@ -78,7 +78,7 @@ public class MinioService implements StorageInterface {
       );
     } catch (Exception e) {
 
-      throw new ObjectNotFoundException("Error fetching object: ");
+      throw new BusinessException("storage.error.fetch-object", null, e);
     }
   }
 
@@ -92,7 +92,7 @@ public class MinioService implements StorageInterface {
           .build());
     } catch (Exception e) {
 
-      throw new ObjectNotFoundException("Error fetching object: ");
+      throw new BusinessException("storage.error.fetch-object", null, e);
     }
   }
 
@@ -104,7 +104,7 @@ public class MinioService implements StorageInterface {
              | InvalidResponseException | NoSuchAlgorithmException | ServerException | XmlParserException
              | IllegalArgumentException | IOException e) {
 
-      throw new ObjectNotFoundException("Error removing object: " + e.getMessage());
+      throw new BusinessException("storage.error.remove-object", new Object[]{e.getMessage()}, e);
     }
   }
 
@@ -143,7 +143,7 @@ public class MinioService implements StorageInterface {
              InvalidResponseException | NoSuchAlgorithmException | ServerException | XmlParserException |
              IllegalArgumentException | IOException e) {
 
-      throw new ObjectNotFoundException("An error occurred while uploading: " + e.getMessage());
+      throw new BusinessException("storage.error.upload-file", new Object[]{e.getMessage()}, e);
     }
   }
 
@@ -170,7 +170,7 @@ public class MinioService implements StorageInterface {
               .build()
       );
     } catch (Exception e) {
-      throw new RuntimeException("Erro ao definir policy pública: " + e.getMessage(), e);
+      throw new BusinessException("storage.error.set-bucket-policy", new Object[]{e.getMessage()}, e);
     }
   }
 
@@ -206,8 +206,7 @@ public class MinioService implements StorageInterface {
       );
 
     } catch (Exception e) {
-      throw new ObjectNotFoundException(
-          "Error uploading stream: " + e.getMessage());
+      throw new BusinessException("storage.error.upload-file", new Object[]{e.getMessage()}, e);
     }
   }
 

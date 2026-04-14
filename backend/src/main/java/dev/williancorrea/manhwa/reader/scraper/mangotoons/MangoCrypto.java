@@ -5,6 +5,7 @@ import java.security.MessageDigest;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import dev.williancorrea.manhwa.reader.exception.custom.BusinessException;
 
 public class MangoCrypto {
 
@@ -28,7 +29,7 @@ public class MangoCrypto {
   public static String decrypt(String encrypted) throws Exception {
     String[] parts = encrypted.split(":");
     if (parts.length != 2) {
-      throw new IllegalArgumentException("Payload inválido");
+      throw new BusinessException("scraper.mangotoons.error.invalid-payload", null);
     }
 
     byte[] iv = hexToBytes(parts[0]);
