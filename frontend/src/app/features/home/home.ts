@@ -2,7 +2,7 @@ import { Component, computed, HostListener, inject, OnInit, signal } from '@angu
 import { RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../shared/components/navbar/navbar';
 import { ManhwaCardComponent, Manhwa } from '../../shared/components/manhwa-card/manhwa-card';
-import { FeaturedCarouselComponent } from '../../shared/components/featured-carousel/featured-carousel';
+import { FeaturedCarouselComponent, DemographicOption } from '../../shared/components/featured-carousel/featured-carousel';
 import { CatalogService } from '../catalog/services/catalog.service';
 import { WorkCatalogItem } from '../catalog/models/catalog.models';
 import { LibraryService } from '../library/services/library.service';
@@ -21,6 +21,18 @@ export class HomeComponent implements OnInit {
   readonly featuredWorks = signal<Manhwa[]>([]);
   readonly showScrollTop = signal(false);
   readonly latestUpdates = signal<Manhwa[]>([]);
+  readonly selectedDemographic = signal('COMIC');
+
+  readonly demographics: DemographicOption[] = [
+    { value: 'COMIC',   label: 'Comic'   },
+    { value: 'SHOUNEN', label: 'Shounen' },
+    { value: 'SEINEN',  label: 'Seinen'  },
+    { value: 'JOSEI',   label: 'Josei'   },
+    { value: 'SHOUJO',  label: 'Shoujo'  },
+    { value: 'YAOI',    label: 'Yaoi'    },
+    { value: 'YURI',    label: 'Yuri'    },
+    { value: 'HENTAI',  label: 'Hentai'  },
+  ];
 
   private readonly allRecentlyRead = signal<Manhwa[]>([]);
   readonly continueReadingLoaded = signal(false);
@@ -37,11 +49,7 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.catalogService.listar(0, 5).subscribe({
-      next: (response) => {
-        this.featuredWorks.set(response.content.map(toManhwa));
-      }
-    });
+    this.loadFeaturedWorks('COMIC');
 
     this.catalogService.listar(0).subscribe({
       next: (response) => {
@@ -53,6 +61,19 @@ export class HomeComponent implements OnInit {
       next: (items) => {
         this.allRecentlyRead.set(items.map(toLibraryManhwa));
         this.continueReadingLoaded.set(true);
+      }
+    });
+  }
+
+  onDemographicChange(demographic: string): void {
+    this.selectedDemographic.set(demographic);
+    this.loadFeaturedWorks(demographic);
+  }
+
+  private loadFeaturedWorks(demographic: string): void {
+    this.catalogService.listar(0, 8, { publicationDemographic: demographic }).subscribe({
+      next: (response) => {
+        this.featuredWorks.set(response.content.map(toManhwa));
       }
     });
   }

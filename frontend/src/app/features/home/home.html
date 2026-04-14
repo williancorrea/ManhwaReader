@@ -1,10 +1,13 @@
 <div class="home">
   <app-navbar />
 
-  <!-- Featured Carousel -->
-  @if (featuredWorks().length > 0) {
-    <app-featured-carousel [items]="featuredWorks()" />
-  }
+  <!-- Featured Carousel with demographic filter -->
+  <app-featured-carousel
+    [items]="featuredWorks()"
+    [demographics]="demographics"
+    [selectedDemographic]="selectedDemographic()"
+    (demographicChange)="onDemographicChange($event)"
+  />
 
   <!-- Continue Lendo -->
   @if (continueReadingLoaded() && (pendingReads().length > 0 || allUpToDate())) {
