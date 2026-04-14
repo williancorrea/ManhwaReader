@@ -1,5 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, PLATFORM_ID, signal } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
@@ -15,7 +14,6 @@ import { AdminWorkItem, MangaDexSearchItem } from '../models/admin.models';
 })
 export class AdminSynchronizationComponent implements OnInit, OnDestroy {
   private readonly service = inject(AdminSynchronizationService);
-  private readonly platformId = inject(PLATFORM_ID);
   private readonly destroy$ = new Subject<void>();
   private readonly worksSearchSubject = new Subject<string>();
 

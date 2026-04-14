@@ -1,5 +1,4 @@
-import { inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { inject } from '@angular/core';
 import { HttpErrorResponse, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
@@ -29,17 +28,11 @@ export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn
 ) => {
-  const platformId = inject(PLATFORM_ID);
   const tokenService = inject(TokenService);
   const authService = inject(AuthService);
   const router = inject(Router);
 
   if (!isApiUrl(req.url)) {
-    return next(req);
-  }
-
-  // On the server (SSR) there are no browser cookies, so skip auth logic entirely
-  if (!isPlatformBrowser(platformId)) {
     return next(req);
   }
 

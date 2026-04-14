@@ -1,5 +1,4 @@
-import { Component, computed, HostListener, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Component, computed, HostListener, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../shared/components/navbar/navbar';
 import { ManhwaCardComponent, Manhwa } from '../../shared/components/manhwa-card/manhwa-card';
@@ -18,7 +17,6 @@ import { LibraryItem } from '../library/models/library.models';
 export class HomeComponent implements OnInit {
   private readonly catalogService = inject(CatalogService);
   private readonly libraryService = inject(LibraryService);
-  private readonly platformId = inject(PLATFORM_ID);
 
   readonly featuredWorks = signal<Manhwa[]>([]);
   readonly showScrollTop = signal(false);
@@ -31,12 +29,10 @@ export class HomeComponent implements OnInit {
 
   @HostListener('window:scroll')
   onScroll(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
     this.showScrollTop.set(window.scrollY > 300);
   }
 
   scrollToTop(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 

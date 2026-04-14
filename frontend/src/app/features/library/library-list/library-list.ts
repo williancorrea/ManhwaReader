@@ -1,5 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostListener, inject, OnDestroy, OnInit, PLATFORM_ID, signal, ViewChild } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { AfterViewInit, Component, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ManhwaCardComponent, Manhwa } from '../../../shared/components/manhwa-card/manhwa-card';
@@ -17,7 +16,6 @@ export class LibraryListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('sentinel') private sentinelRef!: ElementRef<HTMLElement>;
 
   private readonly libraryService = inject(LibraryService);
-  private readonly platformId = inject(PLATFORM_ID);
   private readonly destroy$ = new Subject<void>();
   private intersectionObserver?: IntersectionObserver;
 
@@ -32,7 +30,6 @@ export class LibraryListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @HostListener('window:scroll')
   onScroll(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
     this.showScrollTop.set(window.scrollY > 300);
   }
 
@@ -41,7 +38,6 @@ export class LibraryListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
     this.intersectionObserver = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !this.isLoading() && this.hasNextPage()) {
@@ -65,7 +61,6 @@ export class LibraryListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   scrollToTop(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 

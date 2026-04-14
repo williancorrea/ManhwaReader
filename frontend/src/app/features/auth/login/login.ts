@@ -1,5 +1,4 @@
-import { Component, inject, OnInit, afterNextRender, signal, PLATFORM_ID, computed } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Component, inject, OnInit, afterNextRender, signal, computed } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -24,7 +23,6 @@ export class LoginComponent implements OnInit {
   private readonly googleAuthService = inject(GoogleAuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly platformId = inject(PLATFORM_ID);
 
   readonly isLoading = signal(false);
   readonly errorMessage = signal('');
@@ -36,13 +34,11 @@ export class LoginComponent implements OnInit {
   });
 
   constructor() {
-    if (isPlatformBrowser(this.platformId)) {
-      afterNextRender(() => {
-        this.googleAuthService.initialize((idToken: string) => {
-          this.handleGoogleCredential(idToken);
-        });
+    afterNextRender(() => {
+      this.googleAuthService.initialize((idToken: string) => {
+        this.handleGoogleCredential(idToken);
       });
-    }
+    });
   }
 
   ngOnInit(): void {}

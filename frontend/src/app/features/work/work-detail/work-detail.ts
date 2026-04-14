@@ -7,11 +7,9 @@ import {
   inject,
   OnDestroy,
   OnInit,
-  PLATFORM_ID,
   signal,
   ViewChild
 } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -32,7 +30,6 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly workService = inject(WorkService);
-  private readonly platformId = inject(PLATFORM_ID);
   private readonly destroy$ = new Subject<void>();
   private intersectionObserver?: IntersectionObserver;
 
@@ -63,12 +60,10 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @HostListener('window:scroll')
   onScroll(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
     this.showScrollTop.set(window.scrollY > 300);
   }
 
   scrollToTop(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -92,7 +87,6 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
     this.intersectionObserver = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !this.isLoadingChapters() && this.hasNextPage()) {

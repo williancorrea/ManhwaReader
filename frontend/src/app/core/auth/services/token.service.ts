@@ -1,5 +1,4 @@
-import { inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 interface JwtClaims {
@@ -12,7 +11,6 @@ interface JwtClaims {
 
 @Injectable({ providedIn: 'root' })
 export class TokenService {
-  private readonly platformId = inject(PLATFORM_ID);
   private readonly tokenSubject = new BehaviorSubject<string | null>(null);
 
   readonly token$ = this.tokenSubject.asObservable();
@@ -36,14 +34,12 @@ export class TokenService {
   }
 
   isTokenExpired(): boolean {
-    if (!isPlatformBrowser(this.platformId)) return true;
     const claims = this.decodeClaims();
     if (!claims) return true;
     return Date.now() / 1000 >= claims.exp;
   }
 
   getClaims(): JwtClaims | null {
-    if (!isPlatformBrowser(this.platformId)) return null;
     return this.decodeClaims();
   }
 

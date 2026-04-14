@@ -1,5 +1,4 @@
-import { inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable, signal } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 
 declare global {
@@ -34,19 +33,16 @@ interface PromptMomentNotification {
 
 @Injectable({ providedIn: 'root' })
 export class GoogleAuthService {
-  private readonly platformId = inject(PLATFORM_ID);
   private googleCallback: ((idToken: string) => void) | null = null;
 
   readonly available = signal(false);
 
   initialize(onCredential: (idToken: string) => void): void {
-    if (!isPlatformBrowser(this.platformId)) return;
     this.googleCallback = onCredential;
     this.loadScript();
   }
 
   prompt(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
     if (!window.google?.accounts?.id) return;
     window.google.accounts.id.prompt((notification: PromptMomentNotification) => {
       if (notification.isNotDisplayed() || notification.isSkippedMoment()) {

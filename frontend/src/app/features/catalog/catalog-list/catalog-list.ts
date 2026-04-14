@@ -1,5 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostListener, inject, OnDestroy, OnInit, PLATFORM_ID, signal, ViewChild } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { AfterViewInit, Component, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
@@ -19,7 +18,6 @@ export class CatalogListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('searchInput') private searchInputRef!: ElementRef<HTMLInputElement>;
 
   private readonly catalogService = inject(CatalogService);
-  private readonly platformId = inject(PLATFORM_ID);
   private readonly destroy$ = new Subject<void>();
   private readonly titleSubject = new Subject<string>();
   private intersectionObserver?: IntersectionObserver;
@@ -50,7 +48,6 @@ export class CatalogListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @HostListener('window:scroll')
   onScroll(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
     const scrollY = window.scrollY;
     this.showScrollTop.set(scrollY > 300);
     if (scrollY > 50 && this.showFilters) {
@@ -70,7 +67,6 @@ export class CatalogListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
     this.intersectionObserver = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !this.isLoading() && this.hasNextPage()) {
@@ -111,7 +107,6 @@ export class CatalogListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   scrollToTop(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
