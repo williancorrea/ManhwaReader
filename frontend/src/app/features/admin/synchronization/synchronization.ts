@@ -41,6 +41,8 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
   readonly mangaDexSearched = signal(false);
   mangaDexSearch = '';
 
+  readonly titleSuggestions = signal<string[]>([]);
+
   readonly linking = signal<string | null>(null);
   readonly syncing = signal<string | null>(null);
   readonly linkSuccess = signal<string | null>(null);
@@ -151,11 +153,16 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
 
   selectWork(work: AdminWorkItem): void {
     this.selectedWork.set(work);
+    this.titleSuggestions.set(work.titles?.length ? work.titles : (work.title ? [work.title] : []));
     this.mangaDexSearch = work.title || '';
     this.mangaDexResults.set([]);
     this.mangaDexSearched.set(false);
     this.linkSuccess.set(null);
     this.linkError.set(null);
+  }
+
+  applyTitleSuggestion(title: string): void {
+    if (title) this.mangaDexSearch = title;
   }
 
   openCover(url: string): void {

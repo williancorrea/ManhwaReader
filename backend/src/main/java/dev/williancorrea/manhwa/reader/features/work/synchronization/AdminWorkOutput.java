@@ -8,6 +8,7 @@ import dev.williancorrea.manhwa.reader.features.work.WorkTitle;
 public record AdminWorkOutput(
     UUID id,
     String title,
+    List<String> titles,
     String slug,
     String status,
     String type,
@@ -31,6 +32,14 @@ public record AdminWorkOutput(
           .orElse(work.getTitles().getFirst().getTitle());
     }
 
+    List<String> allTitles = work.getTitles() != null
+        ? work.getTitles().stream()
+            .map(WorkTitle::getTitle)
+            .filter(t -> t != null && !t.isBlank())
+            .distinct()
+            .toList()
+        : List.of();
+
     String coverUrl = work.getCoverUrl() != null
         ? storageBase + work.getCoverUrl()
         : null;
@@ -50,6 +59,7 @@ public record AdminWorkOutput(
     return new AdminWorkOutput(
         work.getId(),
         title,
+        allTitles,
         work.getSlug(),
         work.getStatus() != null ? work.getStatus().name() : null,
         work.getType() != null ? work.getType().name() : null,

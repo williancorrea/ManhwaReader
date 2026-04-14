@@ -6,6 +6,7 @@ export interface SynchronizationDetail {
 export interface AdminWorkItem {
   id: string;
   title: string;
+  titles: string[];
   slug: string;
   status: string;
   type: string;
