@@ -7,7 +7,7 @@ Este arquivo fornece orientações ao Claude Code (claude.ai/code) ao trabalhar 
 Duas aplicações independentes compartilham este repositório:
 
 - `backend/` — serviço Spring Boot 3.5 / Java 25 / Maven (`dev.williancorrea.manhwa.reader`).
-- `frontend/` — aplicação Angular 21 com SSR (`manhwa-reader`).
+- `frontend/` — aplicação Angular 21 SPA (`manhwa-reader`, client-side rendering puro).
 - `artifacts/` — artefatos de build/saída (não é código-fonte).
 
 ## Comandos comuns
@@ -22,7 +22,6 @@ Frontend (executar a partir de `frontend/`):
 - Servidor de desenvolvimento: `npm start` (ng serve, padrão http://localhost:4200)
 - Build: `npm run build`
 - Testes (Vitest): `npm test`
-- Servidor SSR após o build: `npm run serve:ssr:ManhwaReader`
 
 ## Arquitetura do backend
 
@@ -46,7 +45,7 @@ Profiles: `application.yaml` (compartilhado) + `application-dev.yaml` / `applica
 
 ## Arquitetura do frontend
 
-Aplicação Angular 21 com standalone components e SSR (`@angular/ssr`, `main.server.ts`, `server.ts`). Tailwind 4 via `@tailwindcss/postcss`. O roteamento é dividido entre `app.routes.ts` (client) e `app.routes.server.ts` (prerender/hybrid SSR). As pastas de funcionalidades ficam em `src/app/features/` (`admin`, `auth`, `catalog`, `home`, `library`, `work`); a autenticação transversal fica em `src/app/core/auth`; a UI compartilhada em `src/app/shared/components`.
+Aplicação Angular 21 SPA com standalone components (CSR puro — sem SSR/hydration). Tailwind 4 via `@tailwindcss/postcss`. Roteamento em `app.routes.ts`. As pastas de funcionalidades ficam em `src/app/features/` (`admin`, `auth`, `catalog`, `home`, `library`, `work`); a autenticação transversal fica em `src/app/core/auth`; a UI compartilhada em `src/app/shared/components`. Como a aplicação é 100% browser, não adicione guardas `isPlatformBrowser`/`PLATFORM_ID` — use APIs do DOM (`window`, `localStorage`, `IntersectionObserver`) diretamente.
 
 ## Convenções a preservar
 
