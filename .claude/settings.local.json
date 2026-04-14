@@ -12,12 +12,12 @@
       "Bash(npm config:*)",
       "Bash(xargs grep:*)",
       "Bash(./mvnw compile:*)",
+      "Bash(./mvnw -q compile)",
       "Bash(./mvnw test:*)",
       "Bash(find:*)",
       "Bash(grep -E \"\\\\.\\(java|xml|properties|yml|yaml\\)$\")",
       "Bash(npm run:*)",
-      "Bash(npm test:*)",
-      "Bash(./mvnw -q compile)"
+      "Bash(npm test:*)"
     ]
   }
 }
