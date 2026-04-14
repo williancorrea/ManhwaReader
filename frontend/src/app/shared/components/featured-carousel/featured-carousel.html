@@ -1,4 +1,4 @@
-<section class="carousel" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
+<section class="carousel">
 
   <!-- Header: title + demographic filter tabs -->
   <div class="carousel__header">
@@ -29,10 +29,11 @@
   <!-- Filmstrip stage -->
   @if (hasItems()) {
     <div class="carousel__stage">
-      @for (item of displayItems(); track item.position) {
+      @for (item of displayItems(); track item.trackKey) {
         <div
           class="carousel__card carousel__card--{{ positionClass(item.position) }}"
-          (click)="item.position !== 0 && moveToward(item.position)"
+          [style.--slot]="item.position"
+          (click)="item.position !== 0 && focusItem(item.sourceIndex)"
         >
           @if (item.position === 0) {
             <a

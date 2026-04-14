@@ -10,6 +10,8 @@ export interface DemographicOption {
 export interface CarouselItem {
   manhwa: Manhwa;
   position: number;
+  sourceIndex: number;
+  trackKey: string;
 }
 
 @Component({
@@ -22,6 +24,7 @@ export class FeaturedCarouselComponent implements OnInit, OnDestroy {
   @Input({ required: true }) set items(v: Manhwa[]) {
     this._items.set(v ?? []);
     this.activeIndex.set(0);
+    this.syncAutoplay();
   }
   @Input() demographics: DemographicOption[] = [];
   @Input() selectedDemographic: string = '';
@@ -30,21 +33,29 @@ export class FeaturedCarouselComponent implements OnInit, OnDestroy {
   readonly activeIndex = signal(0);
   private readonly _items = signal<Manhwa[]>([]);
   private intervalId: ReturnType<typeof setInterval> | null = null;
+  private readonly autoplayDelayMs = 4000;
 
   readonly displayItems = computed<CarouselItem[]>(() => {
     const items = this._items();
     const len = items.length;
     if (len === 0) return [];
+    const trackByItem = len >= 5;
+
     return ([-2, -1, 0, 1, 2] as const).map(offset => {
       const idx = ((this.activeIndex() + offset) % len + len) % len;
-      return { manhwa: items[idx], position: offset };
+      return {
+        manhwa: items[idx],
+        position: offset,
+        sourceIndex: idx,
+        trackKey: trackByItem ? `item-${idx}` : `slot-${offset}`
+      };
     });
   });
 
   readonly hasItems = computed(() => this._items().length > 0);
 
   ngOnInit(): void {
-    this.startAutoplay();
+    this.syncAutoplay();
   }
 
   ngOnDestroy(): void {
@@ -53,6 +64,7 @@ export class FeaturedCarouselComponent implements OnInit, OnDestroy {
 
   prev(): void {
     const len = this._items().length;
+    if (len <= 1) return;
     const i = this.activeIndex();
     this.activeIndex.set(i === 0 ? len - 1 : i - 1);
     this.restartAutoplay();
@@ -60,17 +72,20 @@ export class FeaturedCarouselComponent implements OnInit, OnDestroy {
 
   next(): void {
     const len = this._items().length;
+    if (len <= 1) return;
     const i = this.activeIndex();
     this.activeIndex.set(i === len - 1 ? 0 : i + 1);
     this.restartAutoplay();
   }
 
-  moveToward(position: number): void {
-    if (position > 0) {
-      this.next();
-    } else if (position < 0) {
-      this.prev();
-    }
+  focusItem(sourceIndex: number): void {
+    const len = this._items().length;
+    if (len <= 1) return;
+    if (sourceIndex < 0 || sourceIndex >= len) return;
+    if (sourceIndex === this.activeIndex()) return;
+
+    this.activeIndex.set(sourceIndex);
+    this.restartAutoplay();
   }
 
   selectDemographic(value: string): void {
@@ -83,21 +98,15 @@ export class FeaturedCarouselComponent implements OnInit, OnDestroy {
     return 'far';
   }
 
-  onMouseEnter(): void {
-    this.stopAutoplay();
-  }
-
-  onMouseLeave(): void {
-    this.startAutoplay();
-  }
-
   private startAutoplay(): void {
+    if (this.intervalId || !this.shouldAutoplay()) return;
+
     this.intervalId = setInterval(() => {
       const items = this._items();
-      if (items.length === 0) return;
+      if (items.length <= 1) return;
       const i = this.activeIndex();
       this.activeIndex.set(i === items.length - 1 ? 0 : i + 1);
-    }, 4000);
+    }, this.autoplayDelayMs);
   }
 
   private stopAutoplay(): void {
@@ -110,5 +119,17 @@ export class FeaturedCarouselComponent implements OnInit, OnDestroy {
   private restartAutoplay(): void {
     this.stopAutoplay();
     this.startAutoplay();
+  }
+
+  private syncAutoplay(): void {
+    if (this.shouldAutoplay()) {
+      this.startAutoplay();
+    } else {
+      this.stopAutoplay();
+    }
+  }
+
+  private shouldAutoplay(): boolean {
+    return this._items().length > 1;
   }
 }
