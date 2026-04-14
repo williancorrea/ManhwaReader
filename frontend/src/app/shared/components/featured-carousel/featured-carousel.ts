@@ -97,7 +97,7 @@ export class FeaturedCarouselComponent implements OnInit, OnDestroy {
       if (items.length === 0) return;
       const i = this.activeIndex();
       this.activeIndex.set(i === items.length - 1 ? 0 : i + 1);
-    }, 5000);
+    }, 4000);
   }
 
   private stopAutoplay(): void {
