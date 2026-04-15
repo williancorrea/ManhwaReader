@@ -86,7 +86,7 @@ public record WorkDetailOutput(
 
     List<TagOutput> tags = work.getTags() != null
         ? work.getTags().stream()
-          .map(wt -> new TagOutput(wt.getTag().getName(), wt.getTag().getGroup().name()))
+          .map(wt -> new TagOutput(wt.getTag().getAlias1(), wt.getTag().getGroup().name()))
           .toList()
         : List.of();
 
