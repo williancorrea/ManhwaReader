@@ -3,7 +3,7 @@
   padding: var(--space-6) 0 var(--space-10);
   --carousel-card-ratio: 1.46;
   --carousel-center-width: clamp(190px, 16vw, 320px);
-  --carousel-slot-step: clamp(130px, 14vw, 290px);
+  --carousel-slot-step: clamp(185px, 17vw, 310px);
   --carousel-stage-height: clamp(320px, 44vw, 560px);
   --carousel-adjacent-scale: 0.82;
   --carousel-far-scale: 0.63;
@@ -187,7 +187,7 @@
 @media (max-width: 1024px) {
   .carousel {
     --carousel-center-width: clamp(170px, 22vw, 250px);
-    --carousel-slot-step: clamp(118px, 16vw, 190px);
+    --carousel-slot-step: clamp(160px, 21vw, 220px);
     --carousel-stage-height: clamp(280px, 52vw, 390px);
     --carousel-adjacent-scale: 0.78;
   }
@@ -206,7 +206,7 @@
 @media (max-width: 768px) {
   .carousel {
     --carousel-center-width: clamp(150px, 45vw, 210px);
-    --carousel-slot-step: clamp(92px, 30vw, 130px);
+    --carousel-slot-step: clamp(140px, 43vw, 200px);
     --carousel-stage-height: clamp(230px, 74vw, 330px);
     --carousel-adjacent-scale: 0.76;
   }
