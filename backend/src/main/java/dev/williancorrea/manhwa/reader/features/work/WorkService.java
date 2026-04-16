@@ -82,6 +82,11 @@ public class WorkService {
   }
 
   @Transactional(readOnly = true)
+  public Optional<Work> findBySlugWithDetails(String slug) {
+    return repository.findBySlugWithDetails(slug);
+  }
+
+  @Transactional(readOnly = true)
   public Page<Work> findAll(Specification<Work> spec, Pageable pageable) {
     return repository.findAll(spec, pageable);
   }

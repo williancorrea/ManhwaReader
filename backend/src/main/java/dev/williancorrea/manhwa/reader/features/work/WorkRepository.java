@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -20,5 +21,9 @@ public interface WorkRepository extends JpaRepository<Work, UUID>, JpaSpecificat
   Optional<Work> findByTitle(String title);
 
   Optional<Work> findBySlug(String slug);
+
+  @EntityGraph(attributePaths = {"originalLanguage"})
+  @Query("SELECT w FROM Work w WHERE w.slug = :slug")
+  Optional<Work> findBySlugWithDetails(@org.springframework.data.repository.query.Param("slug") String slug);
 }
 

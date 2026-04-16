@@ -84,7 +84,7 @@ public class WorkResource {
       @PathVariable String slug,
       @AuthenticationPrincipal UserDetails userDetails
   ) {
-    var work = workService.findBySlug(slug).orElseThrow();
+    var work = workService.findBySlugWithDetails(slug).orElseThrow();
     var user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
     var library = libraryService.findByUserAndWork(user, work);
     var rating = ratingService.findByUserAndWork(user, work);

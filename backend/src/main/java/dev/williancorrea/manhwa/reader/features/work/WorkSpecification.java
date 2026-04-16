@@ -3,8 +3,6 @@ package dev.williancorrea.manhwa.reader.features.work;
 import dev.williancorrea.manhwa.reader.features.work.dto.WorkCatalogFilter;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.WorkSynchronization;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Subquery;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaExpression;
@@ -15,17 +13,17 @@ public class WorkSpecification {
   public static Specification<Work> withTitle(String title) {
     return (root, query, cb) -> {
       if (title == null || title.isBlank()) return null;
-      if (!Long.class.equals(query.getResultType())) {
-        query.distinct(true);
-      }
-      Join<Work, WorkTitle> titlesJoin = root.join("titles", JoinType.LEFT);
+      Subquery<Long> sub = query.subquery(Long.class);
+      var titleRoot = sub.from(WorkTitle.class);
       HibernateCriteriaBuilder hcb = (HibernateCriteriaBuilder) cb;
       @SuppressWarnings("unchecked")
-      JpaExpression<String> titleExpr = (JpaExpression<String>) titlesJoin.<String>get("title");
-      return cb.like(
-          cb.upper(hcb.cast(titleExpr, String.class)),
-          "%" + title.toUpperCase() + "%"
-      );
+      JpaExpression<String> titleExpr = (JpaExpression<String>) titleRoot.<String>get("title");
+      sub.select(cb.literal(1L))
+          .where(
+              cb.equal(titleRoot.get("work"), root),
+              cb.like(cb.upper(hcb.cast(titleExpr, String.class)), "%" + title.toUpperCase() + "%")
+          );
+      return cb.exists(sub);
     };
   }
 
