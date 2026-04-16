@@ -6,6 +6,7 @@
 /* Sections */
 .section {
   padding: var(--space-10) 0;
+  background-color: rgb(44 44 44);
 }
 
 .section--alt {
