@@ -2,8 +2,8 @@
   background: var(--bg-01);
   padding: var(--space-6) 0 var(--space-10);
   --carousel-card-ratio: 1.46;
-  --carousel-center-width: clamp(190px, 16vw, 320px);
-  --carousel-slot-step: clamp(185px, 17vw, 310px);
+  --carousel-center-width: clamp(290px, 16vw, 320px);
+  --carousel-slot-step: clamp(280px, 17vw, 310px);
   --carousel-stage-height: clamp(320px, 44vw, 560px);
   --carousel-adjacent-scale: 0.82;
   --carousel-far-scale: 0.63;
