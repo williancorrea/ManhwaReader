@@ -56,6 +56,7 @@ public interface LibraryRepository extends JpaRepository<Library, UUID> {
       LEFT JOIN reading_progress rp ON rp.chapter_id = ch.id AND rp.user_id = :userId
       WHERE l.user_id = :userId
       GROUP BY l.id, w.id, w.slug, l.status, w.publication_demographic, w.status, w.original_language_id
+      HAVING unread_count > 0
       ORDER BY last_read_at DESC
       LIMIT :limit
       """)
