@@ -6,6 +6,13 @@
   border-bottom: 1px solid var(--border-subtle);
   height: 60px;
   backdrop-filter: blur(14px);
+  transition: transform 300ms ease;
+}
+
+@media (max-width: 720px) {
+  .navbar--hidden {
+    transform: translateY(-100%);
+  }
 }
 
 .navbar__inner {

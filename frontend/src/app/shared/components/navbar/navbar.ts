@@ -18,7 +18,17 @@ export class NavbarComponent {
   readonly i18n = inject(I18nService);
 
   readonly isMenuOpen = signal(false);
+  readonly isHidden = signal(false);
   readonly isAdmin = computed(() => this.userService.profile()?.roles?.includes('ADMINISTRATOR') ?? false);
+
+  private lastScrollY = 0;
+
+  @HostListener('window:scroll')
+  onScroll(): void {
+    const scrollY = window.scrollY;
+    this.isHidden.set(scrollY > this.lastScrollY && scrollY > 60);
+    this.lastScrollY = scrollY;
+  }
 
   toggleMenu(): void {
     this.isMenuOpen.update(v => !v);
