@@ -126,6 +126,7 @@
   height: calc(var(--carousel-center-width) * var(--carousel-far-scale) * var(--carousel-card-ratio));
   opacity: 0.45;
   z-index: 1;
+  transform: translate(-50%, -50%) translateX(calc(var(--slot) * (var(--carousel-slot-step) - var(--carousel-center-width) * 0.0925))) scale(var(--card-scale, 1));
 }
 
 .carousel__card-inner {
