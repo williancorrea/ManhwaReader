@@ -73,6 +73,12 @@
   padding: var(--space-5);
 }
 
+.admin__layout > .admin__section {
+  display: flex;
+  flex-direction: column;
+  max-height: 520px;
+}
+
 .admin__section-title {
   font-size: 16px;
   font-weight: 600;
@@ -178,7 +184,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  max-height: 300px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 
@@ -377,6 +384,7 @@
   text-align: center;
   color: var(--text-muted);
   font-size: 14px;
+  flex: 1;
 }
 
 /* Selected work info */
@@ -452,6 +460,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .admin__mangadex-item {
