@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, HostListener, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
@@ -165,6 +165,12 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
 
   applyTitleSuggestion(title: string): void {
     if (title) this.mangaDexSearch = title;
+  }
+
+  @HostListener('window:keydown.escape')
+  onEscapeKey(): void {
+    if (this.expandedCover()) this.closeCover();
+    else if (this.comparingItem()) this.closeCompare();
   }
 
   openCover(url: string): void {

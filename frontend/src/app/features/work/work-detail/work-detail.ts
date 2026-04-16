@@ -66,6 +66,11 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.showScrollTop.set(window.scrollY > 300);
   }
 
+  @HostListener('window:keydown.escape')
+  onEscapeKey(): void {
+    if (this.coverModalOpen()) this.closeCoverModal();
+  }
+
   scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
