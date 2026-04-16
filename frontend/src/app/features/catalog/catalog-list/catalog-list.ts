@@ -6,10 +6,11 @@ import { ManhwaCardComponent, Manhwa } from '../../../shared/components/manhwa-c
 import { NavbarComponent } from '../../../shared/components/navbar/navbar';
 import { CatalogService } from '../services/catalog.service';
 import { CatalogFilter, WorkCatalogItem, WORK_TYPES, WORK_STATUSES, WORK_DEMOGRAPHICS, SORT_OPTIONS } from '../models/catalog.models';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-catalog-list',
-  imports: [NavbarComponent, ManhwaCardComponent, FormsModule],
+  imports: [NavbarComponent, ManhwaCardComponent, FormsModule, TranslatePipe],
   templateUrl: './catalog-list.html',
   styleUrl: './catalog-list.css'
 })
@@ -41,7 +42,15 @@ export class CatalogListComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly sortOptions = SORT_OPTIONS;
 
   get hasActiveFilters(): boolean {
-    return !!(this.filterType || this.filterDemographic || this.filterStatus);
+    return !!(this.filterType || this.filterDemographic || this.filterStatus || this.filterSort);
+  }
+
+  clearFilter(kind: 'type' | 'demographic' | 'status' | 'sort'): void {
+    if (kind === 'type') this.filterType = '';
+    if (kind === 'demographic') this.filterDemographic = '';
+    if (kind === 'status') this.filterStatus = '';
+    if (kind === 'sort') this.filterSort = '';
+    this.aplicarFiltros();
   }
 
   private filtersWereOpen = false;
@@ -100,6 +109,7 @@ export class CatalogListComponent implements OnInit, AfterViewInit, OnDestroy {
       this.filterType = '';
       this.filterDemographic = '';
       this.filterStatus = '';
+      this.filterSort = '';
       this.carregarPagina(0);
     } else {
       this.showFilters = true;

@@ -5,15 +5,19 @@ import { debounceTime, takeUntil } from 'rxjs/operators';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar';
 import { AdminSynchronizationService } from '../services/admin-synchronization.service';
 import { AdminWorkItem, MangaDexSearchItem } from '../models/admin.models';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
+import { I18nService } from '../../../core/i18n/i18n.service';
+import { AdminNavComponent } from '../components/admin-nav/admin-nav';
 
 @Component({
   selector: 'app-admin-synchronization',
-  imports: [NavbarComponent, FormsModule],
+  imports: [NavbarComponent, AdminNavComponent, FormsModule, TranslatePipe],
   templateUrl: './synchronization.html',
   styleUrl: './synchronization.css'
 })
 export class AdminSynchronizationComponent implements OnInit, OnDestroy {
   private readonly service = inject(AdminSynchronizationService);
+  private readonly i18n = inject(I18nService);
   private readonly destroy$ = new Subject<void>();
   private readonly worksSearchSubject = new Subject<string>();
 
@@ -128,11 +132,11 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
     this.service.syncWorkWithMangaDex(work.id).subscribe({
       next: () => {
         this.syncing.set(null);
-        this.linkSuccess.set(`Sincronização manual de "${work.title}" iniciada com sucesso!`);
+        this.linkSuccess.set(this.i18n.t('admin.sync.successSync', { title: work.title }));
       },
       error: () => {
         this.syncing.set(null);
-        this.linkError.set('Erro ao iniciar sincronização. Tente novamente.');
+        this.linkError.set(this.i18n.t('admin.sync.errorSync'));
       }
     });
   }
@@ -215,7 +219,7 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
     this.service.linkWorkToMangaDex(work.id, mangaDexItem.id).subscribe({
       next: () => {
         this.linking.set(null);
-        this.linkSuccess.set(`"${work.title}" vinculado com sucesso ao MangaDex!`);
+        this.linkSuccess.set(this.i18n.t('admin.sync.successLinked', { title: work.title }));
         this.mangaDexResults.set([]);
         this.mangaDexSearch = '';
         this.mangaDexSearched.set(false);
@@ -226,9 +230,9 @@ export class AdminSynchronizationComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.linking.set(null);
         if (err.status === 409) {
-          this.linkError.set('Esta obra já está vinculada ao MangaDex.');
+          this.linkError.set(this.i18n.t('admin.sync.errorLinkConflict'));
         } else {
-          this.linkError.set('Erro ao vincular obra. Tente novamente.');
+          this.linkError.set(this.i18n.t('admin.sync.errorLink'));
         }
       }
     });

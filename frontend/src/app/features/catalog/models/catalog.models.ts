@@ -32,6 +32,6 @@ export const WORK_TYPES = ['MANGA', 'MANHWA', 'MANHUA', 'NOVEL'];
 export const WORK_STATUSES = ['ONGOING', 'COMPLETED', 'CANCELLED', 'HIATUS'];
 export const WORK_DEMOGRAPHICS = ['SHOUNEN', 'SEINEN', 'JOSEI', 'SHOUJO', 'YAOI', 'YURI', 'HENTAI', 'COMIC', 'UNKNOWN'];
 export const SORT_OPTIONS = [
-  { value: '', label: 'Mais recentes' },
-  { value: 'updated_at_asc', label: 'Mais antigos' },
+  { value: '', labelKey: 'enum.sort.updatedDesc' },
+  { value: 'updated_at_asc', labelKey: 'enum.sort.updatedAsc' },
 ];

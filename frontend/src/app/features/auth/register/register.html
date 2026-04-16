@@ -1,14 +1,12 @@
 <div class="register-page">
   <div class="register-card">
-
-    <!-- Logo -->
     <div class="register-card__logo">
       <span class="register-card__logo-icon">M</span>
-      <span class="register-card__logo-text">ManhwaReader</span>
+      <span class="register-card__logo-text">{{ 'app.name' | translate }}</span>
     </div>
 
-    <h1 class="register-card__heading">Create an account</h1>
-    <p class="register-card__subheading">Start your reading journey today</p>
+    <h1 class="register-card__heading">{{ 'auth.register.title' | translate }}</h1>
+    <p class="register-card__subheading">{{ 'auth.register.subtitle' | translate }}</p>
 
     @if (errorMessage()) {
       <div class="register-card__error" role="alert">
@@ -22,103 +20,96 @@
     }
 
     <form class="register-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-
       <div class="form-field">
-        <label class="form-field__label" for="name">Name</label>
+        <label class="form-field__label" for="name">{{ 'auth.name' | translate }}</label>
         <input
           id="name"
           class="form-field__input"
           [class.form-field__input--error]="form.controls.name.invalid && form.controls.name.touched"
           type="text"
-          placeholder="Your name"
+          [placeholder]="'auth.namePlaceholder' | translate"
           formControlName="name"
           autocomplete="name"
         />
         @if (form.controls.name.invalid && form.controls.name.touched) {
           <span class="form-field__hint form-field__hint--error">
-            @if (form.controls.name.hasError('required')) { Nome é obrigatório. }
-            @else if (form.controls.name.hasError('minlength')) { Mínimo de 2 caracteres. }
-            @else if (form.controls.name.hasError('maxlength')) { Máximo de 100 caracteres. }
+            @if (form.controls.name.hasError('required')) { {{ 'auth.validation.nameRequired' | translate }} }
+            @else if (form.controls.name.hasError('minlength')) { {{ 'auth.validation.nameMin' | translate }} }
+            @else if (form.controls.name.hasError('maxlength')) { {{ 'auth.validation.nameMax' | translate }} }
           </span>
         }
       </div>
 
       <div class="form-field">
-        <label class="form-field__label" for="email">Email</label>
+        <label class="form-field__label" for="email">{{ 'auth.email' | translate }}</label>
         <input
           id="email"
           class="form-field__input"
           [class.form-field__input--error]="form.controls.email.invalid && form.controls.email.touched"
           type="email"
-          placeholder="you@example.com"
+          [placeholder]="'auth.emailPlaceholder' | translate"
           formControlName="email"
           autocomplete="email"
         />
         @if (form.controls.email.invalid && form.controls.email.touched) {
           <span class="form-field__hint form-field__hint--error">
-            @if (form.controls.email.hasError('required')) { Email é obrigatório. }
-            @else if (form.controls.email.hasError('email')) { Email inválido. }
+            @if (form.controls.email.hasError('required')) { {{ 'auth.validation.emailRequired' | translate }} }
+            @else if (form.controls.email.hasError('email')) { {{ 'auth.validation.emailInvalid' | translate }} }
           </span>
         }
       </div>
 
       <div class="form-field">
-        <label class="form-field__label" for="password">Password</label>
+        <label class="form-field__label" for="password">{{ 'auth.password' | translate }}</label>
         <input
           id="password"
           class="form-field__input"
           [class.form-field__input--error]="form.controls.password.invalid && form.controls.password.touched"
           type="password"
-          placeholder="••••••••"
+          [placeholder]="'auth.passwordPlaceholder' | translate"
           formControlName="password"
           autocomplete="new-password"
         />
         @if (form.controls.password.invalid && form.controls.password.touched) {
           <span class="form-field__hint form-field__hint--error">
-            @if (form.controls.password.hasError('required')) { Senha é obrigatória. }
-            @else if (form.controls.password.hasError('minlength')) { Mínimo de 8 caracteres. }
+            @if (form.controls.password.hasError('required')) { {{ 'auth.validation.passwordRequired' | translate }} }
+            @else if (form.controls.password.hasError('minlength')) { {{ 'auth.validation.passwordMin8' | translate }} }
           </span>
         }
       </div>
 
       <div class="form-field">
-        <label class="form-field__label" for="confirmPassword">Confirm password</label>
+        <label class="form-field__label" for="confirmPassword">{{ 'auth.confirmPassword' | translate }}</label>
         <input
           id="confirmPassword"
           class="form-field__input"
           [class.form-field__input--error]="form.controls.confirmPassword.invalid && form.controls.confirmPassword.touched"
           type="password"
-          placeholder="••••••••"
+          [placeholder]="'auth.passwordPlaceholder' | translate"
           formControlName="confirmPassword"
           autocomplete="new-password"
         />
         @if (form.controls.confirmPassword.invalid && form.controls.confirmPassword.touched) {
           <span class="form-field__hint form-field__hint--error">
-            @if (form.controls.confirmPassword.hasError('required')) { Confirmação é obrigatória. }
-            @else if (form.controls.confirmPassword.hasError('passwordMismatch')) { As senhas não coincidem. }
+            @if (form.controls.confirmPassword.hasError('required')) { {{ 'auth.validation.confirmRequired' | translate }} }
+            @else if (form.controls.confirmPassword.hasError('passwordMismatch')) { {{ 'auth.validation.passwordMismatch' | translate }} }
           </span>
         }
       </div>
 
-      <button
-        type="submit"
-        class="btn btn--primary btn--full"
-        [disabled]="isLoading()"
-      >
+      <button type="submit" class="btn btn--primary btn--full" [disabled]="isLoading()">
         @if (isLoading()) {
           <span class="btn__spinner" aria-hidden="true"></span>
-          Creating account...
+          {{ 'auth.register.loading' | translate }}
         } @else {
-          Create Account
+          {{ 'auth.register.submit' | translate }}
         }
       </button>
-
     </form>
 
     <p class="register-card__footer">
-      Already have an account?
-      <a routerLink="/auth/login" class="register-card__link">Sign in</a>
+      {{ 'auth.register.hasAccount' | translate }}
+      <a routerLink="/auth/login" class="register-card__link">{{ 'auth.register.signIn' | translate }}</a>
     </p>
-
   </div>
 </div>

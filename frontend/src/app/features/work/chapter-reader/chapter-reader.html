@@ -1,24 +1,25 @@
 <div class="chapter-reader">
-  <!-- Header -->
-  <header class="reader-header">
-    <button class="reader-header__back" type="button" (click)="goBackToWork()" title="Voltar aos capítulos">
+  <header class="reader-header" [class.reader-header--hidden]="isHeaderHidden()">
+    <button class="reader-header__back" type="button" (click)="goBackToWork()" [title]="'reader.backToChapters' | translate">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="15 18 9 12 15 6"/>
       </svg>
-      <span>Voltar</span>
+      <span>{{ 'common.back' | translate }}</span>
     </button>
     @if (chapterData(); as ch) {
-      <span class="reader-header__title">{{ ch.workTitle }} - Cap. {{ ch.numberWithVersion }}</span>
+      <span class="reader-header__title">{{ ch.workTitle }} - {{ 'reader.chapterPrefix' | translate }} {{ ch.numberWithVersion }}</span>
     }
+    <span class="reader-header__progress">{{ 'reader.progress' | translate: { percent: scrollProgress() } }}</span>
+    <div class="reader-header__bar" [style.width.%]="scrollProgress()"></div>
   </header>
 
   @if (isLoading()) {
     <div class="reader-loading">
       <div class="spinner"></div>
+      <p>{{ 'reader.loading' | translate }}</p>
     </div>
   } @else if (chapterData(); as ch) {
-    <!-- Navigation top -->
-    <nav class="reader-nav">
+    <nav class="reader-nav" [attr.aria-label]="'reader.controls' | translate">
       <button
         class="reader-nav__btn"
         type="button"
@@ -28,11 +29,11 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="15 18 9 12 15 6"/>
         </svg>
-        Anterior
+        {{ 'reader.previousChapter' | translate }}
       </button>
       <span class="reader-nav__label">
-        Cap. {{ ch.numberWithVersion }}
-        @if (ch.title) { — {{ ch.title }} }
+        {{ 'reader.chapterPrefix' | translate }} {{ ch.numberWithVersion }}
+        @if (ch.title) { - {{ ch.title }} }
       </span>
       <button
         class="reader-nav__btn"
@@ -40,23 +41,25 @@
         [disabled]="!ch.nextChapter"
         (click)="ch.nextChapter && navigateToChapter(ch.nextChapter.id)"
       >
-        Próximo
+        {{ 'reader.nextChapter' | translate }}
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="9 18 15 12 9 6"/>
         </svg>
       </button>
     </nav>
 
-    <!-- Pages -->
     <div class="reader-pages">
       @for (page of ch.pages; track page.pageNumber) {
         @if (page.type === 'IMAGE') {
-          <img
-            class="reader-pages__image"
-            [src]="page.imageUrl"
-            [alt]="'Página ' + page.pageNumber"
-            loading="lazy"
-          />
+          <figure class="reader-pages__frame">
+            <img
+              class="reader-pages__image"
+              [src]="page.imageUrl"
+              [alt]="'reader.pageAlt' | translate: { page: page.pageNumber }"
+              loading="lazy"
+              decoding="async"
+            />
+          </figure>
         } @else {
           <div class="reader-pages__markdown" [innerHTML]="renderMarkdown(page.content)"></div>
         }
@@ -65,8 +68,7 @@
 
     <div #lastPageSentinel class="reader-pages__sentinel"></div>
 
-    <!-- Navigation bottom -->
-    <nav class="reader-nav reader-nav--bottom">
+    <nav class="reader-nav reader-nav--bottom" [attr.aria-label]="'reader.controls' | translate">
       <button
         class="reader-nav__btn"
         type="button"
@@ -76,16 +78,16 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="15 18 9 12 15 6"/>
         </svg>
-        Anterior
+        {{ 'reader.previousChapter' | translate }}
       </button>
-      <span class="reader-nav__label">Cap. {{ ch.numberWithVersion }}</span>
+      <span class="reader-nav__label">{{ 'reader.chapterPrefix' | translate }} {{ ch.numberWithVersion }}</span>
       <button
         class="reader-nav__btn"
         type="button"
         [disabled]="!ch.nextChapter"
         (click)="ch.nextChapter && navigateToChapter(ch.nextChapter.id)"
       >
-        Próximo
+        {{ 'reader.nextChapter' | translate }}
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="9 18 15 12 9 6"/>
         </svg>
@@ -93,12 +95,12 @@
     </nav>
   } @else {
     <div class="reader-empty">
-      <p>Capítulo não encontrado.</p>
+      <p>{{ 'reader.notFound' | translate }}</p>
     </div>
   }
 
   @if (showScrollTop()) {
-    <button class="reader__scroll-top" type="button" (click)="scrollToTop()" aria-label="Voltar ao topo">
+    <button class="reader__scroll-top" type="button" (click)="scrollToTop()" [attr.aria-label]="'common.scrollTop' | translate">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="18 15 12 9 6 15"/>
       </svg>

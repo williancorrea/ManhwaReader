@@ -1,4 +1,5 @@
 <app-navbar />
+<app-admin-nav />
 
 <!-- Cover compare modal -->
 @if (comparingItem()) {
@@ -65,8 +66,8 @@
 
 <div class="admin">
   <div class="admin__inner">
-    <h1 class="admin__title">Sincronizacao de Obras</h1>
-    <p class="admin__subtitle">Vincule obras existentes ao MangaDex para sincronizar dados.</p>
+    <h1 class="admin__title">{{ 'admin.sync.title' | translate }}</h1>
+    <p class="admin__subtitle">{{ 'admin.sync.subtitle' | translate }}</p>
 
     <!-- Success / Error messages -->
     @if (linkSuccess()) {

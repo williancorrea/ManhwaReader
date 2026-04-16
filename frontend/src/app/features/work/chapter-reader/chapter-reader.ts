@@ -16,10 +16,11 @@ import { takeUntil } from 'rxjs/operators';
 import { marked } from 'marked';
 import { WorkService } from '../services/work.service';
 import { ChapterReaderData } from '../models/work.models';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-chapter-reader',
-  imports: [],
+  imports: [TranslatePipe],
   templateUrl: './chapter-reader.html',
   styleUrl: './chapter-reader.css'
 })
@@ -37,13 +38,21 @@ export class ChapterReaderComponent implements OnInit, AfterViewInit, OnDestroy 
   readonly chapterData = signal<ChapterReaderData | null>(null);
   readonly isLoading = signal(true);
   readonly showScrollTop = signal(false);
+  readonly isHeaderHidden = signal(false);
+  readonly scrollProgress = signal(0);
 
   slug = '';
   chapterId = '';
+  private lastScrollY = 0;
 
   @HostListener('window:scroll')
   onScroll(): void {
-    this.showScrollTop.set(window.scrollY > 300);
+    const scrollY = window.scrollY;
+    const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    this.showScrollTop.set(scrollY > 300);
+    this.isHeaderHidden.set(scrollY > this.lastScrollY && scrollY > 140);
+    this.scrollProgress.set(Math.min(100, Math.max(0, Math.round((scrollY / max) * 100))));
+    this.lastScrollY = scrollY;
   }
 
   ngOnInit(): void {
@@ -76,6 +85,7 @@ export class ChapterReaderComponent implements OnInit, AfterViewInit, OnDestroy 
           this.chapterData.set(data);
           this.isLoading.set(false);
           this.scrollToTop();
+          this.preloadUpcoming(data);
           setTimeout(() => this.setupIntersectionObserver(), 100);
         },
         error: () => {
@@ -125,5 +135,13 @@ export class ChapterReaderComponent implements OnInit, AfterViewInit, OnDestroy 
     if (!content) return '';
     const html = marked.parse(content) as string;
     return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
+
+  private preloadUpcoming(data: ChapterReaderData): void {
+    const nextImage = data.pages.find(page => page.type === 'IMAGE' && page.imageUrl)?.imageUrl;
+    if (nextImage) {
+      const image = new Image();
+      image.src = nextImage;
+    }
   }
 }

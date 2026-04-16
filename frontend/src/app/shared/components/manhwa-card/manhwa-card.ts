@@ -1,5 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { I18nService } from '../../../core/i18n/i18n.service';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 
 export interface Manhwa {
   id?: number;
@@ -34,11 +36,13 @@ export const GENRE_COLORS: Record<string, string> = {
 
 @Component({
   selector: 'app-manhwa-card',
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './manhwa-card.html',
   styleUrl: './manhwa-card.css'
 })
 export class ManhwaCardComponent {
+  private readonly i18n = inject(I18nService);
+
   @Input({ required: true }) manhwa!: Manhwa;
   @Input() variant: 'grid' | 'horizontal' | 'compact' = 'grid';
 
@@ -53,5 +57,13 @@ export class ManhwaCardComponent {
   getGenreStyle(genre: string): string {
     const color = GENRE_COLORS[genre] ?? '#76768A';
     return `background: ${color}26; color: ${color};`;
+  }
+
+  genreLabel(genre: string): string {
+    return this.i18n.t(`enum.demographic.${genre}`) !== `enum.demographic.${genre}`
+      ? this.i18n.t(`enum.demographic.${genre}`)
+      : this.i18n.t(`enum.workStatus.${genre}`) !== `enum.workStatus.${genre}`
+        ? this.i18n.t(`enum.workStatus.${genre}`)
+        : genre;
   }
 }

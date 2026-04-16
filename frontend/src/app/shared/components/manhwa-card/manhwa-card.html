@@ -39,7 +39,7 @@
           loading="lazy"
         />
         @if (manhwa.isNew) {
-          <span class="card__badge card__badge--new">NEW</span>
+          <span class="card__badge card__badge--new">{{ 'card.new' | translate }}</span>
         }
         @if (manhwa.unreadCount && manhwa.unreadCount > 0) {
           <span class="card__badge card__badge--unread">{{ manhwa.unreadCount }}</span>
@@ -59,12 +59,12 @@
 
       <div class="card__body">
         <h3 class="card__title">{{ manhwa.title }}</h3>
-        <p class="card__chapter">Ch. {{ manhwa.latestChapter }}</p>
+        <p class="card__chapter">{{ 'card.chapterShort' | translate }} {{ manhwa.latestChapter }}</p>
 
         <div class="card__genres">
           @for (genre of visibleGenres; track genre) {
             <span class="card__genre-tag" [style]="getGenreStyle(genre)">
-              {{ genre }}
+              {{ genreLabel(genre) }}
             </span>
           }
           @if (hiddenGenreCount > 0) {
@@ -84,7 +84,7 @@
         loading="lazy"
       />
       @if (manhwa.isNew) {
-        <span class="card__badge card__badge--new">NEW</span>
+        <span class="card__badge card__badge--new">{{ 'card.new' | translate }}</span>
       }
       @if (manhwa.unreadCount && manhwa.unreadCount > 0) {
         <span class="card__badge card__badge--unread">{{ manhwa.unreadCount }}</span>
@@ -104,12 +104,12 @@
 
     <div class="card__body">
       <h3 class="card__title">{{ manhwa.title }}</h3>
-      <p class="card__chapter">Ch. {{ manhwa.latestChapter }}</p>
+      <p class="card__chapter">{{ 'card.chapterShort' | translate }} {{ manhwa.latestChapter }}</p>
 
       <div class="card__genres">
         @for (genre of visibleGenres; track genre) {
           <span class="card__genre-tag" [style]="getGenreStyle(genre)">
-            {{ genre }}
+            {{ genreLabel(genre) }}
           </span>
         }
         @if (hiddenGenreCount > 0) {

@@ -1,7 +1,6 @@
 <div class="home">
   <app-navbar />
 
-  <!-- Featured Carousel with demographic filter -->
   <app-featured-carousel
     [items]="featuredWorks()"
     [demographics]="demographics"
@@ -9,13 +8,12 @@
     (demographicChange)="onDemographicChange($event)"
   />
 
-  <!-- Continue Lendo -->
   @if (continueReadingLoaded() && (pendingReads().length > 0 || allUpToDate())) {
     <section class="section">
       <div class="section__inner">
         <div class="section__header">
-          <h2 class="section__title">Continue Lendo</h2>
-          <a routerLink="/library" class="section__see-all">Ver tudo</a>
+          <h2 class="section__title">{{ 'home.continueReading.title' | translate }}</h2>
+          <a routerLink="/library" class="section__see-all">{{ 'home.continueReading.seeAll' | translate }}</a>
         </div>
         @if (allUpToDate()) {
           <div class="up-to-date">
@@ -25,13 +23,13 @@
                 <polyline points="22 4 12 14.01 9 11.01"/>
               </svg>
             </div>
-            <p class="up-to-date__title">Tudo em dia!</p>
-            <p class="up-to-date__sub">Você está em dia com todas as obras da sua biblioteca.</p>
+            <p class="up-to-date__title">{{ 'home.upToDate.title' | translate }}</p>
+            <p class="up-to-date__sub">{{ 'home.upToDate.subtitle' | translate }}</p>
           </div>
         } @else {
-          <div class="scroll-row scroll-row--compact">
+          <div class="continue-row" aria-label="Continue reading">
             @for (manhwa of pendingReads(); track manhwa.id) {
-              <app-manhwa-card [manhwa]="manhwa" variant="compact" />
+              <app-manhwa-card [manhwa]="manhwa" variant="grid" />
             }
           </div>
         }
@@ -39,12 +37,11 @@
     </section>
   }
 
-  <!-- Latest Updates -->
   <section class="section section--alt">
     <div class="section__inner">
       <div class="section__header">
-        <h2 class="section__title">Latest Updates</h2>
-        <a routerLink="/catalog" class="section__see-all">See All</a>
+        <h2 class="section__title">{{ 'home.latest.title' | translate }}</h2>
+        <a routerLink="/catalog" class="section__see-all">{{ 'home.latest.seeAll' | translate }}</a>
       </div>
       <div class="grid-cards">
         @for (manhwa of latestUpdates(); track manhwa.id) {
@@ -54,13 +51,12 @@
     </div>
   </section>
 
-  <!-- Footer -->
   <footer class="footer">
-    <p class="footer__text">© 2026 ManhwaReader. All rights reserved.</p>
+    <p class="footer__text">{{ 'home.footer' | translate }}</p>
   </footer>
 
   @if (showScrollTop()) {
-    <button class="home__scroll-top" type="button" (click)="scrollToTop()" aria-label="Voltar ao topo">
+    <button class="home__scroll-top" type="button" (click)="scrollToTop()" [attr.aria-label]="'common.scrollTop' | translate">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="18 15 12 9 6 15"/>
       </svg>

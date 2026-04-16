@@ -7,6 +7,8 @@
 .work-detail__loading,
 .work-detail__not-found {
   display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
   justify-content: center;
   align-items: center;
   min-height: 60vh;
@@ -103,6 +105,10 @@
   cursor: pointer;
   border-radius: var(--radius-md);
   overflow: hidden;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  display: block;
 }
 
 .work-hero__cover-expand {
@@ -506,11 +512,18 @@
   border-radius: var(--radius-md);
   background: var(--surface-00);
   transition: background-color 100ms ease, border-color 100ms ease;
+  cursor: pointer;
+  text-align: left;
 }
 
 .chapter-card:hover {
   background: var(--surface-01);
   border-color: var(--border-default);
+}
+
+.chapter-card:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .chapter-card--read {

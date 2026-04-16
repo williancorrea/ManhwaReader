@@ -1,0 +1,8 @@
+.admin-page { min-height: 100vh; background: var(--bg-00); }
+.admin-page__inner { max-width: 1280px; margin: 0 auto; padding: var(--space-8) var(--space-6); }
+.admin-page__title { color: var(--text-primary); font-size: 24px; font-weight: 700; }
+.admin-page__subtitle { color: var(--text-muted); margin-top: var(--space-1); }
+.custom-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4); margin-top: var(--space-6); }
+.custom-grid label { display: flex; flex-direction: column; gap: var(--space-2); background: var(--surface-00); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-4); color: var(--text-secondary); }
+.custom-grid input { background: var(--bg-00); border: 1px solid var(--border-default); border-radius: var(--radius-md); color: var(--text-primary); font: inherit; padding: 9px var(--space-3); }
+.admin-empty { border: 1px dashed var(--border-default); border-radius: var(--radius-md); color: var(--text-muted); margin-top: var(--space-6); padding: var(--space-8); text-align: center; }

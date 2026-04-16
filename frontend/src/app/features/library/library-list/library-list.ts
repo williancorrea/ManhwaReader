@@ -5,10 +5,12 @@ import { ManhwaCardComponent, Manhwa } from '../../../shared/components/manhwa-c
 import { NavbarComponent } from '../../../shared/components/navbar/navbar';
 import { LibraryService } from '../services/library.service';
 import { LibraryItem, LIBRARY_STATUSES } from '../models/library.models';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-library-list',
-  imports: [NavbarComponent, ManhwaCardComponent],
+  imports: [NavbarComponent, ManhwaCardComponent, TranslatePipe, RouterLink],
   templateUrl: './library-list.html',
   styleUrl: './library-list.css'
 })

@@ -13,9 +13,9 @@ export interface LibraryItem {
 }
 
 export const LIBRARY_STATUSES = [
-  { value: '', label: 'Todos' },
-  { value: 'READING', label: 'Lendo' },
-  { value: 'COMPLETED', label: 'Completo' },
-  { value: 'PLAN_TO_READ', label: 'Planejo Ler' },
-  { value: 'DROPPED', label: 'Abandonado' },
+  { value: '', labelKey: 'enum.libraryStatus.ALL' },
+  { value: 'READING', labelKey: 'enum.libraryStatus.READING' },
+  { value: 'COMPLETED', labelKey: 'enum.libraryStatus.COMPLETED' },
+  { value: 'PLAN_TO_READ', labelKey: 'enum.libraryStatus.PLAN_TO_READ' },
+  { value: 'DROPPED', labelKey: 'enum.libraryStatus.DROPPED' },
 ];

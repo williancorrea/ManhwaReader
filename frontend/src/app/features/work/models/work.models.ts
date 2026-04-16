@@ -58,10 +58,10 @@ export interface ChapterItem {
 }
 
 export const LIBRARY_STATUSES = [
-  { value: 'READING', label: 'Lendo' },
-  { value: 'COMPLETED', label: 'Completo' },
-  { value: 'PLAN_TO_READ', label: 'Quero ler' },
-  { value: 'DROPPED', label: 'Abandonado' },
+  { value: 'READING', labelKey: 'enum.libraryStatus.READING' },
+  { value: 'COMPLETED', labelKey: 'enum.libraryStatus.COMPLETED' },
+  { value: 'PLAN_TO_READ', labelKey: 'enum.libraryStatus.PLAN_TO_READ' },
+  { value: 'DROPPED', labelKey: 'enum.libraryStatus.DROPPED' },
 ];
 
 export interface ChapterReaderData {

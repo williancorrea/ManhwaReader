@@ -17,10 +17,12 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar';
 import { GENRE_COLORS } from '../../../shared/components/manhwa-card/manhwa-card';
 import { WorkService } from '../services/work.service';
 import { ChapterItem, LIBRARY_STATUSES, SITE_LABELS, WorkDetail } from '../models/work.models';
+import { I18nService } from '../../../core/i18n/i18n.service';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-work-detail',
-  imports: [NavbarComponent],
+  imports: [NavbarComponent, TranslatePipe],
   templateUrl: './work-detail.html',
   styleUrl: './work-detail.css'
 })
@@ -30,6 +32,7 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly workService = inject(WorkService);
+  private readonly i18n = inject(I18nService);
   private readonly destroy$ = new Subject<void>();
   private intersectionObserver?: IntersectionObserver;
 
@@ -233,8 +236,9 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getLibraryLabel(status: string | null): string {
-    if (!status) return 'Adicionar à Biblioteca';
-    return this.libraryStatuses.find(s => s.value === status)?.label ?? status;
+    if (!status) return this.i18n.t('work.library.add');
+    const key = this.libraryStatuses.find(s => s.value === status)?.labelKey;
+    return key ? this.i18n.t(key) : status;
   }
 
   getSiteLabel(code: string): string {
@@ -247,15 +251,7 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   formatDate(dateStr: string): string {
     if (!dateStr) return '';
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
-    if (diff < 60) return 'agora';
-    if (diff < 3600) return `há ${Math.floor(diff / 60)} min`;
-    if (diff < 86400) return `há ${Math.floor(diff / 3600)}h`;
-    if (diff < 2592000) return `há ${Math.floor(diff / 86400)} dias`;
-    if (diff < 31536000) return `há ${Math.floor(diff / 2592000)} meses`;
-    return `há ${Math.floor(diff / 31536000)} anos`;
+    return this.i18n.relativeTime(dateStr);
   }
 
   private recheckSentinel(): void {

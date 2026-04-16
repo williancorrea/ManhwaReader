@@ -4,7 +4,10 @@
   <section class="section">
     <div class="section__inner">
       <div class="section__header">
-        <h2 class="section__title">Catálogo</h2>
+        <div>
+          <h2 class="section__title">{{ 'catalog.title' | translate }}</h2>
+          <p class="section__subtitle">{{ 'catalog.subtitle' | translate }}</p>
+        </div>
       </div>
 
       <div class="catalog__filterbar">
@@ -16,68 +19,106 @@
             #searchInput
             class="catalog__filterbar-input"
             type="text"
-            placeholder="Buscar por título..."
+            [placeholder]="'catalog.search.placeholder' | translate"
             [ngModel]="filterTitle"
             (ngModelChange)="onTitleChange($event)"
             name="filterTitle"
           />
         </div>
 
-        <div class="catalog__filterbar-actions">
-          <button
-            class="catalog__toggle-btn"
-            [class.catalog__toggle-btn--active]="showFilters || hasActiveFilters"
-            type="button"
-            (click)="toggleFilters()"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="4" y1="6" x2="20" y2="6"/>
-              <line x1="8" y1="12" x2="16" y2="12"/>
-              <line x1="11" y1="18" x2="13" y2="18"/>
-            </svg>
-            {{ (showFilters || hasActiveFilters) ? 'Limpar filtros' : 'Filtros' }}
-          </button>
-
-        </div>
+        <button
+          class="catalog__toggle-btn"
+          [class.catalog__toggle-btn--active]="showFilters || hasActiveFilters"
+          type="button"
+          (click)="toggleFilters()"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="4" y1="6" x2="20" y2="6"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
+            <line x1="11" y1="18" x2="13" y2="18"/>
+          </svg>
+          {{ (showFilters || hasActiveFilters) ? ('catalog.filters.clear' | translate) : ('catalog.filters.open' | translate) }}
+        </button>
       </div>
+
+      @if (hasActiveFilters) {
+        <div class="catalog__active-filters" [attr.aria-label]="'catalog.filters.active' | translate">
+          @if (filterType) {
+            <button type="button" class="catalog__filter-chip" (click)="clearFilter('type')">
+              {{ 'enum.workType.' + filterType | translate }} <span aria-hidden="true">x</span>
+            </button>
+          }
+          @if (filterDemographic) {
+            <button type="button" class="catalog__filter-chip" (click)="clearFilter('demographic')">
+              {{ 'enum.demographic.' + filterDemographic | translate }} <span aria-hidden="true">x</span>
+            </button>
+          }
+          @if (filterStatus) {
+            <button type="button" class="catalog__filter-chip" (click)="clearFilter('status')">
+              {{ 'enum.workStatus.' + filterStatus | translate }} <span aria-hidden="true">x</span>
+            </button>
+          }
+          @if (filterSort) {
+            <button type="button" class="catalog__filter-chip" (click)="clearFilter('sort')">
+              {{ 'enum.sort.updatedAsc' | translate }} <span aria-hidden="true">x</span>
+            </button>
+          }
+        </div>
+      }
 
       @if (showFilters) {
         <div class="catalog__filters-panel">
-          <select class="catalog__filter-select" [(ngModel)]="filterType" (ngModelChange)="aplicarFiltros()" name="filterType">
-            <option value="">Tipo</option>
-            @for (type of workTypes; track type) {
-              <option [value]="type">{{ type }}</option>
-            }
-          </select>
+          <label class="catalog__filter-field">
+            <span>{{ 'catalog.filters.type' | translate }}</span>
+            <select class="catalog__filter-select" [(ngModel)]="filterType" (ngModelChange)="aplicarFiltros()" name="filterType">
+              <option value="">{{ 'catalog.filters.type' | translate }}</option>
+              @for (type of workTypes; track type) {
+                <option [value]="type">{{ 'enum.workType.' + type | translate }}</option>
+              }
+            </select>
+          </label>
 
-          <select class="catalog__filter-select" [(ngModel)]="filterDemographic" (ngModelChange)="aplicarFiltros()" name="filterDemographic">
-            <option value="">Demografia</option>
-            @for (demo of workDemographics; track demo) {
-              <option [value]="demo">{{ demo }}</option>
-            }
-          </select>
+          <label class="catalog__filter-field">
+            <span>{{ 'catalog.filters.demographic' | translate }}</span>
+            <select class="catalog__filter-select" [(ngModel)]="filterDemographic" (ngModelChange)="aplicarFiltros()" name="filterDemographic">
+              <option value="">{{ 'catalog.filters.demographic' | translate }}</option>
+              @for (demo of workDemographics; track demo) {
+                <option [value]="demo">{{ 'enum.demographic.' + demo | translate }}</option>
+              }
+            </select>
+          </label>
 
-          <select class="catalog__filter-select" [(ngModel)]="filterStatus" (ngModelChange)="aplicarFiltros()" name="filterStatus">
-            <option value="">Status</option>
-            @for (status of workStatuses; track status) {
-              <option [value]="status">{{ status }}</option>
-            }
-          </select>
+          <label class="catalog__filter-field">
+            <span>{{ 'catalog.filters.status' | translate }}</span>
+            <select class="catalog__filter-select" [(ngModel)]="filterStatus" (ngModelChange)="aplicarFiltros()" name="filterStatus">
+              <option value="">{{ 'catalog.filters.status' | translate }}</option>
+              @for (status of workStatuses; track status) {
+                <option [value]="status">{{ 'enum.workStatus.' + status | translate }}</option>
+              }
+            </select>
+          </label>
 
-          <select class="catalog__filter-select" [(ngModel)]="filterSort" (ngModelChange)="aplicarFiltros()" name="filterSort">
-            @for (opt of sortOptions; track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
-            }
-          </select>
+          <label class="catalog__filter-field">
+            <span>{{ 'catalog.filters.sort' | translate }}</span>
+            <select class="catalog__filter-select" [(ngModel)]="filterSort" (ngModelChange)="aplicarFiltros()" name="filterSort">
+              @for (opt of sortOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.labelKey | translate }}</option>
+              }
+            </select>
+          </label>
         </div>
       }
 
       @if (isLoading() && items().length === 0) {
         <div class="catalog__loading">
           <div class="catalog__spinner"></div>
+          <span>{{ 'common.loading' | translate }}</span>
         </div>
       } @else if (items().length === 0) {
-        <p class="catalog__empty">Nenhuma obra encontrada.</p>
+        <div class="catalog__empty">
+          <p>{{ 'catalog.empty' | translate }}</p>
+          <span>{{ 'catalog.emptyHint' | translate }}</span>
+        </div>
       } @else {
         <div class="grid-cards">
           @for (manhwa of items(); track manhwa.id) {
@@ -89,6 +130,7 @@
       @if (isLoading() && items().length > 0) {
         <div class="catalog__loading-more">
           <div class="catalog__spinner"></div>
+          <span>{{ 'catalog.loadingMore' | translate }}</span>
         </div>
       }
 
@@ -97,7 +139,7 @@
   </section>
 
   @if (showScrollTop()) {
-    <button class="catalog__scroll-top" type="button" (click)="scrollToTop()" aria-label="Voltar ao topo">
+    <button class="catalog__scroll-top" type="button" (click)="scrollToTop()" [attr.aria-label]="'common.scrollTop' | translate">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="18 15 12 9 6 15"/>
       </svg>

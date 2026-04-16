@@ -1,0 +1,52 @@
+<app-navbar />
+<app-admin-nav />
+
+<section class="admin-page">
+  <div class="admin-page__inner">
+    <h1 class="admin-page__title">{{ 'admin.settings.title' | translate }}</h1>
+    <p class="admin-page__subtitle">{{ 'admin.settings.subtitle' | translate }}</p>
+
+    <div class="settings-grid">
+      <label class="settings-field">
+        <span>{{ 'admin.settings.siteName' | translate }}</span>
+        <input [ngModel]="siteName()" (ngModelChange)="siteName.set($event)" />
+      </label>
+
+      <label class="settings-field">
+        <span>{{ 'admin.settings.defaultLanguage' | translate }}</span>
+        <select [ngModel]="defaultLanguage()" (ngModelChange)="defaultLanguage.set($event)">
+          <option value="pt-BR">PT-BR</option>
+          <option value="en-US">EN-US</option>
+        </select>
+      </label>
+
+      <label class="settings-field">
+        <span>{{ 'admin.settings.defaultTheme' | translate }}</span>
+        <select [ngModel]="defaultTheme()" (ngModelChange)="defaultTheme.set($event)">
+          <option value="dark">{{ 'admin.settings.themeDark' | translate }}</option>
+          <option value="light">{{ 'admin.settings.themeLight' | translate }}</option>
+          <option value="system">{{ 'admin.settings.themeSystem' | translate }}</option>
+        </select>
+      </label>
+
+      <label class="settings-field">
+        <span>{{ 'admin.settings.readingWidth' | translate }}</span>
+        <input type="number" [ngModel]="readingWidth()" (ngModelChange)="readingWidth.set($event)" />
+      </label>
+    </div>
+
+    <section class="settings-section">
+      <h2>{{ 'admin.settings.homeSections' | translate }}</h2>
+      <div class="settings-toggles">
+        @for (section of sections(); track section.key) {
+          <label class="settings-toggle">
+            <input type="checkbox" [checked]="section.enabled" />
+            <span>{{ section.key | translate }}</span>
+          </label>
+        }
+      </div>
+    </section>
+
+    <p class="admin-page__placeholder">{{ 'admin.settings.placeholder' | translate }}</p>
+  </div>
+</section>

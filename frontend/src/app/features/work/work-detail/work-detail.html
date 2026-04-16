@@ -4,9 +4,9 @@
   @if (isLoadingWork()) {
     <div class="work-detail__loading">
       <div class="spinner"></div>
+      <span>{{ 'work.loading' | translate }}</span>
     </div>
   } @else if (work(); as w) {
-    <!-- Hero / Header -->
     <section class="work-hero">
       @if (w.coverUrl) {
         <div class="work-hero__blur" [style.backgroundImage]="'url(' + w.coverUrl + ')'"></div>
@@ -16,9 +16,9 @@
       <div class="work-hero__inner">
         <div class="work-hero__cover-wrapper">
           @if (w.coverUrl) {
-            <div class="work-hero__cover-clickable" (click)="openCoverModal()">
+            <button class="work-hero__cover-clickable" type="button" (click)="openCoverModal()" [attr.aria-label]="'common.expandCover' | translate">
               <img class="work-hero__cover" [src]="w.coverUrl" [alt]="w.title" loading="eager" />
-              <div class="work-hero__cover-expand">
+              <div class="work-hero__cover-expand" aria-hidden="true">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
                   <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
@@ -27,7 +27,7 @@
               @if (w.originalLanguageFlag) {
                 <img class="work-hero__lang-flag" [src]="w.originalLanguageFlag" alt="" loading="lazy" />
               }
-            </div>
+            </button>
           } @else {
             <div class="work-hero__cover work-hero__cover--placeholder">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -54,18 +54,26 @@
               }
               @if (filteredAltTitles().length > 5) {
                 <button class="alt-titles-toggle" type="button" (click)="toggleAltTitles()">
-                  {{ altTitlesExpanded() ? 'ver menos' : '+' + (filteredAltTitles().length - 5) + ' mais' }}
+                  {{ altTitlesExpanded() ? ('work.altTitles.less' | translate) : ('work.altTitles.more' | translate: { count: filteredAltTitles().length - 5 }) }}
                 </button>
               }
             </div>
           }
 
           <div class="work-hero__badges">
-            @if (w.type) { <span class="badge badge--type">{{ w.type }}</span> }
-            @if (w.status) { <span class="badge badge--status" [class]="'badge--status-' + w.status.toLowerCase()">{{ w.status }}</span> }
+            @if (w.type) { <span class="badge badge--type">{{ 'enum.workType.' + w.type | translate }}</span> }
+            @if (w.status) {
+              <span
+                class="badge badge--status"
+                [class.badge--status-ongoing]="w.status === 'ONGOING'"
+                [class.badge--status-completed]="w.status === 'COMPLETED'"
+                [class.badge--status-cancelled]="w.status === 'CANCELLED'"
+                [class.badge--status-hiatus]="w.status === 'HIATUS'"
+              >{{ 'enum.workStatus.' + w.status | translate }}</span>
+            }
             @if (w.releaseYear) { <span class="badge">{{ w.releaseYear }}</span> }
-            @if (w.contentRating) { <span class="badge badge--rating">{{ w.contentRating }}</span> }
-            @if (w.publicationDemographic) { <span class="badge">{{ w.publicationDemographic }}</span> }
+            @if (w.contentRating) { <span class="badge badge--rating">{{ 'enum.contentRating.' + w.contentRating | translate }}</span> }
+            @if (w.publicationDemographic) { <span class="badge">{{ 'enum.demographic.' + w.publicationDemographic | translate }}</span> }
           </div>
 
           @if (w.tags.length) {
@@ -95,24 +103,23 @@
             <div class="work-hero__synopsis" [class.work-hero__synopsis--expanded]="synopsisExpanded()">
               <p>{{ w.synopsis }}</p>
             </div>
-            <button class="work-hero__synopsis-toggle" type="button" (click)="toggleSynopsis()">
-              {{ synopsisExpanded() ? 'Ver menos' : 'Ver mais' }}
+            <button
+              class="work-hero__synopsis-toggle"
+              type="button"
+              (click)="toggleSynopsis()"
+              [attr.aria-expanded]="synopsisExpanded()"
+            >
+              {{ synopsisExpanded() ? ('work.synopsis.less' | translate) : ('work.synopsis.more' | translate) }}
             </button>
           }
         </div>
       </div>
     </section>
 
-    <!-- Action bar -->
     <section class="work-actions">
       <div class="work-actions__inner">
         <div class="work-actions__library">
-          <button
-            class="btn btn--primary"
-            [class.btn--active]="!!w.userLibraryStatus"
-            type="button"
-            (click)="toggleLibraryMenu()"
-          >
+          <button class="btn btn--primary" [class.btn--active]="!!w.userLibraryStatus" type="button" (click)="toggleLibraryMenu()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
             </svg>
@@ -130,11 +137,11 @@
                   [class.library-menu__item--active]="w.userLibraryStatus === s.value"
                   type="button"
                   (click)="setLibraryStatus(s.value)"
-                >{{ s.label }}</button>
+                >{{ s.labelKey | translate }}</button>
               }
               @if (w.userLibraryStatus) {
                 <button class="library-menu__item library-menu__item--danger" type="button" (click)="removeFromLibrary()">
-                  Remover
+                  {{ 'work.library.remove' | translate }}
                 </button>
               }
             </div>
@@ -144,7 +151,13 @@
         @if (w.links.length) {
           <div class="work-actions__links">
             @for (link of w.links; track link.siteCode) {
-              <a class="btn btn--ghost" [href]="link.url" target="_blank" rel="noopener noreferrer">
+              <a
+                class="btn btn--ghost"
+                [href]="link.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                [attr.aria-label]="'work.links.open' | translate: { site: getSiteLabel(link.siteCode) }"
+              >
                 {{ getSiteLabel(link.siteCode) }}
               </a>
             }
@@ -153,12 +166,11 @@
       </div>
     </section>
 
-    <!-- Chapters -->
     <section class="work-chapters">
       <div class="work-chapters__inner">
         <div class="work-chapters__header">
           <h2 class="work-chapters__title">
-            Capítulos
+            {{ 'work.chapters.title' | translate }}
             @if (w.chapterCount) { <span class="work-chapters__count">{{ w.chapterCount }}</span> }
           </h2>
           <div class="work-chapters__actions">
@@ -179,13 +191,13 @@
                   <path d="M1 12l7 7L22 4"/>
                 </svg>
               }
-              {{ allChaptersRead ? 'Desmarcar todos' : 'Marcar todos como lido' }}
+              {{ allChaptersRead ? ('work.chapters.markAllUnread' | translate) : ('work.chapters.markAllRead' | translate) }}
             </button>
             <button class="btn btn--ghost btn--sm" type="button" (click)="toggleSort()">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M3 6h18M7 12h10M11 18h2"/>
               </svg>
-              {{ chapterSort === 'desc' ? 'Mais recentes' : 'Mais antigos' }}
+              {{ chapterSort === 'desc' ? ('work.chapters.newest' | translate) : ('work.chapters.oldest' | translate) }}
             </button>
           </div>
         </div>
@@ -197,21 +209,22 @@
             }
           </div>
         } @else if (chapters().length === 0) {
-          <p class="chapters__empty">Nenhum capítulo disponível.</p>
+          <p class="chapters__empty">{{ 'work.chapters.empty' | translate }}</p>
         } @else {
           <div class="chapters__grid">
             @for (chapter of chapters(); track chapter.id) {
-              <div class="chapter-card" [class.chapter-card--read]="chapter.isRead" (click)="openChapter(chapter)" style="cursor: pointer;">
+              <article class="chapter-card" [class.chapter-card--read]="chapter.isRead" tabindex="0" role="button" (click)="openChapter(chapter)" (keydown.enter)="openChapter(chapter)">
                 <div class="chapter-card__header">
                   <span class="chapter-card__dot" [class.chapter-card__dot--read]="chapter.isRead"></span>
-                  <span class="chapter-card__number">Cap. {{ chapter.numberWithVersion }}</span>
+                  <span class="chapter-card__number">{{ 'work.chapters.numberPrefix' | translate }} {{ chapter.numberWithVersion }}</span>
                   <button
                     class="chapter-action-btn"
                     [class.chapter-action-btn--read]="chapter.isRead && !isTogglingChapter(chapter.id)"
                     [class.chapter-action-btn--unread]="!chapter.isRead && !isTogglingChapter(chapter.id)"
                     [disabled]="isTogglingChapter(chapter.id)"
                     type="button"
-                    [title]="chapter.isRead ? 'Marcar como não lido' : 'Marcar como lido'"
+                    [attr.aria-label]="chapter.isRead ? ('work.chapters.markUnread' | translate) : ('work.chapters.markRead' | translate)"
+                    [title]="chapter.isRead ? ('work.chapters.markUnread' | translate) : ('work.chapters.markRead' | translate)"
                     (click)="$event.stopPropagation(); toggleChapterRead(chapter)"
                   >
                     @if (isTogglingChapter(chapter.id)) {
@@ -243,7 +256,7 @@
                     </span>
                   }
                 </div>
-              </div>
+              </article>
             }
           </div>
         }
@@ -259,7 +272,7 @@
     </section>
   } @else {
     <div class="work-detail__not-found">
-      <p>Obra não encontrada.</p>
+      <p>{{ 'work.notFound' | translate }}</p>
     </div>
   }
 
@@ -272,7 +285,7 @@
   }
 
   @if (showScrollTop()) {
-    <button class="work-detail__scroll-top" type="button" (click)="scrollToTop()" aria-label="Voltar ao topo">
+    <button class="work-detail__scroll-top" type="button" (click)="scrollToTop()" [attr.aria-label]="'common.scrollTop' | translate">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="18 15 12 9 6 15"/>
       </svg>

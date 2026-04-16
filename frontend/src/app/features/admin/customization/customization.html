@@ -1,0 +1,18 @@
+<app-navbar />
+<app-admin-nav />
+
+<section class="admin-page">
+  <div class="admin-page__inner">
+    <h1 class="admin-page__title">{{ 'admin.custom.title' | translate }}</h1>
+    <p class="admin-page__subtitle">{{ 'admin.custom.subtitle' | translate }}</p>
+
+    <div class="custom-grid">
+      <label><span>{{ 'admin.custom.carouselItems' | translate }}</span><input type="number" [ngModel]="carouselItems()" (ngModelChange)="carouselItems.set($event)" /></label>
+      <label><span>{{ 'admin.custom.visualMode' | translate }}</span><input [ngModel]="visualMode()" (ngModelChange)="visualMode.set($event)" /></label>
+      <label><span>{{ 'admin.custom.logo' | translate }}</span><input [ngModel]="logoUrl()" (ngModelChange)="logoUrl.set($event)" /></label>
+      <label><span>{{ 'admin.custom.colors' | translate }}</span><input type="color" [ngModel]="primaryColor()" (ngModelChange)="primaryColor.set($event)" /><input type="color" [ngModel]="accentColor()" (ngModelChange)="accentColor.set($event)" /></label>
+    </div>
+
+    <p class="admin-empty">{{ 'admin.custom.placeholder' | translate }}</p>
+  </div>
+</section>

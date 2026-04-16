@@ -5,15 +5,17 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../../core/auth/services/auth.service';
 import { GoogleAuthService } from '../../../core/auth/services/google-auth.service';
 import { ApiError } from '../../../core/auth/models/auth.models';
+import { I18nService } from '../../../core/i18n/i18n.service';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 
-const ERROR_MESSAGES: Record<string, string> = {
-  'auth.error.invalid-credentials': 'Email ou senha inválidos.',
-  'auth.error.google-account': 'Esta conta foi criada via Google. Use o login com Google.'
+const ERROR_KEYS: Record<string, string> = {
+  'auth.error.invalid-credentials': 'auth.error.invalidCredentials',
+  'auth.error.google-account': 'auth.error.googleAccount'
 };
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
@@ -23,6 +25,7 @@ export class LoginComponent implements OnInit {
   private readonly googleAuthService = inject(GoogleAuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly i18n = inject(I18nService);
 
   readonly isLoading = signal(false);
   readonly errorMessage = signal('');
@@ -89,8 +92,8 @@ export class LoginComponent implements OnInit {
     if (err instanceof HttpErrorResponse) {
       const body = err.error as ApiError;
       const key = body?.items?.[0]?.key;
-      if (key && ERROR_MESSAGES[key]) return ERROR_MESSAGES[key];
+      if (key && ERROR_KEYS[key]) return this.i18n.t(ERROR_KEYS[key]);
     }
-    return 'Ocorreu um erro. Tente novamente.';
+    return this.i18n.t('auth.error.generic');
   }
 }

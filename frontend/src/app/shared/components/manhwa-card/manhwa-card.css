@@ -6,7 +6,7 @@
 
 .card {
   background: var(--surface-00);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid var(--border-subtle);
   cursor: pointer;
@@ -21,8 +21,8 @@
 }
 
 .card--in-library {
-  border-color: #f5c518;
-  box-shadow: 0 0 0 1px #f5c518, 0 4px 16px rgba(0, 0, 0, 0.6);
+  border-color: var(--warning);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--warning) 75%, transparent);
 }
 
 .card--horizontal {
@@ -60,14 +60,14 @@
 }
 
 .card--compact .card__cover-wrap {
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid var(--border-subtle);
 }
 
 .card--compact.card--in-library .card__cover-wrap {
-  border-color: #f5c518;
-  box-shadow: 0 0 0 1px #f5c518, 0 4px 16px rgba(0, 0, 0, 0.6);
+  border-color: var(--warning);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--warning) 75%, transparent);
 }
 
 .card__compact-title {

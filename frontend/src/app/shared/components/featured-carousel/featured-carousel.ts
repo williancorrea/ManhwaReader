@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Manhwa } from '../manhwa-card/manhwa-card';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 
 export interface DemographicOption {
   value: string;
-  label: string;
+  labelKey: string;
 }
 
 export interface CarouselItem {
@@ -16,7 +17,7 @@ export interface CarouselItem {
 
 @Component({
   selector: 'app-featured-carousel',
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './featured-carousel.html',
   styleUrl: './featured-carousel.css'
 })

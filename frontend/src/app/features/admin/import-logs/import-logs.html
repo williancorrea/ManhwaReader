@@ -1,0 +1,20 @@
+<app-navbar />
+<app-admin-nav />
+
+<section class="admin-page">
+  <div class="admin-page__inner">
+    <h1 class="admin-page__title">{{ 'admin.logs.title' | translate }}</h1>
+    <p class="admin-page__subtitle">{{ 'admin.logs.subtitle' | translate }}</p>
+
+    <div class="logs-filters">
+      <label><span>{{ 'admin.logs.status' | translate }}</span><select [ngModel]="status()" (ngModelChange)="status.set($event)"><option value="">-</option><option value="SUCCESS">{{ 'enum.importStatus.SUCCESS' | translate }}</option><option value="ERROR">{{ 'enum.importStatus.ERROR' | translate }}</option><option value="PARTIAL">{{ 'enum.importStatus.PARTIAL' | translate }}</option><option value="RUNNING">{{ 'enum.importStatus.RUNNING' | translate }}</option></select></label>
+      <label><span>{{ 'admin.logs.source' | translate }}</span><input [ngModel]="source()" (ngModelChange)="source.set($event)" /></label>
+      <label><span>{{ 'admin.logs.work' | translate }}</span><input [ngModel]="work()" (ngModelChange)="work.set($event)" /></label>
+      <label><span>{{ 'admin.logs.period' | translate }}</span><input type="date" [ngModel]="period()" (ngModelChange)="period.set($event)" /></label>
+    </div>
+
+    @if (logs().length === 0) {
+      <div class="admin-empty">{{ 'admin.logs.empty' | translate }}</div>
+    }
+  </div>
+</section>

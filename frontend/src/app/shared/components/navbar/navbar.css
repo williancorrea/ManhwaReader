@@ -2,9 +2,10 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: var(--bg-02);
+  background-color: color-mix(in srgb, var(--bg-02) 92%, transparent);
   border-bottom: 1px solid var(--border-subtle);
   height: 60px;
+  backdrop-filter: blur(14px);
 }
 
 .navbar__inner {
@@ -70,6 +71,40 @@
 .navbar__nav-link--active {
   color: var(--primary);
   background-color: var(--primary-ghost);
+}
+
+.navbar__language {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.navbar__language-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.navbar__language-select {
+  appearance: none;
+  background: var(--surface-00);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 12px;
+  padding: 5px 26px 5px 8px;
+  cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+    linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+  background-position: calc(100% - 12px) 50%, calc(100% - 7px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.navbar__language-select:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 /* User menu container */
@@ -219,4 +254,37 @@
 .navbar__dropdown-item--danger:hover {
   background-color: var(--error-bg);
   color: var(--error);
+}
+
+@media (max-width: 720px) {
+  .navbar {
+    height: auto;
+  }
+
+  .navbar__inner {
+    min-height: 60px;
+    padding: var(--space-2) var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .navbar__logo-text,
+  .navbar__language-label {
+    display: none;
+  }
+
+  .navbar__nav {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .navbar__nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .navbar__nav-link {
+    white-space: nowrap;
+  }
 }

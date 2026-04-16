@@ -7,10 +7,11 @@ import { CatalogService } from '../catalog/services/catalog.service';
 import { WorkCatalogItem } from '../catalog/models/catalog.models';
 import { LibraryService } from '../library/services/library.service';
 import { LibraryItem } from '../library/models/library.models';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-home',
-  imports: [NavbarComponent, ManhwaCardComponent, FeaturedCarouselComponent, RouterLink],
+  imports: [NavbarComponent, ManhwaCardComponent, FeaturedCarouselComponent, RouterLink, TranslatePipe],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
@@ -24,14 +25,14 @@ export class HomeComponent implements OnInit {
   readonly selectedDemographic = signal('COMIC');
 
   readonly demographics: DemographicOption[] = [
-    { value: 'COMIC',   label: 'Comic'   },
-    { value: 'SHOUNEN', label: 'Shounen' },
-    { value: 'SEINEN',  label: 'Seinen'  },
-    { value: 'JOSEI',   label: 'Josei'   },
-    { value: 'SHOUJO',  label: 'Shoujo'  },
-    { value: 'YAOI',    label: 'Yaoi'    },
-    { value: 'YURI',    label: 'Yuri'    },
-    { value: 'HENTAI',  label: 'Hentai'  },
+    { value: 'COMIC', labelKey: 'enum.demographic.COMIC' },
+    { value: 'SHOUNEN', labelKey: 'enum.demographic.SHOUNEN' },
+    { value: 'SEINEN', labelKey: 'enum.demographic.SEINEN' },
+    { value: 'JOSEI', labelKey: 'enum.demographic.JOSEI' },
+    { value: 'SHOUJO', labelKey: 'enum.demographic.SHOUJO' },
+    { value: 'YAOI', labelKey: 'enum.demographic.YAOI' },
+    { value: 'YURI', labelKey: 'enum.demographic.YURI' },
+    { value: 'HENTAI', labelKey: 'enum.demographic.HENTAI' },
   ];
 
   private readonly allRecentlyRead = signal<Manhwa[]>([]);

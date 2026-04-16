@@ -2,21 +2,25 @@
   <div class="navbar__inner">
     <a routerLink="/home" class="navbar__logo">
       <span class="navbar__logo-icon">M</span>
-      <span class="navbar__logo-text">ManhwaReader</span>
+      <span class="navbar__logo-text">{{ 'app.name' | translate }}</span>
     </a>
 
-    <nav class="navbar__nav">
-      <a routerLink="/catalog" class="navbar__nav-link" routerLinkActive="navbar__nav-link--active">Catálogo</a>
-      <a routerLink="/library" class="navbar__nav-link" routerLinkActive="navbar__nav-link--active">Biblioteca</a>
+    <nav class="navbar__nav" aria-label="Primary">
+      <a routerLink="/catalog" class="navbar__nav-link" routerLinkActive="navbar__nav-link--active">
+        {{ 'navigation.catalog' | translate }}
+      </a>
+      <a routerLink="/library" class="navbar__nav-link" routerLinkActive="navbar__nav-link--active">
+        {{ 'navigation.library' | translate }}
+      </a>
     </nav>
 
-    <!-- User menu -->
     <div class="navbar__user-menu">
       <button
         class="navbar__avatar"
+        type="button"
         (click)="toggleMenu()"
         [attr.aria-expanded]="isMenuOpen()"
-        aria-label="User menu"
+        [attr.aria-label]="'navigation.userMenu' | translate"
       >
         @if (userService.profile()?.avatarUrl) {
           <img
@@ -45,8 +49,8 @@
               }
             </div>
             <div class="navbar__dropdown-info">
-              <span class="navbar__dropdown-name">{{ userService.profile()?.name ?? '—' }}</span>
-              <span class="navbar__dropdown-email">{{ userService.profile()?.email ?? '—' }}</span>
+              <span class="navbar__dropdown-name">{{ userService.profile()?.name ?? '-' }}</span>
+              <span class="navbar__dropdown-email">{{ userService.profile()?.email ?? '-' }}</span>
             </div>
           </div>
 
@@ -54,22 +58,24 @@
             <div class="navbar__dropdown-divider"></div>
             <a routerLink="/admin" class="navbar__dropdown-item" role="menuitem" (click)="isMenuOpen.set(false)">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                <path
+                  d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
                 <circle cx="12" cy="12" r="3"/>
               </svg>
-              Administração
+              {{ 'navigation.admin' | translate }}
             </a>
           }
 
           <div class="navbar__dropdown-divider"></div>
 
-          <button class="navbar__dropdown-item navbar__dropdown-item--danger" (click)="logout()" role="menuitem">
+          <button class="navbar__dropdown-item navbar__dropdown-item--danger" type="button" (click)="logout()"
+                  role="menuitem">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
               <polyline points="16 17 21 12 16 7"/>
               <line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
-            Sair
+            {{ 'navigation.logout' | translate }}
           </button>
         </div>
       }
