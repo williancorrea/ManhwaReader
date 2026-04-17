@@ -1,23 +1,31 @@
 {
   "permissions": {
     "allow": [
+      "Read(**)",
+      
+      "mcp__idea__get_file_text",
       "mcp__idea__get_file_problems",
       "mcp__idea__build_project",
       "mcp__idea__list_directory_tree",
       "mcp__idea__search_in_files_by_text",
       "mcp__idea__get_file_text_by_path",
       "mcp__idea__replace_text_in_file",
+      
       "Bash(npx skills:*)",
-      "Bash(npx ng:*)",
-      "Bash(npm config:*)",
-      "Bash(xargs grep:*)",
-      "Bash(./mvnw compile:*)",
-      "Bash(./mvnw -q compile)",
-      "Bash(./mvnw test:*)",
+      "Bash(npx ng:*)",      
+      
       "Bash(find:*)",
-      "Bash(grep -E \"\\\\.\\(java|xml|properties|yml|yaml\\)$\")",
-      "Bash(npm run:*)",
-      "Bash(npm test:*)"
+      "Bash(grep *)",
+      "Bash(cat *)",
+      "Bash(ls *)",
+      "Bash(echo *)",
+      "Bash(xargs grep:*)",
+
+      "Bash(./mvnw *)",
+      "Bash(npm *)"
+    ],
+    "deny": [
+      "Bash(git push *)"
     ]
   }
 }
