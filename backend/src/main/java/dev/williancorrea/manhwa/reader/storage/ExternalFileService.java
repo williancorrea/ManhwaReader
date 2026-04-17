@@ -21,6 +21,7 @@ public class ExternalFileService {
   public ExternalFileService(MinioService minioService) {
     this.minioService = minioService;
     this.httpClient = HttpClient.newBuilder()
+        .version(HttpClient.Version.HTTP_1_1) // Força HTTP/1.1, onde cada request usa sua própria conexão e não existe o limite de streams concorrentes do HTTP/2. 
         .followRedirects(HttpClient.Redirect.NORMAL)
         .build();
   }
