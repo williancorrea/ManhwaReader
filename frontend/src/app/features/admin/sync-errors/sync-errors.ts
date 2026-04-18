@@ -47,7 +47,7 @@ export class AdminSyncErrorsComponent implements OnInit, OnDestroy {
   readonly loading = signal(false);
   readonly errors = signal<SyncError[]>([]);
   readonly page = signal(0);
-  readonly pageSize = signal(20);
+  readonly pageSize = signal(10);
   readonly totalElements = signal(0);
   readonly totalPages = signal(0);
 

@@ -42,15 +42,15 @@
 
     <!-- KPI cards -->
     <div class="sync-errors__kpis">
-      <div class="sync-errors__kpi">
+      <div class="sync-errors__kpi sync-errors__kpi--summary">
         <span class="sync-errors__kpi-label">{{ 'admin.syncErrors.kpi.total' | translate }}</span>
         <span class="sync-errors__kpi-value">{{ summary()?.total ?? 0 }}</span>
       </div>
-      <div class="sync-errors__kpi">
+      <div class="sync-errors__kpi sync-errors__kpi--summary">
         <span class="sync-errors__kpi-label">{{ 'admin.syncErrors.kpi.last24h' | translate }}</span>
         <span class="sync-errors__kpi-value">{{ summary()?.last24Hours ?? 0 }}</span>
       </div>
-      <div class="sync-errors__kpi">
+      <div class="sync-errors__kpi sync-errors__kpi--summary">
         <span class="sync-errors__kpi-label">{{ 'admin.syncErrors.kpi.last7d' | translate }}</span>
         <span class="sync-errors__kpi-value">{{ summary()?.last7Days ?? 0 }}</span>
       </div>
@@ -60,7 +60,9 @@
             <span class="sync-errors__origin-dot" [attr.data-origin]="origin"></span>
             {{ originLabel(origin) }}
           </span>
-          <span class="sync-errors__kpi-value">{{ summary()?.byOrigin?.[origin] ?? 0 }}</span>
+          <span class="sync-errors__kpi-value sync-errors__kpi-value--origin" [attr.data-origin]="origin">
+            {{ summary()?.byOrigin?.[origin] ?? 0 }}
+          </span>
         </div>
       }
     </div>
@@ -126,7 +128,6 @@
       </div>
     }
 
-    <!-- Table (desktop / tablet) -->
     @if (loading() && errors().length === 0) {
       <div class="admin__loading"><div class="admin__spinner"></div></div>
     } @else if (errors().length === 0) {
@@ -158,7 +159,7 @@
                   <span class="sync-errors__sort-indicator">{{ sortDirection() === 'asc' ? '↑' : '↓' }}</span>
                 }
               </th>
-              <th>{{ 'admin.syncErrors.table.internalWork' | translate }}</th>
+              <th class="sync-errors__col-internal">{{ 'admin.syncErrors.table.internalWork' | translate }}</th>
               <th>{{ 'admin.syncErrors.table.message' | translate }}</th>
               <th class="sync-errors__col-actions"></th>
             </tr>
@@ -177,16 +178,21 @@
                       {{ originLabel(row.synchronization) }}
                     </span>
                   } @else {
-                    —
+                    <span class="sync-errors__dash">—</span>
                   }
                 </td>
                 <td class="sync-errors__col-external">
                   <span class="sync-errors__name" [title]="row.externalWorkName">{{ row.externalWorkName }}</span>
                   <span class="sync-errors__mono">{{ row.externalWorkId }}</span>
                 </td>
-                <td>
+                <td class="sync-errors__col-internal">
                   @if (row.workId) {
-                    <a class="sync-errors__link-internal" [href]="'/work/' + row.workId" target="_blank" rel="noopener">
+                    <a class="sync-errors__btn-work" href="/work/{{ row.workId }}" target="_blank" rel="noopener">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                      </svg>
                       {{ 'admin.syncErrors.table.open' | translate }}
                     </a>
                   } @else {
@@ -203,42 +209,6 @@
             }
           </tbody>
         </table>
-      </div>
-
-      <!-- Cards (mobile) -->
-      <div class="sync-errors__cards">
-        @for (row of errors(); track row.id) {
-          <article class="sync-errors__card" [class.sync-errors__card--selected]="isSelected(row.id)">
-            <header class="sync-errors__card-header">
-              <label class="sync-errors__card-check">
-                <input type="checkbox" [checked]="isSelected(row.id)" (change)="toggleOne(row.id)" />
-              </label>
-              @if (row.synchronization) {
-                <span class="sync-errors__badge" [attr.data-origin]="row.synchronization">
-                  {{ originLabel(row.synchronization) }}
-                </span>
-              }
-              <span class="sync-errors__card-date">{{ row.createdAt | date:'dd/MM HH:mm' }}</span>
-            </header>
-            <h3 class="sync-errors__card-title">{{ row.externalWorkName }}</h3>
-            <span class="sync-errors__mono">{{ row.externalWorkId }}</span>
-            @if (row.errorMessage) {
-              <p class="sync-errors__card-message">{{ row.errorMessage }}</p>
-            }
-            <div class="sync-errors__card-actions">
-              @if (row.workId) {
-                <a class="sync-errors__link-internal" [href]="'/work/' + row.workId" target="_blank" rel="noopener">
-                  {{ 'admin.syncErrors.table.open' | translate }}
-                </a>
-              } @else {
-                <span class="sync-errors__orphan">{{ 'admin.syncErrors.table.orphan' | translate }}</span>
-              }
-              <button class="admin__btn admin__btn--link" (click)="openDetail(row)">
-                {{ 'admin.syncErrors.table.view' | translate }}
-              </button>
-            </div>
-          </article>
-        }
       </div>
 
       <div class="admin__pagination">
@@ -289,22 +259,31 @@
                 {{ originLabel(row.synchronization) }}
               </span>
             }
-            {{ row.scanlatorName }}
+            <span>{{ row.scanlatorName }}</span>
             @if (row.scanlatorWebsite) {
-              · <a [href]="row.scanlatorWebsite" target="_blank" rel="noopener">{{ row.scanlatorWebsite }}</a>
+              <a [href]="row.scanlatorWebsite" target="_blank" rel="noopener" class="sync-errors__detail-link">
+                {{ row.scanlatorWebsite }}
+              </a>
             }
           </dd>
 
           <dt>{{ 'admin.syncErrors.detail.externalWork' | translate }}</dt>
-          <dd>
-            <span>{{ row.externalWorkName }}</span>
+          <dd class="sync-errors__detail-external">
+            <span class="sync-errors__detail-work-name">{{ row.externalWorkName }}</span>
             <span class="sync-errors__mono">{{ row.externalWorkId }}</span>
           </dd>
 
           <dt>{{ 'admin.syncErrors.detail.internalWork' | translate }}</dt>
           <dd>
             @if (row.workId) {
-              <a [href]="'/work/' + row.workId" target="_blank" rel="noopener">{{ row.workId }}</a>
+              <a class="sync-errors__btn-work" href="/work/{{ row.workId }}" target="_blank" rel="noopener">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                  <polyline points="15 3 21 3 21 9"/>
+                  <line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+                {{ row.workId }}
+              </a>
             } @else {
               <span class="sync-errors__orphan">{{ 'admin.syncErrors.table.orphan' | translate }}</span>
             }
