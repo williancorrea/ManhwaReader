@@ -22,6 +22,11 @@ export const adminRoutes: Routes = [
       import('./import-logs/import-logs').then(m => m.AdminImportLogsComponent)
   },
   {
+    path: 'sync-errors',
+    loadComponent: () =>
+      import('./sync-errors/sync-errors').then(m => m.AdminSyncErrorsComponent)
+  },
+  {
     path: 'customization',
     loadComponent: () =>
       import('./customization/customization').then(m => m.AdminCustomizationComponent)

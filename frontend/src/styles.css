@@ -148,3 +148,11 @@ a {
 a:hover {
   color: var(--primary-hover);
 }
+
+/* Admin layout — reserves space for fixed sidebar on desktop */
+@media (min-width: 1024px) {
+  body:has(app-admin-nav) .admin,
+  body:has(app-admin-nav) .admin-page {
+    padding-left: 248px;
+  }
+}

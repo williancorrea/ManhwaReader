@@ -1,45 +1,192 @@
+:host {
+  --admin-nav-width: 248px;
+}
+
 .admin-nav {
   background: var(--bg-01);
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.admin-nav__inner {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: var(--space-3) var(--space-6);
+  border-right: 1px solid var(--border-subtle);
   display: flex;
-  gap: var(--space-2);
-  overflow-x: auto;
-  scrollbar-width: none;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-4);
+  width: var(--admin-nav-width);
+  position: fixed;
+  left: 0;
+  top: 64px;
+  bottom: 0;
+  z-index: 40;
+  overflow-y: auto;
 }
 
-.admin-nav__inner::-webkit-scrollbar {
+.admin-nav__header {
+  align-items: center;
   display: none;
+  justify-content: space-between;
+}
+
+.admin-nav__title {
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.admin-nav__close {
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  height: 32px;
+  justify-content: center;
+  transition: border-color 150ms ease, color 150ms ease;
+  width: 32px;
+}
+
+.admin-nav__close:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.admin-nav__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.admin-nav__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.admin-nav__section-label {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  padding: 0 var(--space-2);
+  text-transform: uppercase;
+}
+
+.admin-nav__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .admin-nav__link {
-  border: 1px solid var(--border-default);
+  align-items: center;
+  border: 1px solid transparent;
   border-radius: var(--radius-md);
   color: var(--text-secondary);
-  padding: 7px var(--space-3);
-  white-space: nowrap;
+  display: flex;
   font-size: 14px;
+  font-weight: 500;
+  gap: var(--space-3);
+  padding: 9px var(--space-3);
+  text-decoration: none;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+.admin-nav__link:hover {
+  background: var(--surface-00);
+  color: var(--text-primary);
 }
 
 .admin-nav__link--active {
-  color: var(--primary);
   background: var(--primary-ghost);
   border-color: var(--primary);
+  color: var(--primary);
 }
 
-@media (max-width: 640px) {
-  .admin-nav__inner {
-    padding: var(--space-2) var(--space-3);
-    gap: var(--space-2);
+.admin-nav__icon {
+  align-items: center;
+  color: currentColor;
+  display: inline-flex;
+  flex-shrink: 0;
+  height: 16px;
+  justify-content: center;
+  width: 16px;
+}
+
+.admin-nav__toggle {
+  align-items: center;
+  background: var(--bg-01);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: none;
+  font-family: var(--font-family);
+  font-size: 13px;
+  font-weight: 500;
+  gap: var(--space-2);
+  left: var(--space-3);
+  padding: 7px var(--space-3);
+  position: fixed;
+  top: 76px;
+  z-index: 30;
+}
+
+.admin-nav__toggle:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.admin-nav__backdrop {
+  background: rgba(0, 0, 0, 0.55);
+  inset: 0;
+  position: fixed;
+  z-index: 45;
+}
+
+/* Push admin page content on desktop so sidebar never overlaps it.
+   Uses :host-context to target pages that render the nav. */
+:host-context(body) {
+  display: contents;
+}
+
+@media (max-width: 1023px) {
+  .admin-nav {
+    border-right: 1px solid var(--border-subtle);
+    left: -100%;
+    top: 0;
+    transition: left 200ms ease;
+    width: min(280px, 80vw);
+    z-index: 50;
   }
 
-  .admin-nav__link {
-    font-size: 13px;
-    padding: 6px var(--space-2);
+  .admin-nav--open {
+    left: 0;
+  }
+
+  .admin-nav__header {
+    display: flex;
+  }
+
+  .admin-nav__toggle {
+    display: inline-flex;
+  }
+
+  .admin-nav__toggle--hidden {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-nav {
+    padding: var(--space-4) var(--space-3);
+    width: 88vw;
+  }
+
+  .admin-nav__toggle {
+    left: var(--space-2);
+    top: 72px;
   }
 }

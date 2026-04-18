@@ -1,0 +1,351 @@
+<app-navbar />
+<app-admin-nav />
+
+<section class="admin">
+  <div class="admin__inner">
+    <header class="sync-errors__header">
+      <div>
+        <h1 class="admin__title">{{ 'admin.syncErrors.title' | translate }}</h1>
+        <p class="admin__subtitle">{{ 'admin.syncErrors.subtitle' | translate }}</p>
+      </div>
+
+      <div class="sync-errors__purge">
+        <button
+          type="button"
+          class="admin__btn admin__btn--clear sync-errors__purge-trigger"
+          (click)="togglePurgeMenu()"
+          [attr.aria-expanded]="purgeMenuOpen()"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+          {{ 'admin.syncErrors.purge.button' | translate }}
+        </button>
+        @if (purgeMenuOpen()) {
+          <div class="sync-errors__purge-menu" role="menu">
+            @for (days of purgePresets; track days) {
+              <button type="button" class="sync-errors__purge-option" (click)="purge(days)">
+                {{ 'admin.syncErrors.purge.option' | translate: { days } }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </header>
+
+    @if (feedback(); as fb) {
+      <div class="admin__alert" [class.admin__alert--success]="fb.kind === 'success'" [class.admin__alert--error]="fb.kind === 'error'">
+        {{ fb.text }}
+      </div>
+    }
+
+    <!-- KPI cards -->
+    <div class="sync-errors__kpis">
+      <div class="sync-errors__kpi">
+        <span class="sync-errors__kpi-label">{{ 'admin.syncErrors.kpi.total' | translate }}</span>
+        <span class="sync-errors__kpi-value">{{ summary()?.total ?? 0 }}</span>
+      </div>
+      <div class="sync-errors__kpi">
+        <span class="sync-errors__kpi-label">{{ 'admin.syncErrors.kpi.last24h' | translate }}</span>
+        <span class="sync-errors__kpi-value">{{ summary()?.last24Hours ?? 0 }}</span>
+      </div>
+      <div class="sync-errors__kpi">
+        <span class="sync-errors__kpi-label">{{ 'admin.syncErrors.kpi.last7d' | translate }}</span>
+        <span class="sync-errors__kpi-value">{{ summary()?.last7Days ?? 0 }}</span>
+      </div>
+      @for (origin of origins; track origin) {
+        <div class="sync-errors__kpi sync-errors__kpi--origin">
+          <span class="sync-errors__kpi-label">
+            <span class="sync-errors__origin-dot" [attr.data-origin]="origin"></span>
+            {{ originLabel(origin) }}
+          </span>
+          <span class="sync-errors__kpi-value">{{ summary()?.byOrigin?.[origin] ?? 0 }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- Filters -->
+    <div class="sync-errors__filters">
+      <label class="sync-errors__filter">
+        <span>{{ 'admin.syncErrors.filters.scanlator' | translate }}</span>
+        <select [ngModel]="filterSync()" (ngModelChange)="filterSync.set($event); onFilterChange()">
+          <option value="">{{ 'admin.syncErrors.filters.all' | translate }}</option>
+          @for (origin of origins; track origin) {
+            <option [value]="origin">{{ originLabel(origin) }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="sync-errors__filter">
+        <span>{{ 'admin.syncErrors.filters.name' | translate }}</span>
+        <input type="text" [ngModel]="filterName()" (ngModelChange)="filterName.set($event); onFilterChange()"
+               [placeholder]="'admin.syncErrors.filters.namePlaceholder' | translate" />
+      </label>
+
+      <label class="sync-errors__filter">
+        <span>{{ 'admin.syncErrors.filters.externalId' | translate }}</span>
+        <input type="text" [ngModel]="filterExternalId()" (ngModelChange)="filterExternalId.set($event); onFilterChange()" />
+      </label>
+
+      <label class="sync-errors__filter">
+        <span>{{ 'admin.syncErrors.filters.message' | translate }}</span>
+        <input type="text" [ngModel]="filterMessage()" (ngModelChange)="filterMessage.set($event); onFilterChange()" />
+      </label>
+
+      <label class="sync-errors__filter">
+        <span>{{ 'admin.syncErrors.filters.from' | translate }}</span>
+        <input type="date" [ngModel]="filterFrom()" (ngModelChange)="filterFrom.set($event); onFilterChange()" />
+      </label>
+
+      <label class="sync-errors__filter">
+        <span>{{ 'admin.syncErrors.filters.to' | translate }}</span>
+        <input type="date" [ngModel]="filterTo()" (ngModelChange)="filterTo.set($event); onFilterChange()" />
+      </label>
+
+      <label class="sync-errors__filter sync-errors__filter--toggle">
+        <input type="checkbox" [checked]="filterOrphans()" (change)="filterOrphans.set(!filterOrphans()); onFilterChange()" />
+        <span>{{ 'admin.syncErrors.filters.orphans' | translate }}</span>
+      </label>
+
+      <button type="button" class="admin__btn admin__btn--clear sync-errors__clear" (click)="clearFilters()">
+        {{ 'admin.syncErrors.filters.clear' | translate }}
+      </button>
+    </div>
+
+    <!-- Bulk actions bar -->
+    @if (selectedCount() > 0) {
+      <div class="sync-errors__bulk">
+        <span>{{ 'admin.syncErrors.bulk.selected' | translate: { count: selectedCount() } }}</span>
+        <button class="admin__btn admin__btn--clear" (click)="clearSelection()">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button class="admin__btn admin__btn--danger" (click)="deleteSelected()">
+          {{ 'admin.syncErrors.bulk.delete' | translate }}
+        </button>
+      </div>
+    }
+
+    <!-- Table (desktop / tablet) -->
+    @if (loading() && errors().length === 0) {
+      <div class="admin__loading"><div class="admin__spinner"></div></div>
+    } @else if (errors().length === 0) {
+      <div class="admin-empty">{{ 'admin.syncErrors.empty' | translate }}</div>
+    } @else {
+      <div class="sync-errors__table-wrap">
+        <table class="sync-errors__table">
+          <thead>
+            <tr>
+              <th class="sync-errors__col-check">
+                <input type="checkbox" [checked]="allSelectedOnPage()" (change)="toggleAllOnPage()"
+                       [attr.aria-label]="'admin.syncErrors.table.selectAll' | translate" />
+              </th>
+              <th class="sync-errors__col-date sync-errors__sortable" (click)="toggleSort('createdAt')">
+                {{ 'admin.syncErrors.table.date' | translate }}
+                @if (sortField() === 'createdAt') {
+                  <span class="sync-errors__sort-indicator">{{ sortDirection() === 'asc' ? '↑' : '↓' }}</span>
+                }
+              </th>
+              <th class="sync-errors__col-scanlator sync-errors__sortable" (click)="toggleSort('scanlator.name')">
+                {{ 'admin.syncErrors.table.scanlator' | translate }}
+                @if (sortField() === 'scanlator.name') {
+                  <span class="sync-errors__sort-indicator">{{ sortDirection() === 'asc' ? '↑' : '↓' }}</span>
+                }
+              </th>
+              <th class="sync-errors__sortable" (click)="toggleSort('externalWorkName')">
+                {{ 'admin.syncErrors.table.externalWork' | translate }}
+                @if (sortField() === 'externalWorkName') {
+                  <span class="sync-errors__sort-indicator">{{ sortDirection() === 'asc' ? '↑' : '↓' }}</span>
+                }
+              </th>
+              <th>{{ 'admin.syncErrors.table.internalWork' | translate }}</th>
+              <th>{{ 'admin.syncErrors.table.message' | translate }}</th>
+              <th class="sync-errors__col-actions"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of errors(); track row.id) {
+              <tr [class.sync-errors__row--selected]="isSelected(row.id)">
+                <td class="sync-errors__col-check">
+                  <input type="checkbox" [checked]="isSelected(row.id)" (change)="toggleOne(row.id)"
+                         [attr.aria-label]="'admin.syncErrors.table.selectOne' | translate" />
+                </td>
+                <td class="sync-errors__col-date">{{ row.createdAt | date:'dd/MM/yy HH:mm' }}</td>
+                <td>
+                  @if (row.synchronization) {
+                    <span class="sync-errors__badge" [attr.data-origin]="row.synchronization">
+                      {{ originLabel(row.synchronization) }}
+                    </span>
+                  } @else {
+                    —
+                  }
+                </td>
+                <td class="sync-errors__col-external">
+                  <span class="sync-errors__name" [title]="row.externalWorkName">{{ row.externalWorkName }}</span>
+                  <span class="sync-errors__mono">{{ row.externalWorkId }}</span>
+                </td>
+                <td>
+                  @if (row.workId) {
+                    <a class="sync-errors__link-internal" [href]="'/work/' + row.workId" target="_blank" rel="noopener">
+                      {{ 'admin.syncErrors.table.open' | translate }}
+                    </a>
+                  } @else {
+                    <span class="sync-errors__orphan">{{ 'admin.syncErrors.table.orphan' | translate }}</span>
+                  }
+                </td>
+                <td class="sync-errors__message" [title]="row.errorMessage ?? ''">{{ row.errorMessage }}</td>
+                <td class="sync-errors__col-actions">
+                  <button class="admin__btn admin__btn--link" (click)="openDetail(row)">
+                    {{ 'admin.syncErrors.table.view' | translate }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Cards (mobile) -->
+      <div class="sync-errors__cards">
+        @for (row of errors(); track row.id) {
+          <article class="sync-errors__card" [class.sync-errors__card--selected]="isSelected(row.id)">
+            <header class="sync-errors__card-header">
+              <label class="sync-errors__card-check">
+                <input type="checkbox" [checked]="isSelected(row.id)" (change)="toggleOne(row.id)" />
+              </label>
+              @if (row.synchronization) {
+                <span class="sync-errors__badge" [attr.data-origin]="row.synchronization">
+                  {{ originLabel(row.synchronization) }}
+                </span>
+              }
+              <span class="sync-errors__card-date">{{ row.createdAt | date:'dd/MM HH:mm' }}</span>
+            </header>
+            <h3 class="sync-errors__card-title">{{ row.externalWorkName }}</h3>
+            <span class="sync-errors__mono">{{ row.externalWorkId }}</span>
+            @if (row.errorMessage) {
+              <p class="sync-errors__card-message">{{ row.errorMessage }}</p>
+            }
+            <div class="sync-errors__card-actions">
+              @if (row.workId) {
+                <a class="sync-errors__link-internal" [href]="'/work/' + row.workId" target="_blank" rel="noopener">
+                  {{ 'admin.syncErrors.table.open' | translate }}
+                </a>
+              } @else {
+                <span class="sync-errors__orphan">{{ 'admin.syncErrors.table.orphan' | translate }}</span>
+              }
+              <button class="admin__btn admin__btn--link" (click)="openDetail(row)">
+                {{ 'admin.syncErrors.table.view' | translate }}
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+
+      <div class="admin__pagination">
+        <button class="admin__pagination-btn" [disabled]="page() === 0" (click)="prevPage()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          {{ 'common.previous' | translate }}
+        </button>
+        <span class="admin__pagination-info">
+          {{ 'common.page' | translate }} {{ page() + 1 }} · {{ totalElements() }} {{ 'admin.syncErrors.pagination.records' | translate }}
+        </span>
+        <button class="admin__pagination-btn" [disabled]="(page() + 1) >= totalPages()" (click)="nextPage()">
+          {{ 'common.next' | translate }}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- Detail modal -->
+@if (detail(); as row) {
+  <div class="admin__compare-overlay sync-errors__overlay" (click)="closeDetail()">
+    <div class="admin__compare-modal sync-errors__modal" (click)="$event.stopPropagation()">
+      <div class="admin__compare-header">
+        <span class="admin__compare-title">{{ 'admin.syncErrors.detail.title' | translate }}</span>
+        <button class="admin__lightbox-close sync-errors__modal-close" (click)="closeDetail()"
+                [attr.aria-label]="'common.close' | translate">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="sync-errors__detail-body">
+        <dl class="sync-errors__detail-grid">
+          <dt>{{ 'admin.syncErrors.detail.date' | translate }}</dt>
+          <dd>{{ row.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}</dd>
+
+          <dt>{{ 'admin.syncErrors.detail.scanlator' | translate }}</dt>
+          <dd>
+            @if (row.synchronization) {
+              <span class="sync-errors__badge" [attr.data-origin]="row.synchronization">
+                {{ originLabel(row.synchronization) }}
+              </span>
+            }
+            {{ row.scanlatorName }}
+            @if (row.scanlatorWebsite) {
+              · <a [href]="row.scanlatorWebsite" target="_blank" rel="noopener">{{ row.scanlatorWebsite }}</a>
+            }
+          </dd>
+
+          <dt>{{ 'admin.syncErrors.detail.externalWork' | translate }}</dt>
+          <dd>
+            <span>{{ row.externalWorkName }}</span>
+            <span class="sync-errors__mono">{{ row.externalWorkId }}</span>
+          </dd>
+
+          <dt>{{ 'admin.syncErrors.detail.internalWork' | translate }}</dt>
+          <dd>
+            @if (row.workId) {
+              <a [href]="'/work/' + row.workId" target="_blank" rel="noopener">{{ row.workId }}</a>
+            } @else {
+              <span class="sync-errors__orphan">{{ 'admin.syncErrors.table.orphan' | translate }}</span>
+            }
+          </dd>
+
+          <dt>{{ 'admin.syncErrors.detail.message' | translate }}</dt>
+          <dd class="sync-errors__detail-message">{{ row.errorMessage || '—' }}</dd>
+        </dl>
+
+        @if (row.stackTrace) {
+          <div class="sync-errors__stack">
+            <div class="sync-errors__stack-header">
+              <span>{{ 'admin.syncErrors.detail.stackTrace' | translate }}</span>
+              <button type="button" class="admin__btn admin__btn--clear sync-errors__copy" (click)="copyStackTrace()">
+                {{ 'admin.syncErrors.detail.copy' | translate }}
+              </button>
+            </div>
+            <pre class="sync-errors__stack-pre">{{ row.stackTrace }}</pre>
+          </div>
+        } @else if (detailLoading()) {
+          <div class="admin__loading"><div class="admin__spinner"></div></div>
+        }
+      </div>
+
+      <div class="admin__compare-footer sync-errors__detail-footer">
+        @if (confirmingDelete() === row.id) {
+          <button class="admin__btn admin__btn--clear" (click)="cancelDelete()">
+            {{ 'common.cancel' | translate }}
+          </button>
+          <button class="admin__btn admin__btn--danger" (click)="confirmDelete(row.id)">
+            {{ 'admin.syncErrors.detail.confirmDelete' | translate }}
+          </button>
+        } @else {
+          <button class="admin__btn admin__btn--clear" (click)="closeDetail()">
+            {{ 'common.close' | translate }}
+          </button>
+          <button class="admin__btn admin__btn--danger" (click)="requestDelete(row.id)">
+            {{ 'admin.syncErrors.detail.delete' | translate }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+}

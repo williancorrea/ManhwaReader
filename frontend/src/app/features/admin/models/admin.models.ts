@@ -30,3 +30,41 @@ export interface PageResponse<T> {
     totalPages: number;
   };
 }
+
+export type SynchronizationOriginType =
+  | 'MANGADEX'
+  | 'LYCANTOONS'
+  | 'MANGOTOONS'
+  | 'MEDIOCRESCAN';
+
+export interface SyncError {
+  id: string;
+  scanlatorId: string | null;
+  scanlatorName: string | null;
+  scanlatorCode: string | null;
+  scanlatorWebsite: string | null;
+  synchronization: SynchronizationOriginType | null;
+  workId: string | null;
+  externalWorkId: string;
+  externalWorkName: string;
+  errorMessage: string | null;
+  stackTrace: string | null;
+  createdAt: string;
+}
+
+export interface SyncErrorSummary {
+  total: number;
+  last24Hours: number;
+  last7Days: number;
+  byOrigin: Partial<Record<SynchronizationOriginType, number>>;
+}
+
+export interface SyncErrorFilters {
+  synchronization?: SynchronizationOriginType;
+  externalWorkName?: string;
+  externalWorkId?: string;
+  errorMessage?: string;
+  from?: string;
+  to?: string;
+  orphansOnly?: boolean;
+}
