@@ -12,7 +12,6 @@ import dev.williancorrea.manhwa.reader.features.work.dto.WorkCatalogFilter;
 import dev.williancorrea.manhwa.reader.scraper.mangadex.MangaDexApiService;
 import dev.williancorrea.manhwa.reader.scraper.mangadex.client.MangaDexClient;
 import dev.williancorrea.manhwa.reader.scraper.mangadex.dto.MangaDexResponseList;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -67,7 +66,9 @@ public class AdminSynchronizationService {
 
   public List<MangaDexSearchOutput> searchMangaDex(String title, int page, int size) {
     MangaDexResponseList response = mangaDexClient.searchManga(
-        title, size, page * size,
+        title != null ? title.trim() : null,
+        size,
+        page * size,
         List.of("artist", "author", "cover_art")
     );
 

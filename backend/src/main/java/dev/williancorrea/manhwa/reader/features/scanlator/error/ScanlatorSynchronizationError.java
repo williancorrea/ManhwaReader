@@ -1,6 +1,7 @@
 package dev.williancorrea.manhwa.reader.features.scanlator.error;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.scanlator.Scanlator;
 import jakarta.persistence.Column;
@@ -11,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -34,7 +36,7 @@ public class ScanlatorSynchronizationError implements Serializable {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "scanlator_id", nullable = false)
   private Scanlator scanlator;
-  
+
   @Column(name = "work_id")
   private String workId;
 
@@ -48,10 +50,19 @@ public class ScanlatorSynchronizationError implements Serializable {
   @Column(nullable = false, name = "external_work_name")
   private String externalWorkName;
 
-  @Column(name = "error_message")
+  @Column(name = "error_message", columnDefinition = "TEXT")
   private String errorMessage;
-  
-  @Column(name = "stack_trace")
+
+  @Column(name = "stack_trace", columnDefinition = "TEXT")
   private String stackTrace;
 
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private OffsetDateTime createdAt;
+
+  @PrePersist
+  void onPersist() {
+    if (createdAt == null) {
+      createdAt = OffsetDateTime.now();
+    }
+  }
 }

@@ -69,7 +69,7 @@ public class WorkSpecification {
 
   public static Specification<Work> fromFilter(WorkCatalogFilter filter) {
     return Specification.allOf(
-        withTitle(filter.title()),
+        withTitle(filter.title() != null ? filter.title().trim() : null),
         withType(filter.type()),
         withPublicationDemographic(filter.publicationDemographic()),
         withStatus(filter.status())

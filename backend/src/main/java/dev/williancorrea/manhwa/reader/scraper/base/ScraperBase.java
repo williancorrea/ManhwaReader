@@ -258,6 +258,7 @@ public class ScraperBase {
             .externalWorkName(externalWorkName)
             .errorMessage(errorMessage)
             .stackTrace(stackTrace)
+            .createdAt(OffsetDateTime.now())
             .build()
     );
 
