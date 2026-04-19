@@ -84,12 +84,13 @@
 }
 
 .reader-header__bar {
-  position: absolute;
+  position: fixed;
+  top: 0;
   left: 0;
-  bottom: -1px;
   height: 2px;
   background: var(--reader-progress-bar);
   transition: width 120ms linear;
+  z-index: 20;
 }
 
 /* ─── Pages ──────────────────────────────────────── */

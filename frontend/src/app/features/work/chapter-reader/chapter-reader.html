@@ -10,8 +10,8 @@
       <span class="reader-header__title">{{ ch.workTitle }} - {{ 'reader.chapterPrefix' | translate }} {{ ch.numberWithVersion }}</span>
     }
     <span class="reader-header__progress">{{ 'reader.progress' | translate: { percent: scrollProgress() } }}</span>
-    <div class="reader-header__bar" [style.width.%]="scrollProgress()"></div>
   </header>
+  <div class="reader-header__bar" [style.width.%]="scrollProgress()"></div>
 
   @if (isLoading()) {
     <div class="reader-loading">
