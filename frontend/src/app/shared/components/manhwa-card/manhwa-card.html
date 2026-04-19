@@ -11,7 +11,7 @@
             <img class="card__lang-flag" [src]="manhwa.originalLanguageFlag" [alt]="manhwa.originalLanguageName ?? ''" [title]="manhwa.originalLanguageName ?? ''" loading="lazy" />
           }
         </div>
-        <p class="card__compact-title">{{ manhwa.title }}</p>
+        <p class="card__compact-title" [title]="manhwa.title">{{ manhwa.title }}</p>
       </article>
     </a>
   } @else {
@@ -25,7 +25,7 @@
           <img class="card__lang-flag" [src]="manhwa.originalLanguageFlag" [alt]="manhwa.originalLanguageName ?? ''" [title]="manhwa.originalLanguageName ?? ''" loading="lazy" />
         }
       </div>
-      <p class="card__compact-title">{{ manhwa.title }}</p>
+      <p class="card__compact-title" [title]="manhwa.title">{{ manhwa.title }}</p>
     </article>
   }
 } @else if (manhwa.slug) {
@@ -58,7 +58,7 @@
       </div>
 
       <div class="card__body">
-        <h3 class="card__title">{{ manhwa.title }}</h3>
+        <h3 class="card__title" [title]="manhwa.title">{{ manhwa.title }}</h3>
         <p class="card__chapter">{{ 'card.chapterShort' | translate }} {{ manhwa.latestChapter }}</p>
 
         <div class="card__genres">
@@ -98,12 +98,12 @@
         </div>
       }
       @if (manhwa.originalLanguageFlag) {
-        <img class="card__lang-flag" [src]="manhwa.originalLanguageFlag" alt="" loading="lazy" />
+        <img class="card__lang-flag" [src]="manhwa.originalLanguageFlag" [alt]="manhwa.originalLanguageName ?? ''" [title]="manhwa.originalLanguageName ?? ''" loading="lazy" />
       }
     </div>
 
     <div class="card__body">
-      <h3 class="card__title">{{ manhwa.title }}</h3>
+      <h3 class="card__title" [title]="manhwa.title">{{ manhwa.title }}</h3>
       <p class="card__chapter">{{ 'card.chapterShort' | translate }} {{ manhwa.latestChapter }}</p>
 
       <div class="card__genres">
