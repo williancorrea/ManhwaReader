@@ -34,12 +34,19 @@ export class ChapterReaderComponent implements OnInit, AfterViewInit, OnDestroy 
   private readonly destroy$ = new Subject<void>();
   private intersectionObserver?: IntersectionObserver;
   private markedAsRead = false;
+  private autoScrollRaf?: number;
+  private hintTimeout?: ReturnType<typeof setTimeout>;
 
   readonly chapterData = signal<ChapterReaderData | null>(null);
   readonly isLoading = signal(true);
-  readonly showScrollTop = signal(false);
   readonly isHeaderHidden = signal(false);
   readonly scrollProgress = signal(0);
+  readonly isFloatingMenuHidden = signal(false);
+  readonly isAutoScrolling = signal(false);
+  readonly autoScrollSpeed = signal(1);
+  readonly showAutoScrollHint = signal(false);
+
+  readonly speedOptions = [1, 2, 3, 4] as const;
 
   slug = '';
   chapterId = '';
@@ -49,10 +56,21 @@ export class ChapterReaderComponent implements OnInit, AfterViewInit, OnDestroy 
   onScroll(): void {
     const scrollY = window.scrollY;
     const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-    this.showScrollTop.set(scrollY > 300);
-    this.isHeaderHidden.set(scrollY > this.lastScrollY && scrollY > 140);
+    const scrollingDown = scrollY > this.lastScrollY && scrollY > 140;
+    this.isHeaderHidden.set(scrollingDown);
+    if (!this.isAutoScrolling()) {
+      this.isFloatingMenuHidden.set(scrollingDown);
+    }
     this.scrollProgress.set(Math.min(100, Math.max(0, Math.round((scrollY / max) * 100))));
     this.lastScrollY = scrollY;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.isAutoScrolling()) return;
+    const target = event.target as HTMLElement;
+    if (target.closest('.speed-selector') || target.closest('.floating-menu')) return;
+    this.isFloatingMenuHidden.set(!this.isFloatingMenuHidden());
   }
 
   ngOnInit(): void {
@@ -74,6 +92,8 @@ export class ChapterReaderComponent implements OnInit, AfterViewInit, OnDestroy 
     this.destroy$.next();
     this.destroy$.complete();
     this.intersectionObserver?.disconnect();
+    this.stopAutoScroll();
+    clearTimeout(this.hintTimeout);
   }
 
   private loadChapter(): void {
@@ -120,15 +140,51 @@ export class ChapterReaderComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   navigateToChapter(chapterId: string): void {
+    this.stopAutoScroll();
     this.router.navigate(['/work', this.slug, 'chapter', chapterId]);
   }
 
   goBackToWork(): void {
+    this.stopAutoScroll();
     this.router.navigate(['/work', this.slug]);
   }
 
   scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  toggleAutoScroll(): void {
+    this.isAutoScrolling() ? this.stopAutoScroll() : this.startAutoScroll();
+  }
+
+  private startAutoScroll(): void {
+    this.isAutoScrolling.set(true);
+    this.isFloatingMenuHidden.set(true);
+    this.showAutoScrollHint.set(true);
+    clearTimeout(this.hintTimeout);
+    this.hintTimeout = setTimeout(() => this.showAutoScrollHint.set(false), 5000);
+    const tick = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      if (window.scrollY >= max) {
+        this.stopAutoScroll();
+        return;
+      }
+      window.scrollBy(0, this.autoScrollSpeed());
+      this.autoScrollRaf = requestAnimationFrame(tick);
+    };
+    this.autoScrollRaf = requestAnimationFrame(tick);
+  }
+
+  private stopAutoScroll(): void {
+    if (this.autoScrollRaf) cancelAnimationFrame(this.autoScrollRaf);
+    this.autoScrollRaf = undefined;
+    clearTimeout(this.hintTimeout);
+    this.isAutoScrolling.set(false);
+    this.showAutoScrollHint.set(false);
+  }
+
+  setScrollSpeed(speed: number): void {
+    this.autoScrollSpeed.set(speed);
   }
 
   renderMarkdown(content: string | null): SafeHtml {
