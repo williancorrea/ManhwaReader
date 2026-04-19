@@ -1,19 +1,17 @@
 package dev.williancorrea.manhwa.reader.features.author;
 
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
 @Service
+@RequiredArgsConstructor
 public class AuthorService {
 
-  private final AuthorRepository repository;
-
-  public AuthorService(@Lazy AuthorRepository repository) {
-    this.repository = repository;
-  }
+  private final @Lazy AuthorRepository repository;
 
   public Author save(Author entity) {
     return repository.save(entity);

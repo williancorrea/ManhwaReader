@@ -8,6 +8,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -22,7 +23,7 @@ public class EmailService {
 
   private final JavaMailSender mailSender;
   private final TemplateEngine templateEngine;
-  private final SystemConfigurationService systemConfigurationService;
+  private final @Lazy SystemConfigurationService systemConfigurationService;
 
   @Async("emailTaskExecutor")
   public void sendEmail(EmailData emailData) {

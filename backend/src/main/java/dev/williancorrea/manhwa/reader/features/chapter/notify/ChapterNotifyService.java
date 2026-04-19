@@ -26,11 +26,9 @@ import org.springframework.validation.annotation.Validated;
 @RequiredArgsConstructor
 public class ChapterNotifyService {
 
-  private final ChapterNotifyRepository repository;
-  private final SystemConfigurationService systemConfigurationService;
-
-  @Lazy
-  private final EmailService emailService;
+  private final @Lazy ChapterNotifyRepository repository;
+  private final @Lazy SystemConfigurationService systemConfigurationService;
+  private final @Lazy EmailService emailService;
 
   @Value("${minio.url.public}")
   private String minioUrl;

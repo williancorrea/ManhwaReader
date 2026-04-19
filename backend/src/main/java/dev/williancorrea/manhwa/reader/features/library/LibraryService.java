@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import dev.williancorrea.manhwa.reader.features.access.user.User;
 import dev.williancorrea.manhwa.reader.features.library.dto.LibraryItemOutput;
 import dev.williancorrea.manhwa.reader.features.work.Work;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,13 +18,10 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @Service
+@RequiredArgsConstructor
 public class LibraryService {
 
-  private final LibraryRepository repository;
-
-  public LibraryService(@Lazy LibraryRepository repository) {
-    this.repository = repository;
-  }
+  private final @Lazy LibraryRepository repository;
 
   public List<Library> findAll() {
     return repository.findAll();
@@ -76,7 +74,9 @@ public class LibraryService {
   }
 
   public Map<UUID, LibraryStatus> findStatusMapByUserAndWorkIds(User user, List<UUID> workIds) {
-    if (workIds == null || workIds.isEmpty()) return Map.of();
+    if (workIds == null || workIds.isEmpty()) {
+      return Map.of();
+    }
     return repository.findByUserIdAndWorkIdIn(user.getId(), workIds)
         .stream()
         .collect(Collectors.toMap(
@@ -103,7 +103,8 @@ public class LibraryService {
   }
 
   @Transactional(readOnly = true)
-  public Page<LibraryItemOutput> findUserLibrary(UUID userId, LibraryStatus status, Pageable pageable, String storageBaseUrl) {
+  public Page<LibraryItemOutput> findUserLibrary(UUID userId, LibraryStatus status, Pageable pageable,
+                                                 String storageBaseUrl) {
     String statusStr = status != null ? status.name() : null;
     Page<Object[]> page = repository.findLibraryItemsByUserId(userId, statusStr, pageable);
 

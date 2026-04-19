@@ -3,19 +3,17 @@ package dev.williancorrea.manhwa.reader.features.comments;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
 @Service
+@RequiredArgsConstructor
 public class CommentService {
 
-  private final CommentRepository repository;
-
-  public CommentService(@Lazy CommentRepository repository) {
-    this.repository = repository;
-  }
+  private final @Lazy CommentRepository repository;
 
   public List<Comment> findAll() {
     return repository.findAll();

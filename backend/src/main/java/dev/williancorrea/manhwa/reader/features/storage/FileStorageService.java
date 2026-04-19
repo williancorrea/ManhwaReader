@@ -3,19 +3,17 @@ package dev.williancorrea.manhwa.reader.features.storage;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
 @Service
+@RequiredArgsConstructor
 public class FileStorageService {
 
-  private final FileStorageRepository repository;
-
-  public FileStorageService(@Lazy FileStorageRepository repository) {
-    this.repository = repository;
-  }
+  private final @Lazy FileStorageRepository repository;
 
   public List<FileStorage> findAll() {
     return repository.findAll();

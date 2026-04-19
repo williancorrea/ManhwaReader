@@ -7,6 +7,7 @@ import dev.williancorrea.manhwa.reader.features.language.Language;
 import dev.williancorrea.manhwa.reader.features.scanlator.Scanlator;
 import dev.williancorrea.manhwa.reader.features.work.Work;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +21,7 @@ import org.springframework.validation.annotation.Validated;
 @RequiredArgsConstructor
 public class ChapterService {
 
-  private final ChapterRepository repository;
+  private final @Lazy ChapterRepository repository;
 
   public List<Chapter> findAll() {
     return repository.findAll();

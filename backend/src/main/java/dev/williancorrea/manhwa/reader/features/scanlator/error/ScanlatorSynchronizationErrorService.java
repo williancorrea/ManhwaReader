@@ -10,6 +10,7 @@ import dev.williancorrea.manhwa.reader.exception.custom.NotFoundException;
 import dev.williancorrea.manhwa.reader.features.scanlator.error.dto.SyncErrorOutput;
 import dev.williancorrea.manhwa.reader.features.scanlator.error.dto.SyncErrorSummaryOutput;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,13 +20,10 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @Service
+@RequiredArgsConstructor
 public class ScanlatorSynchronizationErrorService {
 
-  private final ScanlatorSynchronizationErrorRepository repository;
-
-  public ScanlatorSynchronizationErrorService(@Lazy ScanlatorSynchronizationErrorRepository repository) {
-    this.repository = repository;
-  }
+  private final @Lazy ScanlatorSynchronizationErrorRepository repository;
 
   public ScanlatorSynchronizationError save(ScanlatorSynchronizationError entity) {
     return repository.save(entity);
@@ -41,21 +39,23 @@ public class ScanlatorSynchronizationErrorService {
   @Transactional(readOnly = true)
   public SyncErrorOutput findById(UUID id) {
     var entity = repository.findById(id)
-        .orElseThrow(() -> new NotFoundException("sync-error.not-found", new Object[]{id}));
+        .orElseThrow(() -> new NotFoundException("sync-error.not-found", new Object[] {id}));
     return SyncErrorOutput.fromEntity(entity, true);
   }
 
   @Transactional
   public void delete(UUID id) {
     if (!repository.existsById(id)) {
-      throw new NotFoundException("sync-error.not-found", new Object[]{id});
+      throw new NotFoundException("sync-error.not-found", new Object[] {id});
     }
     repository.deleteById(id);
   }
 
   @Transactional
   public long deleteMany(List<UUID> ids) {
-    if (ids == null || ids.isEmpty()) return 0L;
+    if (ids == null || ids.isEmpty()) {
+      return 0L;
+    }
     return repository.deleteByIdIn(ids);
   }
 

@@ -1,6 +1,7 @@
 package dev.williancorrea.manhwa.reader.features.tag;
 
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -9,13 +10,10 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @Service
+@RequiredArgsConstructor
 public class TagService {
 
-  private final TagRepository repository;
-
-  public TagService(@Lazy TagRepository repository) {
-    this.repository = repository;
-  }
+  private final @Lazy TagRepository repository;
 
   @Transactional
   public Tag save(Tag tag) {
@@ -27,7 +25,7 @@ public class TagService {
     Objects.requireNonNull(group);
     Objects.requireNonNull(name);
     Objects.requireNonNull(StringUtils.isBlank(name) ? null : name.trim());
-    
+
     return repository.findByGroupAndName(group.name(), name)
         .orElseGet(() -> save(
                 Tag.builder()

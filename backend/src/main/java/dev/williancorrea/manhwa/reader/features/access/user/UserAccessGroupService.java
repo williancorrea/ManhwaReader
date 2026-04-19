@@ -3,19 +3,17 @@ package dev.williancorrea.manhwa.reader.features.access.user;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
 @Service
+@RequiredArgsConstructor
 public class UserAccessGroupService {
 
-  private final UserAccessGroupRepository repository;
-
-  public UserAccessGroupService(@Lazy UserAccessGroupRepository repository) {
-    this.repository = repository;
-  }
+  private final @Lazy UserAccessGroupRepository repository;
 
   public List<UserAccessGroup> findAll() {
     return repository.findAll();

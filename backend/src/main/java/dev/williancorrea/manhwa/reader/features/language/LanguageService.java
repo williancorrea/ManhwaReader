@@ -4,19 +4,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.work.synchronization.SynchronizationOriginType;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
 @Service
+@RequiredArgsConstructor
 public class LanguageService {
 
-  private final LanguageRepository repository;
-
-  public LanguageService(@Lazy LanguageRepository repository) {
-    this.repository = repository;
-  }
+  private final @Lazy LanguageRepository repository;
 
   public List<Language> findAll() {
     return repository.findAll();

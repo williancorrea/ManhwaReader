@@ -4,19 +4,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.chapter.Chapter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
 @Service
+@RequiredArgsConstructor
 public class PageService {
 
-  private final PageRepository repository;
-
-  public PageService(@Lazy PageRepository repository) {
-    this.repository = repository;
-  }
+  private final @Lazy PageRepository repository;
 
   public int countByChapterNumber(Chapter chapter) {
     return repository.countByChapterNumber(chapter.getId());

@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import dev.williancorrea.manhwa.reader.features.access.user.User;
 import dev.williancorrea.manhwa.reader.features.chapter.Chapter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +16,10 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @Service
+@RequiredArgsConstructor
 public class ReadingProgressService {
 
-  private final ReadingProgressRepository repository;
-
-  public ReadingProgressService(@Lazy ReadingProgressRepository repository) {
-    this.repository = repository;
-  }
+  private final @Lazy ReadingProgressRepository repository;
 
   public List<ReadingProgress> findAll() {
     return repository.findAll();
@@ -79,7 +77,9 @@ public class ReadingProgressService {
   }
 
   public Map<UUID, ReadingProgress> findAllByUserAndChapterIds(User user, List<UUID> chapterIds) {
-    if (chapterIds == null || chapterIds.isEmpty()) return Map.of();
+    if (chapterIds == null || chapterIds.isEmpty()) {
+      return Map.of();
+    }
     return repository.findAllByUserIdAndChapterIdIn(user.getId(), chapterIds).stream()
         .collect(Collectors.toMap(rp -> rp.getChapter().getId(), rp -> rp));
   }

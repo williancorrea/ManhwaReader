@@ -5,19 +5,17 @@ import java.util.Optional;
 import java.util.UUID;
 import dev.williancorrea.manhwa.reader.features.access.user.User;
 import dev.williancorrea.manhwa.reader.features.work.Work;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
 @Service
+@RequiredArgsConstructor
 public class RatingService {
 
-  private final RatingRepository repository;
-
-  public RatingService(@Lazy RatingRepository repository) {
-    this.repository = repository;
-  }
+  private final @Lazy RatingRepository repository;
 
   public List<Rating> findAll() {
     return repository.findAll();
