@@ -168,5 +168,6 @@ function toManhwa(item: WorkCatalogItem, id: number): Manhwa {
     genres: [item.publicationDemographic, item.status].filter(Boolean) as string[],
     inLibrary: item.userLibraryStatus != null,
     originalLanguageFlag: item.originalLanguageFlag,
+    originalLanguageName: item.originalLanguageName,
   };
 }

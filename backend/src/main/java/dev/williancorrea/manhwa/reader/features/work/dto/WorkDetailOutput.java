@@ -24,6 +24,7 @@ public record WorkDetailOutput(
     String publicationDemographic,
     String originalLanguage,
     String originalLanguageFlag,
+    String originalLanguageName,
     List<TagOutput> tags,
     List<AuthorOutput> authors,
     List<LinkOutput> links,
@@ -32,7 +33,7 @@ public record WorkDetailOutput(
     Integer userRating
 ) {
 
-  public record AlternativeTitleOutput(String title, String language, String languageFlag, Boolean isOfficial) {
+  public record AlternativeTitleOutput(String title, String language, String languageFlag, String languageName, Boolean isOfficial) {
   }
 
   public record TagOutput(String name, String group) {
@@ -62,6 +63,7 @@ public record WorkDetailOutput(
               t.getTitle(),
               t.getLanguage() != null ? t.getLanguage().getCode() : null,
               t.getLanguage() != null ? t.getLanguage().getFlag() : null,
+              t.getLanguage() != null ? t.getLanguage().getName() : null,
               t.getIsOfficial()))
           .sorted(Comparator.comparing(
               AlternativeTitleOutput::language,
@@ -116,6 +118,7 @@ public record WorkDetailOutput(
         work.getPublicationDemographic() != null ? work.getPublicationDemographic().name() : null,
         work.getOriginalLanguage() != null ? work.getOriginalLanguage().getCode() : null,
         work.getOriginalLanguage() != null ? work.getOriginalLanguage().getFlag() : null,
+        work.getOriginalLanguage() != null ? work.getOriginalLanguage().getName() : null,
         tags,
         authors,
         links,

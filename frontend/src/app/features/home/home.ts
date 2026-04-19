@@ -90,6 +90,7 @@ function toManhwa(item: WorkCatalogItem, index: number): Manhwa {
     genres: [item.publicationDemographic, item.status].filter(Boolean) as string[],
     inLibrary: item.userLibraryStatus != null,
     originalLanguageFlag: item.originalLanguageFlag,
+    originalLanguageName: item.originalLanguageName,
   };
 }
 
@@ -103,5 +104,6 @@ function toLibraryManhwa(item: LibraryItem, index: number): Manhwa {
     genres: [],
     unreadCount: item.unreadCount || undefined,
     originalLanguageFlag: item.originalLanguageFlag,
+    originalLanguageName: item.originalLanguageName,
   };
 }

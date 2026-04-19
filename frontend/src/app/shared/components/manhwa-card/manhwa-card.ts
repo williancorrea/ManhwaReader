@@ -15,6 +15,7 @@ export interface Manhwa {
   unreadCount?: number;
   inLibrary?: boolean;
   originalLanguageFlag?: string | null;
+  originalLanguageName?: string | null;
 }
 
 export const GENRE_COLORS: Record<string, string> = {

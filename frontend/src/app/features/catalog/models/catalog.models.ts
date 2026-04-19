@@ -8,6 +8,7 @@ export interface WorkCatalogItem {
   userLibraryStatus: string | null;
   originalLanguageCode: string | null;
   originalLanguageFlag: string | null;
+  originalLanguageName: string | null;
 }
 
 export interface PageResponse<T> {

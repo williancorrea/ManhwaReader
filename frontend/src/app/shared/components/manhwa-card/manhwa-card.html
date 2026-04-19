@@ -8,7 +8,7 @@
             <span class="card__badge card__badge--unread">{{ manhwa.unreadCount }}</span>
           }
           @if (manhwa.originalLanguageFlag) {
-            <img class="card__lang-flag" [src]="manhwa.originalLanguageFlag" alt="" loading="lazy" />
+            <img class="card__lang-flag" [src]="manhwa.originalLanguageFlag" [alt]="manhwa.originalLanguageName ?? ''" [title]="manhwa.originalLanguageName ?? ''" loading="lazy" />
           }
         </div>
         <p class="card__compact-title">{{ manhwa.title }}</p>
@@ -22,7 +22,7 @@
           <span class="card__badge card__badge--unread">{{ manhwa.unreadCount }}</span>
         }
         @if (manhwa.originalLanguageFlag) {
-          <img class="card__lang-flag" [src]="manhwa.originalLanguageFlag" alt="" loading="lazy" />
+          <img class="card__lang-flag" [src]="manhwa.originalLanguageFlag" [alt]="manhwa.originalLanguageName ?? ''" [title]="manhwa.originalLanguageName ?? ''" loading="lazy" />
         }
       </div>
       <p class="card__compact-title">{{ manhwa.title }}</p>
@@ -53,7 +53,7 @@
           </div>
         }
         @if (manhwa.originalLanguageFlag) {
-          <img class="card__lang-flag" [src]="manhwa.originalLanguageFlag" alt="" loading="lazy" />
+          <img class="card__lang-flag" [src]="manhwa.originalLanguageFlag" [alt]="manhwa.originalLanguageName ?? ''" [title]="manhwa.originalLanguageName ?? ''" loading="lazy" />
         }
       </div>
 

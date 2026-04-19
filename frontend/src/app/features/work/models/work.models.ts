@@ -12,6 +12,7 @@ export interface WorkDetail {
   publicationDemographic: string;
   originalLanguage: string;
   originalLanguageFlag: string | null;
+  originalLanguageName: string | null;
   tags: WorkTagItem[];
   authors: WorkAuthorItem[];
   links: WorkLinkItem[];
@@ -24,6 +25,7 @@ export interface AlternativeTitle {
   title: string;
   language: string | null;
   languageFlag: string | null;
+  languageName: string | null;
   isOfficial: boolean;
 }
 

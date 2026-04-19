@@ -13,6 +13,7 @@ public record LibraryItemOutput(
     String libraryStatus,
     Long unreadCount,
     String originalLanguageCode,
-    String originalLanguageFlag
+    String originalLanguageFlag,
+    String originalLanguageName
 ) {
 }

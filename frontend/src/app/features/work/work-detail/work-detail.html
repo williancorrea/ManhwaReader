@@ -25,7 +25,7 @@
                 </svg>
               </div>
               @if (w.originalLanguageFlag) {
-                <img class="work-hero__lang-flag" [src]="w.originalLanguageFlag" alt="" loading="lazy" />
+                <img class="work-hero__lang-flag" [src]="w.originalLanguageFlag" [alt]="w.originalLanguageName ?? ''" [title]="w.originalLanguageName ?? ''" loading="lazy" />
               }
             </button>
           } @else {
@@ -45,7 +45,7 @@
               @for (alt of visibleAltTitles(); track $index) {
                 <span class="alt-title-chip">
                   @if (alt.languageFlag) {
-                    <img class="alt-title-chip__flag" [src]="alt.languageFlag" [alt]="alt.language ?? ''" />
+                    <img class="alt-title-chip__flag" [src]="alt.languageFlag" [alt]="alt.languageName ?? alt.language ?? ''" [title]="alt.languageName ?? alt.language ?? ''" />
                   } @else {
                     <span class="alt-title-chip__flag alt-title-chip__flag--unknown">❓</span>
                   }

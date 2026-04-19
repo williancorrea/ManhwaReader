@@ -10,6 +10,7 @@ export interface LibraryItem {
   unreadCount: number;
   originalLanguageCode: string | null;
   originalLanguageFlag: string | null;
+  originalLanguageName: string | null;
 }
 
 export const LIBRARY_STATUSES = [

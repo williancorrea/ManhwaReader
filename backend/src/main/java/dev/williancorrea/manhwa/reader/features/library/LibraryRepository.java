@@ -47,6 +47,7 @@ public interface LibraryRepository extends JpaRepository<Library, UUID> {
         ) AS unread_count,
         lang.code AS original_language_code,
         lang.flag AS original_language_flag,
+        lang.name AS original_language_name,
         (
           SELECT MAX(rp.last_read_at)
           FROM reading_progress rp
@@ -59,7 +60,7 @@ public interface LibraryRepository extends JpaRepository<Library, UUID> {
       LEFT JOIN work_title wt ON wt.work_id = w.id
       LEFT JOIN work_cover wc ON wc.work_id = w.id
       WHERE l.user_id = :userId
-      GROUP BY l.id, w.id, w.slug, l.status, w.publication_demographic, w.status, lang.code, lang.flag
+      GROUP BY l.id, w.id, w.slug, l.status, w.publication_demographic, w.status, lang.code, lang.flag, lang.name
       HAVING unread_count > 0
       ORDER BY last_read_at DESC
       LIMIT :limit
@@ -93,7 +94,8 @@ public interface LibraryRepository extends JpaRepository<Library, UUID> {
           ), 0
         ) AS unread_count,
         (SELECT lang.code FROM language lang WHERE lang.id = w.original_language_id) AS original_language_code,
-        (SELECT lang.flag FROM language lang WHERE lang.id = w.original_language_id) AS original_language_flag
+        (SELECT lang.flag FROM language lang WHERE lang.id = w.original_language_id) AS original_language_flag,
+        (SELECT lang.name FROM language lang WHERE lang.id = w.original_language_id) AS original_language_name
       FROM library l
       JOIN work w ON l.work_id = w.id
       WHERE l.user_id = :userId
