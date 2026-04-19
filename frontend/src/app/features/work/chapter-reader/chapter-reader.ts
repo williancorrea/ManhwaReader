@@ -43,7 +43,7 @@ export class ChapterReaderComponent implements OnInit, AfterViewInit, OnDestroy 
   readonly scrollProgress = signal(0);
   readonly isFloatingMenuHidden = signal(false);
   readonly isAutoScrolling = signal(false);
-  readonly autoScrollSpeed = signal(1);
+  readonly autoScrollSpeed = signal(Number(localStorage.getItem('reader.autoScrollSpeed')) || 1);
   readonly showAutoScrollHint = signal(false);
 
   readonly speedOptions = [1, 2, 3, 4] as const;
@@ -185,6 +185,7 @@ export class ChapterReaderComponent implements OnInit, AfterViewInit, OnDestroy 
 
   setScrollSpeed(speed: number): void {
     this.autoScrollSpeed.set(speed);
+    localStorage.setItem('reader.autoScrollSpeed', String(speed));
   }
 
   renderMarkdown(content: string | null): SafeHtml {
