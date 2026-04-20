@@ -233,8 +233,11 @@ export class ChapterReaderComponent implements OnInit, AfterViewInit, OnDestroy 
 
     this.intersectionObserver = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !this.markedAsRead) {
-          this.markAsRead();
+        if (entries[0].isIntersecting) {
+          if (!this.markedAsRead) this.markAsRead();
+          this.isHeaderHidden.set(false);
+          this.isFloatingMenuHidden.set(false);
+          this.isImageAdjustBtnHidden.set(false);
         }
       },
       { threshold: 0.1 }
