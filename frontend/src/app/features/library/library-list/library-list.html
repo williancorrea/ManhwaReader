@@ -39,7 +39,9 @@
       } @else {
         <div class="grid-cards">
           @for (manhwa of items(); track manhwa.id) {
-            <app-manhwa-card [manhwa]="manhwa" variant="grid" />
+            <div [class.library__card--read]="(!filterStatus || filterStatus === 'READING') && manhwa.unreadCount === 0">
+              <app-manhwa-card [manhwa]="manhwa" variant="grid" />
+            </div>
           }
         </div>
       }
