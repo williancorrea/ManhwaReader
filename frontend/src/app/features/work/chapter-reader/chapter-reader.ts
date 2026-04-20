@@ -64,6 +64,94 @@ export class ChapterReaderComponent implements OnInit, AfterViewInit, OnDestroy 
     return `brightness(${b}%) saturate(${s}%)`;
   });
 
+  readonly novelBackground = signal(localStorage.getItem('reader.novelBg') ?? 'default');
+  readonly novelFont = signal(localStorage.getItem('reader.novelFont') ?? 'firaSans');
+  readonly novelFontColor = signal(localStorage.getItem('reader.novelColor') ?? 'default');
+  readonly novelFontSize = signal(Number(localStorage.getItem('reader.novelSize')) || 16);
+  readonly novelLineSpacing = signal(Number(localStorage.getItem('reader.novelSpacing')) || 1.8);
+  readonly isNovelAdjustOpen = signal(false);
+
+  readonly isNovel = computed(() => this.chapterData()?.workType === 'NOVEL');
+
+  readonly hasNovelAdjustments = computed(() =>
+    this.novelBackground() !== 'default' ||
+    this.novelFont() !== 'firaSans' ||
+    this.novelFontColor() !== 'default' ||
+    this.novelFontSize() !== 16 ||
+    this.novelLineSpacing() !== 1.8
+  );
+
+  readonly novelBgColorValue = computed(() => {
+    if (!this.isNovel()) return null;
+    const map: Record<string, string> = {
+      default: 'transparent',
+      white: '#ffffff',
+      cream: '#faf6ee',
+      sepia: '#f4e8c1',
+      lightGray: '#e8e8e8',
+    };
+    return map[this.novelBackground()] ?? 'transparent';
+  });
+
+  readonly novelTextColorValue = computed(() => {
+    if (!this.isNovel()) return null;
+    const map: Record<string, string> = {
+      default: 'var(--text-primary)',
+      white: '#f8f8f8',
+      black: '#1a1a1a',
+      gray: '#666666',
+      warmWhite: '#ece0c8',
+    };
+    return map[this.novelFontColor()] ?? 'var(--text-primary)';
+  });
+
+  readonly novelFontFamilyValue = computed(() => {
+    if (!this.isNovel()) return null;
+    const map: Record<string, string> = {
+      firaSans: "'Fira Sans', sans-serif",
+      georgia: 'Georgia, serif',
+      merriweather: 'Merriweather, serif',
+      lora: 'Lora, serif',
+      systemUI: 'system-ui, sans-serif',
+      serif: 'serif',
+    };
+    return map[this.novelFont()] ?? "'Fira Sans', sans-serif";
+  });
+
+  readonly novelBgOptions = [
+    { value: 'default', labelKey: 'reader.novelBg.default' },
+    { value: 'white', labelKey: 'reader.novelBg.white' },
+    { value: 'cream', labelKey: 'reader.novelBg.cream' },
+    { value: 'sepia', labelKey: 'reader.novelBg.sepia' },
+    { value: 'lightGray', labelKey: 'reader.novelBg.lightGray' },
+  ];
+
+  readonly novelFontOptions = [
+    { value: 'firaSans', label: 'Fira Sans' },
+    { value: 'georgia', label: 'Georgia' },
+    { value: 'merriweather', label: 'Merriweather' },
+    { value: 'lora', label: 'Lora' },
+    { value: 'systemUI', label: 'System UI' },
+    { value: 'serif', label: 'Serif' },
+  ];
+
+  readonly novelColorOptions = [
+    { value: 'default', labelKey: 'reader.novelColor.default' },
+    { value: 'white', labelKey: 'reader.novelColor.white' },
+    { value: 'black', labelKey: 'reader.novelColor.black' },
+    { value: 'gray', labelKey: 'reader.novelColor.gray' },
+    { value: 'warmWhite', labelKey: 'reader.novelColor.warmWhite' },
+  ];
+
+  readonly novelSizeOptions = [14, 15, 16, 17, 18, 20];
+
+  readonly novelSpacingOptions = [
+    { value: 1.4, label: '140%' },
+    { value: 1.6, label: '160%' },
+    { value: 1.8, label: '180%' },
+    { value: 2.0, label: '200%' },
+  ];
+
   slug = '';
   chapterId = '';
   private lastScrollY = 0;
@@ -87,6 +175,9 @@ export class ChapterReaderComponent implements OnInit, AfterViewInit, OnDestroy 
     const target = event.target as HTMLElement;
     if (this.isImageAdjustOpen() && !target.closest('.image-adjust')) {
       this.isImageAdjustOpen.set(false);
+    }
+    if (this.isNovelAdjustOpen() && !target.closest('.novel-adjust')) {
+      this.isNovelAdjustOpen.set(false);
     }
     if (!this.isAutoScrolling()) return;
     if (target.closest('.speed-selector') || target.closest('.floating-menu')) return;
@@ -231,6 +322,43 @@ export class ChapterReaderComponent implements OnInit, AfterViewInit, OnDestroy 
     this.setImageZoom(100);
     this.setImageBrightness(100);
     this.setImageSaturation(100);
+  }
+
+  toggleNovelAdjust(): void {
+    this.isNovelAdjustOpen.set(!this.isNovelAdjustOpen());
+  }
+
+  setNovelBackground(value: string): void {
+    this.novelBackground.set(value);
+    localStorage.setItem('reader.novelBg', value);
+  }
+
+  setNovelFont(value: string): void {
+    this.novelFont.set(value);
+    localStorage.setItem('reader.novelFont', value);
+  }
+
+  setNovelFontColor(value: string): void {
+    this.novelFontColor.set(value);
+    localStorage.setItem('reader.novelColor', value);
+  }
+
+  setNovelFontSize(value: number): void {
+    this.novelFontSize.set(value);
+    localStorage.setItem('reader.novelSize', String(value));
+  }
+
+  setNovelLineSpacing(value: number): void {
+    this.novelLineSpacing.set(value);
+    localStorage.setItem('reader.novelSpacing', String(value));
+  }
+
+  resetNovelAdjust(): void {
+    this.setNovelBackground('default');
+    this.setNovelFont('firaSans');
+    this.setNovelFontColor('default');
+    this.setNovelFontSize(16);
+    this.setNovelLineSpacing(1.8);
   }
 
   renderMarkdown(content: string | null): SafeHtml {

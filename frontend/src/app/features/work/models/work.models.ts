@@ -74,6 +74,7 @@ export interface ChapterReaderData {
   title: string | null;
   workTitle: string;
   workSlug: string;
+  workType: string | null;
   pages: ChapterPage[];
   previousChapter: ChapterNav | null;
   nextChapter: ChapterNav | null;

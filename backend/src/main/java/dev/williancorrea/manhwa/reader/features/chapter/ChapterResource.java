@@ -196,6 +196,7 @@ public class ChapterResource {
         chapter.getTitle(),
         workTitle,
         work.getSlug(),
+        work.getType() != null ? work.getType().name() : null,
         pageOutputs,
         previousChapter,
         nextChapter

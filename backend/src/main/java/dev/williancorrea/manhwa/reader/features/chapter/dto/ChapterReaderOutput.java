@@ -10,6 +10,7 @@ public record ChapterReaderOutput(
     String title,
     String workTitle,
     String workSlug,
+    String workType,
     List<ChapterPageOutput> pages,
     ChapterNavOutput previousChapter,
     ChapterNavOutput nextChapter
