@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   Component,
+  computed,
   ElementRef,
   HostListener,
   inject,
@@ -48,6 +49,21 @@ export class ChapterReaderComponent implements OnInit, AfterViewInit, OnDestroy 
 
   readonly speedOptions = [1, 2, 3, 4] as const;
 
+  readonly imageZoom = signal(Number(localStorage.getItem('reader.imageZoom')) || 100);
+  readonly imageBrightness = signal(Number(localStorage.getItem('reader.imageBrightness')) || 100);
+  readonly imageSaturation = signal(Number(localStorage.getItem('reader.imageSaturation')) || 100);
+  readonly isImageAdjustOpen = signal(false);
+  readonly isImageAdjustBtnHidden = signal(false);
+  readonly hasImageAdjustments = computed(() =>
+    this.imageZoom() !== 100 || this.imageBrightness() !== 100 || this.imageSaturation() !== 100
+  );
+  readonly imageFilterStyle = computed(() => {
+    const b = this.imageBrightness();
+    const s = this.imageSaturation();
+    if (b === 100 && s === 100) return null;
+    return `brightness(${b}%) saturate(${s}%)`;
+  });
+
   slug = '';
   chapterId = '';
   private lastScrollY = 0;
@@ -61,14 +77,18 @@ export class ChapterReaderComponent implements OnInit, AfterViewInit, OnDestroy 
     if (!this.isAutoScrolling()) {
       this.isFloatingMenuHidden.set(scrollingDown);
     }
+    this.isImageAdjustBtnHidden.set(scrollingDown);
     this.scrollProgress.set(Math.min(100, Math.max(0, Math.round((scrollY / max) * 100))));
     this.lastScrollY = scrollY;
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-    if (!this.isAutoScrolling()) return;
     const target = event.target as HTMLElement;
+    if (this.isImageAdjustOpen() && !target.closest('.image-adjust')) {
+      this.isImageAdjustOpen.set(false);
+    }
+    if (!this.isAutoScrolling()) return;
     if (target.closest('.speed-selector') || target.closest('.floating-menu')) return;
     this.isFloatingMenuHidden.set(!this.isFloatingMenuHidden());
   }
@@ -186,6 +206,31 @@ export class ChapterReaderComponent implements OnInit, AfterViewInit, OnDestroy 
   setScrollSpeed(speed: number): void {
     this.autoScrollSpeed.set(speed);
     localStorage.setItem('reader.autoScrollSpeed', String(speed));
+  }
+
+  toggleImageAdjust(): void {
+    this.isImageAdjustOpen.set(!this.isImageAdjustOpen());
+  }
+
+  setImageZoom(value: number): void {
+    this.imageZoom.set(value);
+    localStorage.setItem('reader.imageZoom', String(value));
+  }
+
+  setImageBrightness(value: number): void {
+    this.imageBrightness.set(value);
+    localStorage.setItem('reader.imageBrightness', String(value));
+  }
+
+  setImageSaturation(value: number): void {
+    this.imageSaturation.set(value);
+    localStorage.setItem('reader.imageSaturation', String(value));
+  }
+
+  resetImageAdjust(): void {
+    this.setImageZoom(100);
+    this.setImageBrightness(100);
+    this.setImageSaturation(100);
   }
 
   renderMarkdown(content: string | null): SafeHtml {
