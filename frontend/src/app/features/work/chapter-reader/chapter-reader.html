@@ -19,6 +19,13 @@
       <p>{{ 'reader.loading' | translate }}</p>
     </div>
   } @else if (chapterData(); as ch) {
+    @if (ch.pages.length === 0) {
+      <div class="reader-empty">
+        <img src="cry.webp" alt="" aria-hidden="true" />
+        <p>{{ 'reader.noPages' | translate }}</p>
+      </div>
+    }
+
     <div class="reader-pages">
       @for (page of ch.pages; track page.pageNumber) {
         @if (page.type === 'IMAGE') {
