@@ -2,7 +2,6 @@
   "permissions": {
     "allow": [
       "Read(**)",
-      
       "mcp__idea__get_file_text",
       "mcp__idea__get_file_problems",
       "mcp__idea__build_project",
@@ -10,17 +9,15 @@
       "mcp__idea__search_in_files_by_text",
       "mcp__idea__get_file_text_by_path",
       "mcp__idea__replace_text_in_file",
-      
       "Bash(npx skills:*)",
-      "Bash(npx ng:*)",      
-      
+      "Bash(npx ng:*)",
+      "Bash(npx tsc *)",
       "Bash(find:*)",
       "Bash(grep *)",
       "Bash(cat *)",
       "Bash(ls *)",
       "Bash(echo *)",
       "Bash(xargs grep:*)",
-
       "Bash(./mvnw *)",
       "Bash(npm *)"
     ],
