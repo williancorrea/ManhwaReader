@@ -18,7 +18,8 @@ public record ChapterListOutput(
     Integer volume,
     boolean isRead,
     int readProgress,
-    OffsetDateTime publishedAt
+    OffsetDateTime publishedAt,
+    Boolean synced
 ) {
 
   public static ChapterListOutput fromEntity(Chapter chapter, ReadingProgress progress) {
@@ -37,7 +38,8 @@ public record ChapterListOutput(
         chapter.getVolume() != null ? chapter.getVolume().getNumber() : null,
         isRead,
         readProgress,
-        chapter.getPublishedAt()
+        chapter.getPublishedAt(),
+        chapter.getSynced()
     );
   }
 }

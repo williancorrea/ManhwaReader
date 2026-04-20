@@ -57,6 +57,7 @@ export interface ChapterItem {
   isRead: boolean;
   readProgress: number;
   publishedAt: string;
+  synced: boolean | null;
 }
 
 export const LIBRARY_STATUSES = [
