@@ -480,6 +480,27 @@
   gap: var(--space-2);
 }
 
+.chapters__filter-input {
+  height: 32px;
+  width: 130px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.chapters__filter-input::placeholder {
+  color: var(--text-muted);
+}
+
+.chapters__filter-input:focus {
+  border-color: var(--accent);
+}
+
 .work-chapters__title {
   font-size: 18px;
   font-weight: 600;

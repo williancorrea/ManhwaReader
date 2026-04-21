@@ -49,6 +49,13 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly isTogglingAll = signal(false);
   readonly coverModalOpen = signal(false);
   readonly altTitlesExpanded = signal(false);
+  readonly chapterFilter = signal('');
+
+  readonly filteredChapters = computed(() => {
+    const filter = this.chapterFilter().trim();
+    if (!filter) return this.chapters();
+    return this.chapters().filter(c => c.number.startsWith(filter));
+  });
 
   readonly filteredAltTitles = computed(() => {
     const w = this.work();
@@ -229,6 +236,13 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       error: () => {},
       complete: () => this.removeTogglingChapter(chapter.id)
     });
+  }
+
+  onChapterFilterInput(event: Event): void {
+    const raw = (event.target as HTMLInputElement).value;
+    const sanitized = raw.replace(/[^0-9.]/g, '');
+    if (raw !== sanitized) (event.target as HTMLInputElement).value = sanitized;
+    this.chapterFilter.set(sanitized);
   }
 
   openChapter(chapter: ChapterItem): void {
