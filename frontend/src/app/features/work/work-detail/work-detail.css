@@ -480,25 +480,47 @@
   gap: var(--space-2);
 }
 
+.chapters__filter-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.chapters__filter-icon {
+  position: absolute;
+  left: 8px;
+  color: var(--text-muted);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
 .chapters__filter-input {
   height: 32px;
-  width: 130px;
-  padding: 0 var(--space-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
+  width: 155px;
+  padding: 0 var(--space-2) 0 28px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-00);
   color: var(--text-primary);
-  font-size: var(--text-sm);
+  font-size: 13px;
+  font-family: var(--font-family);
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, background 0.15s;
+  cursor: text;
 }
 
 .chapters__filter-input::placeholder {
   color: var(--text-muted);
 }
 
+.chapters__filter-input:hover {
+  border-color: var(--border-strong);
+}
+
 .chapters__filter-input:focus {
-  border-color: var(--accent);
+  border-color: var(--primary);
+  background: var(--surface-01);
 }
 
 .work-chapters__title {
