@@ -54,7 +54,9 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly filteredChapters = computed(() => {
     const filter = this.chapterFilter().trim();
     if (!filter) return this.chapters();
-    return this.chapters().filter(c => c.number.startsWith(filter));
+    return this.chapters().filter(c =>
+      c.number.startsWith(filter) || c.numberFormatted.startsWith(filter)
+    );
   });
 
   readonly filteredAltTitles = computed(() => {
