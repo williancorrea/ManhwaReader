@@ -104,10 +104,11 @@ public class LibraryService {
   }
 
   @Transactional(readOnly = true)
-  public Page<LibraryItemOutput> findUserLibrary(UUID userId, LibraryStatus status, Pageable pageable,
+  public Page<LibraryItemOutput> findUserLibrary(UUID userId, LibraryStatus status, String titleF, Pageable pageable,
                                                  String storageBaseUrl) {
     String statusStr = status != null ? status.name() : null;
-    Page<Object[]> page = repository.findLibraryItemsByUserId(userId, statusStr, pageable);
+    String titleFilter = (titleF != null && !titleF.isBlank()) ? titleF.trim() : null;
+    Page<Object[]> page = repository.findLibraryItemsByUserId(userId, statusStr, titleFilter, pageable);
 
     return page.map(row -> {
       String workId = row[1] != null ? row[1].toString() : null;

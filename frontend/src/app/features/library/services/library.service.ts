@@ -9,9 +9,10 @@ import { PageResponse } from '../../catalog/models/catalog.models';
 export class LibraryService {
   private readonly http = inject(HttpClient);
 
-  list(page: number = 0, size: number = 20, status?: string): Observable<PageResponse<LibraryItem>> {
+  list(page: number = 0, size: number = 20, status?: string, title?: string): Observable<PageResponse<LibraryItem>> {
     let params = new HttpParams().set('page', page).set('size', size);
     if (status) params = params.set('status', status);
+    if (title) params = params.set('title', title);
     return this.http.get<PageResponse<LibraryItem>>(`${environment.apiUrl}/library`, { params });
   }
 

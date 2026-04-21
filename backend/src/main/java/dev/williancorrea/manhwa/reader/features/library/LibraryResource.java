@@ -49,13 +49,14 @@ public class LibraryResource {
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "20") int size,
       @RequestParam(required = false) LibraryStatus status,
+      @RequestParam(required = false) String title,
       @AuthenticationPrincipal UserDetails userDetails
   ) {
     size = Math.min(size, 50);
     var user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
     var pageable = PageRequest.of(page, size);
     return ResponseEntity.ok(
-        libraryService.findUserLibrary(user.getId(), status, pageable, minioUrl + "/" + bucketName)
+        libraryService.findUserLibrary(user.getId(), status, title, pageable, minioUrl + "/" + bucketName)
     );
   }
 }

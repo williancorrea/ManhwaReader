@@ -160,10 +160,10 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
       try {
 
         //TODO REMOVER
-        //    synchronizeByExternalId("2373");
-        //    if (true) {
-        //      return;
-        //    }
+//            synchronizeByExternalId("17281");
+//            if (true) {
+//              return;
+//            }
 
         var totalPages = 1;
         for (int i = 0; i < totalPages; i++) {

@@ -100,17 +100,25 @@ public interface LibraryRepository extends JpaRepository<Library, UUID> {
       JOIN work w ON l.work_id = w.id
       WHERE l.user_id = :userId
         AND (:status IS NULL OR l.status = :status)
+        AND (:title IS NULL OR EXISTS (
+          SELECT 1 FROM work_title wt2 WHERE wt2.work_id = w.id AND LOWER(wt2.title) LIKE LOWER(CONCAT('%', :title, '%'))
+        ))
       ORDER BY unread_count DESC
       """,
       countQuery = """
       SELECT COUNT(l.id)
       FROM library l
+      JOIN work w ON l.work_id = w.id
       WHERE l.user_id = :userId
         AND (:status IS NULL OR l.status = :status)
+        AND (:title IS NULL OR EXISTS (
+          SELECT 1 FROM work_title wt2 WHERE wt2.work_id = w.id AND LOWER(wt2.title) LIKE LOWER(CONCAT('%', :title, '%'))
+        ))
       """)
   Page<Object[]> findLibraryItemsByUserId(
       @Param("userId") UUID userId,
       @Param("status") String status,
+      @Param("title") String title,
       Pageable pageable
   );
 }

@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ManhwaCardComponent, Manhwa } from '../../../shared/components/manhwa-card/manhwa-card';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar';
@@ -7,10 +7,11 @@ import { LibraryService } from '../services/library.service';
 import { LibraryItem, LIBRARY_STATUSES } from '../models/library.models';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-library-list',
-  imports: [NavbarComponent, ManhwaCardComponent, TranslatePipe, RouterLink],
+  imports: [NavbarComponent, ManhwaCardComponent, TranslatePipe, RouterLink, FormsModule],
   templateUrl: './library-list.html',
   styleUrl: './library-list.css'
 })
@@ -19,6 +20,7 @@ export class LibraryListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private readonly libraryService = inject(LibraryService);
   private readonly destroy$ = new Subject<void>();
+  private readonly titleSearch$ = new Subject<string>();
   private intersectionObserver?: IntersectionObserver;
 
   readonly items = signal<Manhwa[]>([]);
@@ -28,6 +30,7 @@ export class LibraryListComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly showScrollTop = signal(false);
 
   filterStatus = '';
+  filterTitle = '';
   readonly statusTabs = LIBRARY_STATUSES;
 
   @HostListener('window:scroll')
@@ -36,6 +39,11 @@ export class LibraryListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.titleSearch$.pipe(
+      debounceTime(350),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(() => this.carregarPagina(0));
     this.carregarPagina(0);
   }
 
@@ -62,6 +70,11 @@ export class LibraryListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.carregarPagina(0);
   }
 
+  onTitleChange(value: string): void {
+    this.filterTitle = value;
+    this.titleSearch$.next(value);
+  }
+
   scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -77,7 +90,8 @@ export class LibraryListComponent implements OnInit, AfterViewInit, OnDestroy {
   private carregarPagina(page: number): void {
     this.isLoading.set(true);
     const status = this.filterStatus || undefined;
-    this.libraryService.list(page, 20, status).subscribe({
+    const title = this.filterTitle.trim() || undefined;
+    this.libraryService.list(page, 20, status, title).subscribe({
       next: (response) => {
         const offset = page * response.page.size;
         const newItems = response.content.map((item, i) => toManhwa(item, offset + i));
