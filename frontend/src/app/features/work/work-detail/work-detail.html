@@ -174,21 +174,6 @@
             @if (w.chapterCount) { <span class="work-chapters__count">{{ w.chapterCount }}</span> }
           </h2>
           <div class="work-chapters__actions">
-            <div class="chapters__filter-wrapper">
-              <span class="chapters__filter-icon" aria-hidden="true">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
-              </span>
-              <input
-                class="chapters__filter-input"
-                type="text"
-                inputmode="decimal"
-                [placeholder]="'work.chapters.filterPlaceholder' | translate"
-                [value]="chapterFilter()"
-                (input)="onChapterFilterInput($event)"
-              />
-            </div>
             <button
               class="btn btn--ghost btn--sm"
               type="button"
@@ -215,6 +200,22 @@
               {{ chapterSort === 'desc' ? ('work.chapters.newest' | translate) : ('work.chapters.oldest' | translate) }}
             </button>
           </div>
+        </div>
+
+        <div class="chapters__filter-wrapper">
+          <span class="chapters__filter-icon" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </span>
+          <input
+            class="chapters__filter-input"
+            type="text"
+            inputmode="decimal"
+            [placeholder]="'work.chapters.filterPlaceholder' | translate"
+            [value]="chapterFilter()"
+            (input)="onChapterFilterInput($event)"
+          />
         </div>
 
         @if (isLoadingChapters() && chapters().length === 0) {
