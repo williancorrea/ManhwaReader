@@ -58,9 +58,6 @@ public class EmailService {
       log.info("[EmailService][sendEmail] Email sent successfully to: {} with type: {}", emailData.getTo(),
           emailData.getEmailType());
 
-    } catch (MessagingException e) {
-      log.error("[EmailService][sendEmail] Error sending email to: {} with type: {}", emailData.getTo(),
-          emailData.getEmailType(), e);
     } catch (Exception e) {
       log.error("[EmailService][sendEmail] Unexpected error sending email to: {}", emailData.getTo(), e);
     }
