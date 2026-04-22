@@ -154,6 +154,28 @@ class GlobalExceptionHandlerTest {
     }
   }
 
+  @Nested
+  class HandleNoResourceFoundException {
+
+    @Test
+    void shouldHandleNoResourceFoundException() {
+      org.springframework.web.servlet.resource.NoResourceFoundException exception =
+          mock(org.springframework.web.servlet.resource.NoResourceFoundException.class);
+      when(httpServletRequest.getRequestURI()).thenReturn("/resource");
+      when(httpServletRequest.getMethod()).thenReturn("GET");
+      when(messageSource.getMessage(anyString(), any(), any(Locale.class)))
+          .thenReturn("Resource not found");
+
+      ResponseEntity<Object> response = handler.handleNoResourceFoundException(
+          exception, null, HttpStatus.NOT_FOUND, webRequest);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+      ApiError apiError = (ApiError) response.getBody();
+      assertThat(apiError.getStatus().getCode()).isEqualTo(400);
+      assertThat(apiError.getItems()).isNotEmpty();
+    }
+  }
+
 
   @Nested
   class HandleDataIntegrityViolationException {
