@@ -5,6 +5,7 @@ import dev.williancorrea.manhwa.reader.features.chapter.dto.ChapterListOutput;
 import dev.williancorrea.manhwa.reader.features.chapter.dto.ChapterNavOutput;
 import dev.williancorrea.manhwa.reader.features.chapter.dto.ChapterPageOutput;
 import dev.williancorrea.manhwa.reader.features.chapter.dto.ChapterReaderOutput;
+import dev.williancorrea.manhwa.reader.features.chapter.dto.NextUnreadOutput;
 import dev.williancorrea.manhwa.reader.features.library.LibraryService;
 import dev.williancorrea.manhwa.reader.features.library.LibraryStatus;
 import dev.williancorrea.manhwa.reader.features.page.PageService;
@@ -43,6 +44,26 @@ public class ChapterResource {
   private final WorkService workService;
   private final PageService pageService;
   private final StorageInterface storageService;
+
+  @GetMapping("/{slug}/next-unread")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<NextUnreadOutput> getNextUnread(
+      @PathVariable String slug,
+      @AuthenticationPrincipal UserDetails userDetails
+  ) {
+    var user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+    var work = workService.findBySlug(slug).orElseThrow();
+
+    var nextUnread = chapterService.findFirstUnreadChapter(work.getId(), user.getId());
+    boolean hasReadChapters = readingProgressService.hasReadAnyChapter(user, work.getId());
+
+    NextUnreadOutput output = new NextUnreadOutput(
+        nextUnread.map(Chapter::getId).orElse(null),
+        nextUnread.map(Chapter::getNumberWithVersionInteger).orElse(null),
+        hasReadChapters
+    );
+    return ResponseEntity.ok(output);
+  }
 
   @GetMapping("/{slug}/chapters")
   @PreAuthorize("isAuthenticated()")

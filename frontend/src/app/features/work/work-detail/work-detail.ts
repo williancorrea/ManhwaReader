@@ -16,7 +16,7 @@ import { takeUntil } from 'rxjs/operators';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar';
 import { GENRE_COLORS } from '../../../shared/components/manhwa-card/manhwa-card';
 import { WorkService } from '../services/work.service';
-import { ChapterItem, LIBRARY_STATUSES, SITE_LABELS, WorkDetail } from '../models/work.models';
+import { ChapterItem, LIBRARY_STATUSES, NextUnreadChapter, SITE_LABELS, WorkDetail } from '../models/work.models';
 import { I18nService } from '../../../core/i18n/i18n.service';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 
@@ -50,6 +50,9 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly coverModalOpen = signal(false);
   readonly altTitlesExpanded = signal(false);
   readonly chapterFilter = signal('');
+
+  readonly nextUnreadChapter = signal<NextUnreadChapter | null>(null);
+  readonly hasReadChapters = signal(false);
 
   readonly filteredChapters = computed(() => {
     const filter = this.chapterFilter().trim();
@@ -130,10 +133,21 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe({
         next: (work) => {
           this.work.set(work);
+          this.nextUnreadChapter.set(work.nextUnreadChapter);
+          this.hasReadChapters.set(work.hasReadChapters);
           this.isLoadingWork.set(false);
           this.loadChapters(0);
         },
         error: () => this.isLoadingWork.set(false)
+      });
+  }
+
+  private refreshNextUnread(): void {
+    this.workService.getNextUnread(this.slug)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(info => {
+        this.nextUnreadChapter.set(info.id ? { id: info.id, numberWithVersion: info.numberWithVersion! } : null);
+        this.hasReadChapters.set(info.hasReadChapters);
       });
   }
 
@@ -176,7 +190,10 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       : this.workService.markAllChaptersRead(this.slug);
 
     action.pipe(takeUntil(this.destroy$)).subscribe({
-      next: () => this.loadChapters(0),
+      next: () => {
+        this.loadChapters(0);
+        this.refreshNextUnread();
+      },
       error: () => this.isTogglingAll.set(false),
       complete: () => this.isTogglingAll.set(false)
     });
@@ -206,6 +223,7 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe(() => {
         this.work.update(w => w ? { ...w, userLibraryStatus: null } : w);
         this.loadChapters(0);
+        this.refreshNextUnread();
       });
   }
 
@@ -231,6 +249,7 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     action.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.loadChapters(0);
+        this.refreshNextUnread();
         if (!chapter.isRead && !this.work()?.userLibraryStatus) {
           this.work.update(w => w ? { ...w, userLibraryStatus: 'READING' } : w);
         }
@@ -247,7 +266,7 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.chapterFilter.set(sanitized);
   }
 
-  openChapter(chapter: ChapterItem): void {
+  openChapter(chapter: { id: string }): void {
     this.router.navigate(['/work', this.slug, 'chapter', chapter.id]);
   }
 

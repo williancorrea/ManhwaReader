@@ -148,6 +148,19 @@
           }
         </div>
 
+        @if (nextUnreadChapter(); as nextChapter) {
+          <button class="btn btn--primary" type="button" (click)="openChapter(nextChapter)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            @if (hasReadChapters()) {
+              {{ 'work.continueReading' | translate: { number: nextChapter.numberWithVersion } }}
+            } @else {
+              {{ 'work.startReading' | translate: { number: nextChapter.numberWithVersion } }}
+            }
+          </button>
+        }
+
         @if (w.links.length) {
           <div class="work-actions__links">
             @for (link of w.links; track link.siteCode) {

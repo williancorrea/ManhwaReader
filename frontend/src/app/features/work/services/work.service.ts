@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { ChapterItem, ChapterReaderData, WorkDetail } from '../models/work.models';
+import { ChapterItem, ChapterReaderData, NextUnreadInfo, WorkDetail } from '../models/work.models';
 import { PageResponse } from '../../catalog/models/catalog.models';
 
 @Injectable({ providedIn: 'root' })
@@ -44,6 +44,10 @@ export class WorkService {
 
   markAllChaptersUnread(slug: string): Observable<void> {
     return this.http.delete<void>(`${environment.apiUrl}/works/${slug}/chapters/read-all`);
+  }
+
+  getNextUnread(slug: string): Observable<NextUnreadInfo> {
+    return this.http.get<NextUnreadInfo>(`${environment.apiUrl}/works/${slug}/next-unread`);
   }
 
   getChapterReader(slug: string, chapterId: string): Observable<ChapterReaderData> {

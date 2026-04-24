@@ -76,6 +76,10 @@ public class ReadingProgressService {
     repository.deleteAllByUserIdAndWorkId(user.getId(), workId);
   }
 
+  public boolean hasReadAnyChapter(User user, UUID workId) {
+    return repository.existsByUser_IdAndChapter_Work_Id(user.getId(), workId);
+  }
+
   public Map<UUID, ReadingProgress> findAllByUserAndChapterIds(User user, List<UUID> chapterIds) {
     if (chapterIds == null || chapterIds.isEmpty()) {
       return Map.of();

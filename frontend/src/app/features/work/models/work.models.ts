@@ -1,3 +1,14 @@
+export interface NextUnreadChapter {
+  id: string;
+  numberWithVersion: string;
+}
+
+export interface NextUnreadInfo {
+  id: string | null;
+  numberWithVersion: string | null;
+  hasReadChapters: boolean;
+}
+
 export interface WorkDetail {
   id: string;
   slug: string;
@@ -19,6 +30,8 @@ export interface WorkDetail {
   chapterCount: number;
   userLibraryStatus: string | null;
   userRating: number | null;
+  nextUnreadChapter: NextUnreadChapter | null;
+  hasReadChapters: boolean;
 }
 
 export interface AlternativeTitle {

@@ -86,6 +86,11 @@ public class ChapterService {
     return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
   }
 
+  public Optional<Chapter> findFirstUnreadChapter(UUID workId, UUID userId) {
+    var result = repository.findFirstUnreadChapter(workId, userId, PageRequest.of(0, 1));
+    return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
+  }
+
   @Transactional(readOnly = true)
   public Page<Chapter> findPagedByWorkSlug(String slug, int page, int size, String sort, String language) {
     Sort.Direction direction = "asc".equalsIgnoreCase(sort) ? Sort.Direction.ASC : Sort.Direction.DESC;

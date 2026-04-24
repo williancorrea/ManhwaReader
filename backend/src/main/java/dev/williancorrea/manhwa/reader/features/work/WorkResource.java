@@ -2,6 +2,7 @@ package dev.williancorrea.manhwa.reader.features.work;
 
 import dev.williancorrea.manhwa.reader.features.access.user.User;
 import dev.williancorrea.manhwa.reader.features.access.user.UserRepository;
+import dev.williancorrea.manhwa.reader.features.chapter.ChapterService;
 import dev.williancorrea.manhwa.reader.features.library.LibraryService;
 import dev.williancorrea.manhwa.reader.features.library.LibraryStatus;
 import dev.williancorrea.manhwa.reader.features.progress.ReadingProgressService;
@@ -36,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class WorkResource {
 
   private final WorkService workService;
+  private final ChapterService chapterService;
   private final LibraryService libraryService;
   private final RatingService ratingService;
   private final ReadingProgressService readingProgressService;
@@ -88,7 +90,9 @@ public class WorkResource {
     var user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
     var library = libraryService.findByUserAndWork(user, work);
     var rating = ratingService.findByUserAndWork(user, work);
-    return ResponseEntity.ok(WorkDetailOutput.fromEntity(work, minioUrl + "/" + bucketName, library, rating));
+    var nextUnread = chapterService.findFirstUnreadChapter(work.getId(), user.getId());
+    boolean hasReadChapters = readingProgressService.hasReadAnyChapter(user, work.getId());
+    return ResponseEntity.ok(WorkDetailOutput.fromEntity(work, minioUrl + "/" + bucketName, library, rating, nextUnread, hasReadChapters));
   }
 
   @PostMapping("/{slug}/library")

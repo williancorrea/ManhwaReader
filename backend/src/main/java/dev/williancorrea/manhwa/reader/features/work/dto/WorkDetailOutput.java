@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import dev.williancorrea.manhwa.reader.features.chapter.Chapter;
 import dev.williancorrea.manhwa.reader.features.library.Library;
 import dev.williancorrea.manhwa.reader.features.rating.Rating;
 import dev.williancorrea.manhwa.reader.features.work.Work;
@@ -30,7 +31,9 @@ public record WorkDetailOutput(
     List<LinkOutput> links,
     Long chapterCount,
     String userLibraryStatus,
-    Integer userRating
+    Integer userRating,
+    NextUnreadChapterOutput nextUnreadChapter,
+    boolean hasReadChapters
 ) {
 
   public record AlternativeTitleOutput(String title, String language, String languageFlag, String languageName, Boolean isOfficial) {
@@ -45,9 +48,14 @@ public record WorkDetailOutput(
   public record LinkOutput(String siteCode, String url) {
   }
 
+  public record NextUnreadChapterOutput(UUID id, String numberWithVersion) {
+  }
+
   public static WorkDetailOutput fromEntity(Work work, String storage,
                                             Optional<Library> library,
-                                            Optional<Rating> rating) {
+                                            Optional<Rating> rating,
+                                            Optional<Chapter> nextUnread,
+                                            boolean hasReadChapters) {
     String title = null;
     List<AlternativeTitleOutput> alternativeTitles = List.of();
 
@@ -104,6 +112,10 @@ public record WorkDetailOutput(
           .toList()
         : List.of();
 
+    NextUnreadChapterOutput nextUnreadChapterOutput = nextUnread
+        .map(c -> new NextUnreadChapterOutput(c.getId(), c.getNumberWithVersionInteger()))
+        .orElse(null);
+
     return new WorkDetailOutput(
         work.getId(),
         work.getSlug(),
@@ -124,7 +136,9 @@ public record WorkDetailOutput(
         links,
         work.getChapterCount(),
         library.map(l -> l.getStatus().name()).orElse(null),
-        rating.map(Rating::getScore).orElse(null)
+        rating.map(Rating::getScore).orElse(null),
+        nextUnreadChapterOutput,
+        hasReadChapters
     );
   }
 }

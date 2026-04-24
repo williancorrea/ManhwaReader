@@ -81,5 +81,18 @@ public interface ChapterRepository extends JpaRepository<Chapter, UUID> {
                                 @Param("numberFormatted") String numberFormatted,
                                 @Param("numberVersion") String numberVersion,
                                 Pageable pageable);
+
+  @Query("""
+      SELECT c FROM Chapter c
+      WHERE c.work.id = :workId AND c.disabled = false
+        AND NOT EXISTS (
+            SELECT rp FROM ReadingProgress rp
+            WHERE rp.chapter = c AND rp.user.id = :userId
+        )
+      ORDER BY c.numberFormatted ASC, c.numberVersion ASC
+      """)
+  List<Chapter> findFirstUnreadChapter(@Param("workId") UUID workId,
+                                       @Param("userId") UUID userId,
+                                       Pageable pageable);
 }
 

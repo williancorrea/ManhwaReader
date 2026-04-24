@@ -27,5 +27,7 @@ public interface ReadingProgressRepository extends JpaRepository<ReadingProgress
         AND chapter_id IN (SELECT c.id FROM chapter c WHERE c.work_id = :workId AND c.disabled = false)
       """)
   void deleteAllByUserIdAndWorkId(@Param("userId") UUID userId, @Param("workId") UUID workId);
+
+  boolean existsByUser_IdAndChapter_Work_Id(UUID userId, UUID workId);
 }
 
