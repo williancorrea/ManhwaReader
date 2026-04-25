@@ -1,6 +1,14 @@
 package dev.williancorrea.manhwa.reader.features.access.group;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -10,16 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AccessGroupResource")
@@ -31,13 +29,11 @@ class AccessGroupResourceTest {
   @InjectMocks
   private AccessGroupResource accessGroupResource;
 
-  private ObjectMapper objectMapper;
   private UUID groupId;
   private AccessGroup accessGroup;
 
   @BeforeEach
   void setUp() {
-    objectMapper = new ObjectMapper();
     groupId = UUID.randomUUID();
     accessGroup = AccessGroup.builder()
         .id(groupId)
@@ -96,8 +92,8 @@ class AccessGroupResourceTest {
           .isNotNull()
           .hasSize(1)
           .satisfies(body -> {
-            assertThat(body.get(0).getId()).isEqualTo(groupId);
-            assertThat(body.get(0).getName()).isEqualTo("READER");
+            assertThat(body.getFirst().getId()).isEqualTo(groupId);
+            assertThat(body.getFirst().getName()).isEqualTo("READER");
           });
       verify(accessGroupService).findAll();
     }
@@ -141,9 +137,7 @@ class AccessGroupResourceTest {
 
       assertThat(response.getBody())
           .isNotNull()
-          .satisfies(body -> {
-            assertThat(body.getName()).isEqualTo("MODERATOR");
-          });
+          .satisfies(body -> assertThat(body.getName()).isEqualTo("MODERATOR"));
       verify(accessGroupService).save(any(AccessGroup.class));
     }
 
@@ -162,6 +156,7 @@ class AccessGroupResourceTest {
         var response = accessGroupResource.create(input);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertNotNull(response.getBody());
         assertThat(response.getBody().getName()).isEqualTo(type.name());
       }
     }
@@ -275,9 +270,7 @@ class AccessGroupResourceTest {
 
       assertThat(response.getBody())
           .isNotNull()
-          .satisfies(body -> {
-            assertThat(body.getId()).isEqualTo(groupId);
-          });
+          .satisfies(body -> assertThat(body.getId()).isEqualTo(groupId));
     }
   }
 
