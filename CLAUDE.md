@@ -2,6 +2,9 @@
 
 Este arquivo fornece orientações ao Claude Code (claude.ai/code) ao trabalhar com o código deste repositório.
 
+## Preferencias de idioma
+**IMPORTANTE**: Use o idioma português para todas as interações (respostas, explicações e comentarios) com o Claude Code, exceto quando for necessário usar inglês para entender ou explicar conceitos técnicos ou para interagir com bibliotecas ou frameworks em inglês.
+
 ## Layout do repositório
 
 Duas aplicações independentes compartilham este repositório:
@@ -19,9 +22,10 @@ Backend (executar a partir de `backend/`):
 - Teste único: `./mvnw test -Dtest=ClassName#methodName`
 
 Frontend (executar a partir de `frontend/`):
-- Servidor de desenvolvimento: `npm start` (ng serve, padrão http://localhost:4200)
-- Build: `npm run build`
-- Testes (Vitest): `npm test`
+- Servidor de desenvolvimento: `npm.cmd start` (ng serve, padrão http://localhost:4200)
+- Build: `npm.cmd run build`
+- Install: `npm.cmd install`
+- Testes (Vitest): `npm.cmd test`
 
 ## Arquitetura do backend
 
@@ -53,3 +57,16 @@ Aplicação Angular 21 SPA com standalone components (CSR puro — sem SSR/hydra
 - As fatias de funcionalidade permanecem autocontidas: mantenha entidade, repository, service, resource e DTOs dentro de `features/<domínio>/`. Novos scrapers vão em `scraper/<provedor>/` e são integrados via `features/work/synchronization`.
 - Mensagens de validação/i18n são em português (pt-BR); adicione chaves aos arquivos `messages.properties` / `ValidationMessages_pt_BR.properties` existentes em vez de hardcoded strings.
 - UTC em todos os lugares — não introduza conversões para horário local no servidor.
+
+## Qualidade de codigo
+- Adote padrões de código consistentes e legíveis
+- Utilize nomes de variáveis e funções descritivos
+- Evite duplicação de código e refatore quando necessário
+- Mantenha o código organizado e estruturado
+
+## Testes
+- **IMPORTANTE** a cobertura de codigo deve atingir 100%
+- Todas alterações devem ser testadas adequadamente com testes unitários
+- Use mocks e stubs para isolar componentes e facilitar testes unitários
+
+[//]: # (- Testes de integração e end-to-end devem cobrir fluxos críticos e casos de uso principais)
