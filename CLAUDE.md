@@ -70,5 +70,6 @@ Aplicação Angular 21 SPA com standalone components (CSR puro — sem SSR/hydra
 - **IMPORTANTE** a cobertura de codigo deve atingir 100%
 - Todas alterações devem ser testadas adequadamente com testes unitários
 - Use mocks e stubs para isolar componentes e facilitar testes unitários
+- No Java utilize o Nested para agrupar testes relacionados
 
 [//]: # (- Testes de integração e end-to-end devem cobrir fluxos críticos e casos de uso principais)
