@@ -73,3 +73,30 @@ Aplicação Angular 21 SPA com standalone components (CSR puro — sem SSR/hydra
 - No Java utilize o Nested para agrupar testes relacionados
 
 [//]: # (- Testes de integração e end-to-end devem cobrir fluxos críticos e casos de uso principais)
+
+## SonarQube
+
+Boas práticas para manter o código limpo e livre de code smells:
+
+**Backend (Java/Spring Boot)**:
+- Elimine código duplicado — refatore métodos comuns em classes utilitárias
+- Evite nesting profundo — use early returns e decomponha métodos complexos
+- Remova imports não utilizados — imports sem uso aumentam poluição visual
+- Remova variáveis não utilizadas — declare variáveis somente quando necessário
+- Mantenha métodos focados — cada método deve fazer uma única coisa bem
+- Evite métodos longos — idealmente, métodos com menos de 20 linhas
+- Feche security hotspots: não hardcode credentials, valide inputs, escape outputs
+
+**Frontend (Angular/TypeScript)**:
+- Elimine código/componentes não utilizados — remova exports e imports desnecessários
+- Remova variáveis não utilizadas — TypeScript avisa, mas elimine completamente
+- Evite duplicação de templates — extraia partes comuns em componentes reutilizáveis
+- Mantenha serviços pequenos e focados — um serviço, uma responsabilidade
+- Resolva warnings do ESLint — não ignore rules, corrija o código ou justifique exceções
+- Evite any types — use tipos específicos em vez de `any`
+
+**Boas práticas comuns**:
+- Revise o código antes de merges — procure ativamente por code smells
+- Mantenha o histórico limpo — um commit por feature, mensagens descritivas
+- Refatore continuamente — deixe o código melhor do que encontrou
+- Priorize legibilidade — código claro é mais importante que código conciso
