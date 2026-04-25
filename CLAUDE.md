@@ -3,7 +3,9 @@
 Este arquivo fornece orientações ao Claude Code (claude.ai/code) ao trabalhar com o código deste repositório.
 
 ## Preferencias de idioma
-**IMPORTANTE**: Use o idioma português para todas as interações (respostas, explicações e comentarios) com o Claude Code, exceto quando for necessário usar inglês para entender ou explicar conceitos técnicos ou para interagir com bibliotecas ou frameworks em inglês.
+- A geração do código deverá ser feita em inglês.
+- **IMPORTANTE**: Use o idioma português para todas as interações (respostas, explicações e comentarios), exceto quando for necessário usar inglês para entender ou explicar conceitos técnicos ou para interagir com bibliotecas ou frameworks em inglês.
+
 
 ## Layout do repositório
 
