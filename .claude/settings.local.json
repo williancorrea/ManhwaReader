@@ -14,13 +14,14 @@
       "Bash(npx tsc *)",
       "Bash(find:*)",
       "Bash(grep *)",
+      "Bash(glob *)",
       "Bash(cat *)",
       "Bash(ls *)",
       "Bash(echo *)",
       "Bash(xargs grep:*)",
+      "Bash(xargs wc *)",
       "Bash(./mvnw *)",
-      "Bash(npm *)",
-      "Bash(xargs wc *)"
+      "Bash(npm *)"      
     ],
     "deny": [
       "Bash(git push *)"
