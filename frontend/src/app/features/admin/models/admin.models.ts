@@ -10,6 +10,7 @@ export interface AdminWorkItem {
   slug: string;
   status: string;
   type: string;
+  publicationDemographic: string | null;
   coverUrl: string;
   synchronizationOrigins: string[];
   synchronizations: SynchronizationDetail[];

@@ -151,7 +151,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
     return "Bearer " + accessToken;
   }
 
-//  @PostConstruct
+  @PostConstruct
   @Transactional
   @Override
   public void ScheduledSynchronization() {

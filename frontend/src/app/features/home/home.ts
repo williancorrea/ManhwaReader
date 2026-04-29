@@ -91,6 +91,7 @@ function toManhwa(item: WorkCatalogItem, index: number): Manhwa {
     inLibrary: item.userLibraryStatus != null,
     originalLanguageFlag: item.originalLanguageFlag,
     originalLanguageName: item.originalLanguageName,
+    demographic: item.publicationDemographic,
   };
 }
 
@@ -105,5 +106,6 @@ function toLibraryManhwa(item: LibraryItem, index: number): Manhwa {
     unreadCount: item.unreadCount || undefined,
     originalLanguageFlag: item.originalLanguageFlag,
     originalLanguageName: item.originalLanguageName,
+    demographic: item.publicationDemographic,
   };
 }

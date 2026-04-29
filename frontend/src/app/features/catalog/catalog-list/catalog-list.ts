@@ -169,5 +169,6 @@ function toManhwa(item: WorkCatalogItem, id: number): Manhwa {
     inLibrary: item.userLibraryStatus != null,
     originalLanguageFlag: item.originalLanguageFlag,
     originalLanguageName: item.originalLanguageName,
+    demographic: item.publicationDemographic,
   };
 }

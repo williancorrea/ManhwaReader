@@ -12,6 +12,7 @@ public record AdminWorkOutput(
     String slug,
     String status,
     String type,
+    String publicationDemographic,
     String coverUrl,
     List<String> synchronizationOrigins,
     List<SynchronizationDetail> synchronizations
@@ -63,6 +64,7 @@ public record AdminWorkOutput(
         work.getSlug(),
         work.getStatus() != null ? work.getStatus().name() : null,
         work.getType() != null ? work.getType().name() : null,
+        work.getPublicationDemographic() != null ? work.getPublicationDemographic().name() : null,
         coverUrl,
         origins,
         syncDetails

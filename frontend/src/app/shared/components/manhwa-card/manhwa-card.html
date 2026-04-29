@@ -7,8 +7,15 @@
           @if (manhwa.unreadCount && manhwa.unreadCount > 0) {
             <span class="card__badge card__badge--unread">{{ manhwa.unreadCount }}</span>
           }
-          @if (manhwa.originalLanguageFlag) {
-            <img class="card__lang-flag" [src]="manhwa.originalLanguageFlag" [alt]="manhwa.originalLanguageName ?? ''" [title]="manhwa.originalLanguageName ?? ''" loading="lazy" />
+          @if (manhwa.originalLanguageFlag || manhwa.demographic) {
+            <div class="card__bottom-left">
+              @if (manhwa.originalLanguageFlag) {
+                <img class="card__lang-flag" [src]="manhwa.originalLanguageFlag" [alt]="manhwa.originalLanguageName ?? ''" [title]="manhwa.originalLanguageName ?? ''" loading="lazy" />
+              }
+              @if (manhwa.demographic) {
+                <span class="card__demographic-badge">{{ 'enum.demographic.' + manhwa.demographic | translate }}</span>
+              }
+            </div>
           }
         </div>
         <p class="card__compact-title" [title]="manhwa.title">{{ manhwa.title }}</p>
@@ -21,8 +28,15 @@
         @if (manhwa.unreadCount && manhwa.unreadCount > 0) {
           <span class="card__badge card__badge--unread">{{ manhwa.unreadCount }}</span>
         }
-        @if (manhwa.originalLanguageFlag) {
-          <img class="card__lang-flag" [src]="manhwa.originalLanguageFlag" [alt]="manhwa.originalLanguageName ?? ''" [title]="manhwa.originalLanguageName ?? ''" loading="lazy" />
+        @if (manhwa.originalLanguageFlag || manhwa.demographic) {
+          <div class="card__bottom-left">
+            @if (manhwa.originalLanguageFlag) {
+              <img class="card__lang-flag" [src]="manhwa.originalLanguageFlag" [alt]="manhwa.originalLanguageName ?? ''" [title]="manhwa.originalLanguageName ?? ''" loading="lazy" />
+            }
+            @if (manhwa.demographic) {
+              <span class="card__demographic-badge">{{ 'enum.demographic.' + manhwa.demographic | translate }}</span>
+            }
+          </div>
         }
       </div>
       <p class="card__compact-title" [title]="manhwa.title">{{ manhwa.title }}</p>
@@ -52,8 +66,15 @@
             ></div>
           </div>
         }
-        @if (manhwa.originalLanguageFlag) {
-          <img class="card__lang-flag" [src]="manhwa.originalLanguageFlag" [alt]="manhwa.originalLanguageName ?? ''" [title]="manhwa.originalLanguageName ?? ''" loading="lazy" />
+        @if (manhwa.originalLanguageFlag || manhwa.demographic) {
+          <div class="card__bottom-left">
+            @if (manhwa.originalLanguageFlag) {
+              <img class="card__lang-flag" [src]="manhwa.originalLanguageFlag" [alt]="manhwa.originalLanguageName ?? ''" [title]="manhwa.originalLanguageName ?? ''" loading="lazy" />
+            }
+            @if (manhwa.demographic) {
+              <span class="card__demographic-badge">{{ 'enum.demographic.' + manhwa.demographic | translate }}</span>
+            }
+          </div>
         }
       </div>
 
@@ -97,8 +118,15 @@
           ></div>
         </div>
       }
-      @if (manhwa.originalLanguageFlag) {
-        <img class="card__lang-flag" [src]="manhwa.originalLanguageFlag" [alt]="manhwa.originalLanguageName ?? ''" [title]="manhwa.originalLanguageName ?? ''" loading="lazy" />
+      @if (manhwa.originalLanguageFlag || manhwa.demographic) {
+        <div class="card__bottom-left">
+          @if (manhwa.originalLanguageFlag) {
+            <img class="card__lang-flag" [src]="manhwa.originalLanguageFlag" [alt]="manhwa.originalLanguageName ?? ''" [title]="manhwa.originalLanguageName ?? ''" loading="lazy" />
+          }
+          @if (manhwa.demographic) {
+            <span class="card__demographic-badge">{{ 'enum.demographic.' + manhwa.demographic | translate }}</span>
+          }
+        </div>
       }
     </div>
 

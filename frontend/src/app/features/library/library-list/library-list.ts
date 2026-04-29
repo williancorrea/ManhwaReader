@@ -123,5 +123,6 @@ function toManhwa(item: LibraryItem, id: number): Manhwa {
     unreadCount: item.unreadCount,
     originalLanguageFlag: item.originalLanguageFlag,
     originalLanguageName: item.originalLanguageName,
+    demographic: item.publicationDemographic,
   };
 }

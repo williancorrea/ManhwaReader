@@ -139,6 +139,9 @@
                     @if (work.status) {
                       <span class="admin__badge">{{ work.status }}</span>
                     }
+                    @if (work.publicationDemographic) {
+                      <span class="admin__badge admin__badge--demographic">{{ 'enum.demographic.' + work.publicationDemographic | translate }}</span>
+                    }
                   </div>
                   <div class="admin__work-actions">
                     <span class="admin__origin-badge admin__origin-badge--missing">Sem MangaDex</span>
@@ -358,6 +361,9 @@
                     }
                     @if (work.status) {
                       <span class="admin__badge">{{ work.status }}</span>
+                    }
+                    @if (work.publicationDemographic) {
+                      <span class="admin__badge admin__badge--demographic">{{ 'enum.demographic.' + work.publicationDemographic | translate }}</span>
                     }
                   </div>
                 </div>

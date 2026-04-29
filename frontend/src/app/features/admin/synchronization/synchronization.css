@@ -356,6 +356,11 @@
   letter-spacing: 0.5px;
 }
 
+.admin__badge--demographic {
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent);
+}
+
 .admin__work-origins {
   display: flex;
   gap: var(--space-1);

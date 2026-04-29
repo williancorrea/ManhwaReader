@@ -129,14 +129,35 @@
   font-size: 15px;
 }
 
-.card__lang-flag {
+.card__bottom-left {
   position: absolute;
   bottom: var(--space-1);
   left: var(--space-1);
-  width: 30px;
-  height: 30px;
-  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card__lang-flag {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
   object-fit: cover;
+  flex-shrink: 0;
+}
+
+.card__demographic-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.4;
 }
 
 .card__progress-bar {
