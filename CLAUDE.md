@@ -2,9 +2,9 @@
 
 Este arquivo fornece orientações ao Claude Code (claude.ai/code) ao trabalhar com o código deste repositório.
 
-## Preferencias de idioma
+## Preferências de idioma
 - A geração do código deverá ser feita em inglês.
-- **IMPORTANTE**: Use o idioma português para todas as interações (respostas, explicações e comentarios), exceto quando for necessário usar inglês para entender ou explicar conceitos técnicos ou para interagir com bibliotecas ou frameworks em inglês.
+- **IMPORTANTE**: Use o idioma português para todas as interações (respostas, explicações e comentários), exceto quando for necessário usar inglês para entender ou explicar conceitos técnicos ou para interagir com bibliotecas ou frameworks em inglês.
 
 
 ## Layout do repositório
@@ -60,15 +60,15 @@ Aplicação Angular 21 SPA com standalone components (CSR puro — sem SSR/hydra
 - Mensagens de validação/i18n são em português (pt-BR); adicione chaves aos arquivos `messages.properties` / `ValidationMessages_pt_BR.properties` existentes em vez de hardcoded strings.
 - UTC em todos os lugares — não introduza conversões para horário local no servidor.
 
-## Qualidade de codigo
+## Qualidade de código
 - Adote padrões de código consistentes e legíveis
 - Utilize nomes de variáveis e funções descritivos
 - Evite duplicação de código e refatore quando necessário
 - Mantenha o código organizado e estruturado
 
 ## Testes
-- **IMPORTANTE** a cobertura de codigo deve atingir 100%
-- Todas alterações devem ser testadas adequadamente com testes unitários
+- **IMPORTANTE** a cobertura de código deve atingir 100%
+- Todas as alterações devem ser testadas adequadamente com testes unitários
 - Use mocks e stubs para isolar componentes e facilitar testes unitários
 - No Java utilize o Nested para agrupar testes relacionados
 
@@ -96,7 +96,7 @@ Boas práticas para manter o código limpo e livre de code smells:
 - Evite any types — use tipos específicos em vez de `any`
 
 **Boas práticas comuns**:
-- Revise o código antes de merges — procure ativamente por code smells
+- Reveja o código antes de merges — procure ativamente por code smells
 - Mantenha o histórico limpo — um commit por feature, mensagens descritivas
 - Refatore continuamente — deixe o código melhor do que encontrou
 - Priorize legibilidade — código claro é mais importante que código conciso
