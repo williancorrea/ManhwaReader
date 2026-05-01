@@ -4,6 +4,7 @@ import dev.williancorrea.manhwa.reader.exception.custom.BusinessException;
 import dev.williancorrea.manhwa.reader.storage.minio.MinioService;
 import io.minio.BucketExistsArgs;
 import io.minio.GetObjectArgs;
+import io.minio.GetObjectResponse;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.ListObjectsArgs;
 import io.minio.MakeBucketArgs;
@@ -30,6 +31,7 @@ import java.io.InputStream;
 import java.net.http.HttpHeaders;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -106,6 +108,19 @@ class MinioServiceTest {
     }
 
     @Test
+    @DisplayName("should throw BusinessException when item iteration fails")
+    void shouldThrowBusinessExceptionWhenItemIterationFails() throws Exception {
+      @SuppressWarnings("unchecked")
+      var result1 = mock(Result.class);
+      when(result1.get()).thenThrow(new RuntimeException("Item read error"));
+      when(minioClient.listObjects(any(ListObjectsArgs.class))).thenReturn(List.of(result1));
+
+      assertThatThrownBy(() -> minioService.findAllObjects())
+          .isInstanceOf(BusinessException.class)
+          .hasMessage("storage.error.list-objects");
+    }
+
+    @Test
     @DisplayName("should throw BusinessException when listObjects fails")
     void shouldThrowBusinessExceptionOnListObjectsFailure() throws Exception {
       when(minioClient.listObjects(any(ListObjectsArgs.class)))
@@ -123,7 +138,19 @@ class MinioServiceTest {
   class FindObjectByNameTests {
 
     @Test
-    @DisplayName("should throw BusinessException when object not found")
+    @DisplayName("should return InputStream when object is found")
+    void shouldReturnInputStreamWhenObjectFound() throws Exception {
+      var mockStream = mock(GetObjectResponse.class);
+      when(minioClient.getObject(any(GetObjectArgs.class))).thenReturn(mockStream);
+
+      var result = minioService.findObjectByName(TEST_FILE_NAME);
+
+      assertThat(result).isEqualTo(mockStream);
+      verify(minioClient).getObject(any(GetObjectArgs.class));
+    }
+
+    @Test
+    @DisplayName("should throw BusinessException when object retrieval fails")
     void shouldThrowBusinessExceptionWhenObjectNotFound() throws Exception {
       doThrow(new IOException("Object not found"))
           .when(minioClient).getObject(any(GetObjectArgs.class));
@@ -140,7 +167,7 @@ class MinioServiceTest {
   class FindObjectByNamePresignedTests {
 
     @Test
-    @DisplayName("should return presigned URL")
+    @DisplayName("should return presigned URL when object is found")
     void shouldReturnPresignedUrl() throws Exception {
       when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
           .thenReturn(PRESIGNED_URL);
@@ -177,8 +204,8 @@ class MinioServiceTest {
     }
 
     @Test
-    @DisplayName("should throw BusinessException when object removal fails")
-    void shouldThrowBusinessExceptionOnRemovalFailure() throws Exception {
+    @DisplayName("should throw BusinessException on IOException")
+    void shouldThrowBusinessExceptionOnIOException() throws Exception {
       doThrow(new IOException("Failed to remove object"))
           .when(minioClient).removeObject(any(RemoveObjectArgs.class));
 
@@ -209,6 +236,17 @@ class MinioServiceTest {
           .isInstanceOf(BusinessException.class)
           .hasMessage("storage.error.remove-object");
     }
+
+    @Test
+    @DisplayName("should throw BusinessException on IllegalArgumentException")
+    void shouldThrowBusinessExceptionOnIllegalArgumentException() throws Exception {
+      doThrow(new IllegalArgumentException("Invalid argument"))
+          .when(minioClient).removeObject(any(RemoveObjectArgs.class));
+
+      assertThatThrownBy(() -> minioService.remove(TEST_FILE_NAME))
+          .isInstanceOf(BusinessException.class)
+          .hasMessage("storage.error.remove-object");
+    }
   }
 
   @Nested
@@ -216,7 +254,32 @@ class MinioServiceTest {
   class GetFileAsBase64Tests {
 
     @Test
-    @DisplayName("should return null when file not found")
+    @DisplayName("should return base64-encoded content when file is found")
+    void shouldReturnBase64EncodedContent() throws Exception {
+      byte[] content = "image-data".getBytes();
+      var mockStream = mock(GetObjectResponse.class);
+      when(mockStream.readAllBytes()).thenReturn(content);
+      when(minioClient.getObject(any(GetObjectArgs.class))).thenReturn(mockStream);
+
+      var result = minioService.getFileAsBase64(TEST_FILE_NAME);
+
+      assertThat(result).isEqualTo(Base64.getEncoder().encodeToString(content));
+    }
+
+    @Test
+    @DisplayName("should return null when IOException occurs during readAllBytes")
+    void shouldReturnNullWhenIOExceptionDuringRead() throws Exception {
+      var mockStream = mock(GetObjectResponse.class);
+      when(mockStream.readAllBytes()).thenThrow(new IOException("Read error"));
+      when(minioClient.getObject(any(GetObjectArgs.class))).thenReturn(mockStream);
+
+      var result = minioService.getFileAsBase64(TEST_FILE_NAME);
+
+      assertThat(result).isNull();
+    }
+
+    @Test
+    @DisplayName("should return null when file retrieval throws BusinessException")
     void shouldReturnNullWhenFileNotFound() throws Exception {
       doThrow(new IOException("File not found"))
           .when(minioClient).getObject(any(GetObjectArgs.class));
@@ -227,9 +290,9 @@ class MinioServiceTest {
     }
 
     @Test
-    @DisplayName("should return null when exception occurs during encoding")
-    void shouldReturnNullOnException() throws Exception {
-      doThrow(new RuntimeException("Encoding error"))
+    @DisplayName("should return null when unexpected RuntimeException is thrown")
+    void shouldReturnNullOnUnexpectedException() throws Exception {
+      doThrow(new RuntimeException("Unexpected error"))
           .when(minioClient).getObject(any(GetObjectArgs.class));
 
       var result = minioService.getFileAsBase64(TEST_FILE_NAME);
@@ -243,13 +306,11 @@ class MinioServiceTest {
   class UploadFileTests {
 
     @Test
-    @DisplayName("should upload file successfully when bucket exists")
+    @DisplayName("should upload file and return presigned URL when bucket exists")
     void shouldUploadFileSuccessfullyWhenBucketExists() throws Exception {
       var multipartFile = mockMultipartFile(TEST_FILE_NAME, "content");
-      when(minioClient.bucketExists(any(BucketExistsArgs.class)))
-          .thenReturn(true);
-      when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
-          .thenReturn(PRESIGNED_URL);
+      when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(true);
+      when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class))).thenReturn(PRESIGNED_URL);
 
       var result = minioService.uploadFile(multipartFile);
 
@@ -260,13 +321,11 @@ class MinioServiceTest {
     }
 
     @Test
-    @DisplayName("should create bucket if it does not exist")
-    void shouldCreateBucketIfNotExists() throws Exception {
+    @DisplayName("should create bucket when it does not exist before uploading")
+    void shouldCreateBucketWhenItDoesNotExist() throws Exception {
       var multipartFile = mockMultipartFile(TEST_FILE_NAME, "content");
-      when(minioClient.bucketExists(any(BucketExistsArgs.class)))
-          .thenReturn(false);
-      when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
-          .thenReturn(PRESIGNED_URL);
+      when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(false);
+      when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class))).thenReturn(PRESIGNED_URL);
 
       minioService.uploadFile(multipartFile);
 
@@ -276,13 +335,11 @@ class MinioServiceTest {
     }
 
     @Test
-    @DisplayName("should throw BusinessException when upload fails")
-    void shouldThrowBusinessExceptionOnUploadFailure() throws Exception {
+    @DisplayName("should throw BusinessException when putObject fails")
+    void shouldThrowBusinessExceptionWhenUploadFails() throws Exception {
       var multipartFile = mockMultipartFile(TEST_FILE_NAME, "content");
-      when(minioClient.bucketExists(any(BucketExistsArgs.class)))
-          .thenReturn(true);
-      doThrow(new IOException("Upload failed"))
-          .when(minioClient).putObject(any(PutObjectArgs.class));
+      when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(true);
+      doThrow(new IOException("Upload failed")).when(minioClient).putObject(any(PutObjectArgs.class));
 
       assertThatThrownBy(() -> minioService.uploadFile(multipartFile))
           .isInstanceOf(BusinessException.class)
@@ -290,13 +347,11 @@ class MinioServiceTest {
     }
 
     @Test
-    @DisplayName("should handle file with accentuation in name")
-    void shouldHandleFileWithAccentuation() throws Exception {
+    @DisplayName("should normalize filename with accentuation before uploading")
+    void shouldNormalizeFilenameWithAccentuation() throws Exception {
       var multipartFile = mockMultipartFile("arquivo_com_acentuação.txt", "content");
-      when(minioClient.bucketExists(any(BucketExistsArgs.class)))
-          .thenReturn(true);
-      when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
-          .thenReturn(PRESIGNED_URL);
+      when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(true);
+      when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class))).thenReturn(PRESIGNED_URL);
 
       var result = minioService.uploadFile(multipartFile);
 
@@ -305,18 +360,13 @@ class MinioServiceTest {
     }
 
     @Test
-    @DisplayName("should verify presigned URL is retrieved after successful upload")
-    void shouldRetrievePresignedUrl() throws Exception {
-      var multipartFile = mockMultipartFile(TEST_FILE_NAME, "content");
-      when(minioClient.bucketExists(any(BucketExistsArgs.class)))
-          .thenReturn(true);
-      when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
-          .thenReturn(PRESIGNED_URL);
+    @DisplayName("should throw NullPointerException when file has no original filename")
+    void shouldThrowNullPointerExceptionWhenFilenameIsNull() {
+      var multipartFile = mock(MultipartFile.class);
+      when(multipartFile.getOriginalFilename()).thenReturn(null);
 
-      var result = minioService.uploadFile(multipartFile);
-
-      assertThat(result).isEqualTo(PRESIGNED_URL);
-      verify(minioClient).getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class));
+      assertThatThrownBy(() -> minioService.uploadFile(multipartFile))
+          .isInstanceOf(NullPointerException.class);
     }
   }
 
@@ -325,15 +375,12 @@ class MinioServiceTest {
   class UploadStreamTests {
 
     @Test
-    @DisplayName("should upload stream successfully when bucket exists")
-    void shouldUploadStreamSuccessfullyWhenBucketExists() throws Exception {
+    @DisplayName("should upload stream and return presigned URL when bucket exists and content length is known")
+    void shouldUploadStreamSuccessfullyWithKnownContentLength() throws Exception {
       var inputStream = new ByteArrayInputStream("content".getBytes());
       var headers = mockHttpHeaders("application/octet-stream", 7L);
-
-      when(minioClient.bucketExists(any(BucketExistsArgs.class)))
-          .thenReturn(true);
-      when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
-          .thenReturn(PRESIGNED_URL);
+      when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(true);
+      when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class))).thenReturn(PRESIGNED_URL);
 
       var result = minioService.uploadStream(inputStream, TEST_FILE_NAME, headers, TEST_FOLDER);
 
@@ -343,51 +390,41 @@ class MinioServiceTest {
     }
 
     @Test
-    @DisplayName("should create bucket and set public policy if it does not exist")
-    void shouldCreateBucketAndSetPublicPolicy() throws Exception {
+    @DisplayName("should upload stream using part size when content length is unknown")
+    void shouldUploadStreamWithUnknownContentLength() throws Exception {
+      var inputStream = new ByteArrayInputStream("content".getBytes());
+      var headers = mockHttpHeaders("application/octet-stream", null);
+      when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(true);
+      when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class))).thenReturn(PRESIGNED_URL);
+
+      var result = minioService.uploadStream(inputStream, TEST_FILE_NAME, headers, TEST_FOLDER);
+
+      assertThat(result).isEqualTo(PRESIGNED_URL);
+      verify(minioClient).putObject(any(PutObjectArgs.class));
+    }
+
+    @Test
+    @DisplayName("should create bucket and set public policy when bucket does not exist")
+    void shouldCreateBucketAndSetPublicPolicyWhenBucketDoesNotExist() throws Exception {
       var inputStream = new ByteArrayInputStream("content".getBytes());
       var headers = mockHttpHeaders("application/octet-stream", 7L);
-
-      when(minioClient.bucketExists(any(BucketExistsArgs.class)))
-          .thenReturn(false);
-      when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
-          .thenReturn(PRESIGNED_URL);
+      when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(false);
+      when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class))).thenReturn(PRESIGNED_URL);
 
       minioService.uploadStream(inputStream, TEST_FILE_NAME, headers, TEST_FOLDER);
 
-      verify(minioClient).bucketExists(any(BucketExistsArgs.class));
       verify(minioClient).makeBucket(any(MakeBucketArgs.class));
       verify(minioClient).setBucketPolicy(any(SetBucketPolicyArgs.class));
       verify(minioClient).putObject(any(PutObjectArgs.class));
     }
 
     @Test
-    @DisplayName("should handle stream with unknown content length")
-    void shouldHandleStreamWithUnknownContentLength() throws Exception {
-      var inputStream = new ByteArrayInputStream("content".getBytes());
-      var headers = mockHttpHeaders("application/octet-stream", null);
-
-      when(minioClient.bucketExists(any(BucketExistsArgs.class)))
-          .thenReturn(true);
-      when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
-          .thenReturn(PRESIGNED_URL);
-
-      var result = minioService.uploadStream(inputStream, TEST_FILE_NAME, headers, TEST_FOLDER);
-
-      assertThat(result).isEqualTo(PRESIGNED_URL);
-      verify(minioClient).putObject(any(PutObjectArgs.class));
-    }
-
-    @Test
-    @DisplayName("should normalize folder path with slashes")
-    void shouldNormalizeFolderPathWithSlashes() throws Exception {
+    @DisplayName("should normalize folder with nested path segments")
+    void shouldNormalizeNestedFolderPath() throws Exception {
       var inputStream = new ByteArrayInputStream("content".getBytes());
       var headers = mockHttpHeaders("application/octet-stream", 7L);
-
-      when(minioClient.bucketExists(any(BucketExistsArgs.class)))
-          .thenReturn(true);
-      when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
-          .thenReturn(PRESIGNED_URL);
+      when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(true);
+      when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class))).thenReturn(PRESIGNED_URL);
 
       minioService.uploadStream(inputStream, TEST_FILE_NAME, headers, "folder1/folder2");
 
@@ -395,15 +432,12 @@ class MinioServiceTest {
     }
 
     @Test
-    @DisplayName("should handle file with accentuation in folder and filename")
-    void shouldHandleFileWithAccentuationInFolderAndFilename() throws Exception {
+    @DisplayName("should normalize accentuation in folder name and filename")
+    void shouldNormalizeAccentuationInFolderAndFilename() throws Exception {
       var inputStream = new ByteArrayInputStream("content".getBytes());
       var headers = mockHttpHeaders("application/octet-stream", 7L);
-
-      when(minioClient.bucketExists(any(BucketExistsArgs.class)))
-          .thenReturn(true);
-      when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
-          .thenReturn(PRESIGNED_URL);
+      when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(true);
+      when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class))).thenReturn(PRESIGNED_URL);
 
       var result = minioService.uploadStream(inputStream, "arquivo_acentuado.txt", headers, "pasta_acentuada");
 
@@ -412,15 +446,12 @@ class MinioServiceTest {
     }
 
     @Test
-    @DisplayName("should throw BusinessException when upload stream fails")
-    void shouldThrowBusinessExceptionOnUploadStreamFailure() throws Exception {
+    @DisplayName("should throw BusinessException when putObject fails")
+    void shouldThrowBusinessExceptionWhenUploadStreamFails() throws Exception {
       var inputStream = new ByteArrayInputStream("content".getBytes());
       var headers = mockHttpHeaders("application/octet-stream", 7L);
-
-      when(minioClient.bucketExists(any(BucketExistsArgs.class)))
-          .thenReturn(true);
-      doThrow(new IOException("Upload failed"))
-          .when(minioClient).putObject(any(PutObjectArgs.class));
+      when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(true);
+      doThrow(new IOException("Upload failed")).when(minioClient).putObject(any(PutObjectArgs.class));
 
       assertThatThrownBy(() -> minioService.uploadStream(inputStream, TEST_FILE_NAME, headers, TEST_FOLDER))
           .isInstanceOf(BusinessException.class)
@@ -429,13 +460,10 @@ class MinioServiceTest {
 
     @Test
     @DisplayName("should throw BusinessException when bucket creation fails")
-    void shouldThrowBusinessExceptionOnBucketCreationFailure() throws Exception {
+    void shouldThrowBusinessExceptionWhenBucketCreationFails() throws Exception {
       var inputStream = new ByteArrayInputStream("content".getBytes());
-
-      when(minioClient.bucketExists(any(BucketExistsArgs.class)))
-          .thenReturn(false);
-      doThrow(new IOException("Bucket creation failed"))
-          .when(minioClient).makeBucket(any(MakeBucketArgs.class));
+      when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(false);
+      doThrow(new IOException("Bucket creation failed")).when(minioClient).makeBucket(any(MakeBucketArgs.class));
 
       assertThatThrownBy(() -> minioService.uploadStream(inputStream, TEST_FILE_NAME, null, TEST_FOLDER))
           .isInstanceOf(BusinessException.class);
@@ -443,22 +471,15 @@ class MinioServiceTest {
 
     @Test
     @DisplayName("should throw BusinessException when setting bucket policy fails")
-    void shouldThrowBusinessExceptionOnSetBucketPolicyFailure() throws Exception {
+    void shouldThrowBusinessExceptionWhenSetBucketPolicyFails() throws Exception {
       var inputStream = new ByteArrayInputStream("content".getBytes());
-
-      when(minioClient.bucketExists(any(BucketExistsArgs.class)))
-          .thenReturn(false);
+      when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(false);
       doThrow(new IOException("Set bucket policy failed"))
           .when(minioClient).setBucketPolicy(any(SetBucketPolicyArgs.class));
 
       assertThatThrownBy(() -> minioService.uploadStream(inputStream, TEST_FILE_NAME, null, TEST_FOLDER))
           .isInstanceOf(BusinessException.class);
     }
-  }
-
-  @Nested
-  @DisplayName("uploadStream() with null parameters")
-  class UploadStreamNullParameterTests {
 
     @Test
     @DisplayName("should throw NullPointerException when fileName is null")

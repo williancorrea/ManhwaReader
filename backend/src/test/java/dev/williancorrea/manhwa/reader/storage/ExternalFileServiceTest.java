@@ -7,11 +7,29 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ExternalFileService")
@@ -19,6 +37,9 @@ class ExternalFileServiceTest {
 
   @Mock
   private MinioService minioService;
+
+  @Mock
+  private HttpClient httpClient;
 
   private ExternalFileService externalFileService;
 
@@ -29,23 +50,7 @@ class ExternalFileServiceTest {
   @BeforeEach
   void setUp() {
     externalFileService = new ExternalFileService(minioService);
-  }
-
-  @Nested
-  @DisplayName("ExternalFileService initialization")
-  class InitializationTests {
-
-    @Test
-    @DisplayName("should create ExternalFileService with MinioService dependency")
-    void shouldCreateServiceWithDependency() {
-      assertThat(externalFileService).isNotNull();
-    }
-
-    @Test
-    @DisplayName("should initialize with HTTP/1.1 configured")
-    void shouldInitializeWithCorrectHttpVersion() {
-      assertThat(externalFileService).isNotNull();
-    }
+    ReflectionTestUtils.setField(externalFileService, "httpClient", httpClient);
   }
 
   @Nested
@@ -53,151 +58,168 @@ class ExternalFileServiceTest {
   class DownloadAndUploadTests {
 
     @Test
-    @DisplayName("should have downloadExternalPublicObjectAndUploadToStorage method")
-    void shouldHaveDownloadMethod() throws Exception {
-      var method = ExternalFileService.class.getDeclaredMethod(
-          "downloadExternalPublicObjectAndUploadToStorage",
-          String.class, String.class, String.class
+    @DisplayName("should download and delegate upload to MinioService when HTTP 200")
+    void shouldDownloadAndUploadSuccessfully() throws Exception {
+      var responseBody = new ByteArrayInputStream("image-content".getBytes());
+      var mockHeaders = mock(HttpHeaders.class);
+      var mockResponse = mockHttpResponse(200, responseBody, mockHeaders);
+      doReturn(mockResponse).when(httpClient).send(any(HttpRequest.class), any());
+
+      externalFileService.downloadExternalPublicObjectAndUploadToStorage(
+          TEST_FILE_URL, ORIGINAL_FILE_NAME, FOLDER_NAME
       );
-      assertThat(method).isNotNull();
+
+      verify(httpClient).send(any(HttpRequest.class), any());
+      verify(minioService).uploadStream(responseBody, ORIGINAL_FILE_NAME, mockHeaders, FOLDER_NAME);
     }
 
     @Test
-    @DisplayName("should be annotated with @Retryable for fault tolerance")
-    void shouldBeRetryable() throws Exception {
-      var method = ExternalFileService.class.getDeclaredMethod(
-          "downloadExternalPublicObjectAndUploadToStorage",
-          String.class, String.class, String.class
+    @DisplayName("should pass correct fileName and folderName to MinioService")
+    void shouldPassCorrectParametersToMinioService() throws Exception {
+      var responseBody = new ByteArrayInputStream("content".getBytes());
+      var mockHeaders = mock(HttpHeaders.class);
+      var mockResponse = mockHttpResponse(200, responseBody, mockHeaders);
+      doReturn(mockResponse).when(httpClient).send(any(HttpRequest.class), any());
+
+      externalFileService.downloadExternalPublicObjectAndUploadToStorage(
+          TEST_FILE_URL, "custom-file.jpg", "my-folder"
       );
-      var retryable = method.getAnnotation(org.springframework.retry.annotation.Retryable.class);
-      assertThat(retryable).isNotNull();
+
+      verify(minioService).uploadStream(responseBody, "custom-file.jpg", mockHeaders, "my-folder");
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {400, 401, 403, 404, 500, 503})
+    @DisplayName("should throw BusinessException when HTTP response status is not 200")
+    void shouldThrowBusinessExceptionWhenResponseIsNotOk(int statusCode) throws Exception {
+      var mockResponse = mockHttpResponse(statusCode, InputStream.nullInputStream(), mock(HttpHeaders.class));
+      doReturn(mockResponse).when(httpClient).send(any(HttpRequest.class), any());
+
+      assertThatThrownBy(() -> externalFileService.downloadExternalPublicObjectAndUploadToStorage(
+          TEST_FILE_URL, ORIGINAL_FILE_NAME, FOLDER_NAME
+      )).isInstanceOf(BusinessException.class)
+        .hasMessage("storage.error.download-failed");
     }
 
     @Test
-    @DisplayName("@Retryable should handle IOException")
-    void shouldRetryOnIOException() throws Exception {
-      var method = ExternalFileService.class.getDeclaredMethod(
-          "downloadExternalPublicObjectAndUploadToStorage",
-          String.class, String.class, String.class
-      );
-      var retryable = method.getAnnotation(org.springframework.retry.annotation.Retryable.class);
-      var retryFor = retryable.retryFor();
-      assertThat(retryFor).contains(java.io.IOException.class, RuntimeException.class);
+    @DisplayName("should propagate IOException thrown by HttpClient")
+    void shouldPropagateIOExceptionFromHttpClient() throws Exception {
+      doThrow(new IOException("Connection refused")).when(httpClient).send(any(HttpRequest.class), any());
+
+      assertThatThrownBy(() -> externalFileService.downloadExternalPublicObjectAndUploadToStorage(
+          TEST_FILE_URL, ORIGINAL_FILE_NAME, FOLDER_NAME
+      )).isInstanceOf(IOException.class)
+        .hasMessageContaining("Connection refused");
     }
 
     @Test
-    @DisplayName("@Retryable should use expression for max attempts")
-    void shouldUseMaxAttemptsExpression() throws Exception {
-      var method = ExternalFileService.class.getDeclaredMethod(
-          "downloadExternalPublicObjectAndUploadToStorage",
-          String.class, String.class, String.class
-      );
-      var retryable = method.getAnnotation(org.springframework.retry.annotation.Retryable.class);
-      assertThat(retryable.maxAttemptsExpression()).isEqualTo("${retry.download.max-attempts}");
+    @DisplayName("should propagate InterruptedException thrown by HttpClient")
+    void shouldPropagateInterruptedExceptionFromHttpClient() throws Exception {
+      doThrow(new InterruptedException("Thread interrupted")).when(httpClient).send(any(HttpRequest.class), any());
+
+      assertThatThrownBy(() -> externalFileService.downloadExternalPublicObjectAndUploadToStorage(
+          TEST_FILE_URL, ORIGINAL_FILE_NAME, FOLDER_NAME
+      )).isInstanceOf(InterruptedException.class);
     }
 
     @Test
-    @DisplayName("@Retryable should have backoff configuration")
-    void shouldHaveBackoffConfiguration() throws Exception {
-      var method = ExternalFileService.class.getDeclaredMethod(
-          "downloadExternalPublicObjectAndUploadToStorage",
-          String.class, String.class, String.class
-      );
-      var retryable = method.getAnnotation(org.springframework.retry.annotation.Retryable.class);
-      var backoff = retryable.backoff();
-      assertThat(backoff.delayExpression()).isEqualTo("${retry.download.delay}");
+    @DisplayName("should propagate BusinessException thrown by MinioService during upload")
+    void shouldPropagateBusinessExceptionFromMinioService() throws Exception {
+      var responseBody = new ByteArrayInputStream("image-content".getBytes());
+      var mockHeaders = mock(HttpHeaders.class);
+      var mockResponse = mockHttpResponse(200, responseBody, mockHeaders);
+      doReturn(mockResponse).when(httpClient).send(any(HttpRequest.class), any());
+      doThrow(new BusinessException("storage.error.upload-file", null))
+          .when(minioService).uploadStream(any(), any(), any(), any());
+
+      assertThatThrownBy(() -> externalFileService.downloadExternalPublicObjectAndUploadToStorage(
+          TEST_FILE_URL, ORIGINAL_FILE_NAME, FOLDER_NAME
+      )).isInstanceOf(BusinessException.class)
+        .hasMessage("storage.error.upload-file");
     }
   }
 
   @Nested
-  @DisplayName("Method signature validation")
-  class MethodSignatureTests {
+  @DisplayName("@Retryable annotation")
+  class RetryableAnnotationTests {
 
     @Test
-    @DisplayName("method should accept file URL as String")
-    void methodShouldAcceptFileUrl() throws Exception {
+    @DisplayName("should annotate method with @Retryable")
+    void shouldAnnotateMethodWithRetryable() throws Exception {
       var method = ExternalFileService.class.getDeclaredMethod(
           "downloadExternalPublicObjectAndUploadToStorage",
           String.class, String.class, String.class
       );
-      var parameterTypes = method.getParameterTypes();
-      assertThat(parameterTypes[0]).isEqualTo(String.class);
+      assertThat(method.getAnnotation(Retryable.class)).isNotNull();
     }
 
     @Test
-    @DisplayName("method should accept file name as String")
-    void methodShouldAcceptFileName() throws Exception {
+    @DisplayName("@Retryable should retry on both IOException and RuntimeException")
+    void shouldRetryOnIOExceptionAndRuntimeException() throws Exception {
       var method = ExternalFileService.class.getDeclaredMethod(
           "downloadExternalPublicObjectAndUploadToStorage",
           String.class, String.class, String.class
       );
-      var parameterTypes = method.getParameterTypes();
-      assertThat(parameterTypes[1]).isEqualTo(String.class);
+      var retryFor = method.getAnnotation(Retryable.class).retryFor();
+      assertThat(retryFor).contains(IOException.class, RuntimeException.class);
     }
 
     @Test
-    @DisplayName("method should accept folder name as String")
-    void methodShouldAcceptFolderName() throws Exception {
+    @DisplayName("@Retryable should resolve max attempts from property expression")
+    void shouldUsePropertyExpressionForMaxAttempts() throws Exception {
       var method = ExternalFileService.class.getDeclaredMethod(
           "downloadExternalPublicObjectAndUploadToStorage",
           String.class, String.class, String.class
       );
-      var parameterTypes = method.getParameterTypes();
-      assertThat(parameterTypes[2]).isEqualTo(String.class);
+      assertThat(method.getAnnotation(Retryable.class).maxAttemptsExpression())
+          .isEqualTo("${retry.download.max-attempts}");
     }
 
     @Test
-    @DisplayName("method should throw IOException and InterruptedException")
-    void methodShouldDeclareExceptions() throws Exception {
+    @DisplayName("@Retryable should resolve backoff delay from property expression")
+    void shouldUsePropertyExpressionForBackoffDelay() throws Exception {
       var method = ExternalFileService.class.getDeclaredMethod(
           "downloadExternalPublicObjectAndUploadToStorage",
           String.class, String.class, String.class
       );
-      var exceptionTypes = method.getExceptionTypes();
-      assertThat(exceptionTypes)
-          .contains(java.io.IOException.class, InterruptedException.class);
+      assertThat(method.getAnnotation(Retryable.class).backoff().delayExpression())
+          .isEqualTo("${retry.download.delay}");
     }
   }
 
   @Nested
-  @DisplayName("HTTP Client configuration")
+  @DisplayName("HttpClient configuration")
   class HttpClientConfigurationTests {
 
     @Test
-    @DisplayName("should have HttpClient field")
-    void shouldHaveHttpClientField() throws Exception {
-      var field = ExternalFileService.class.getDeclaredField("httpClient");
-      assertThat(field).isNotNull();
-      assertThat(field.getType()).isEqualTo(java.net.http.HttpClient.class);
+    @DisplayName("should configure HttpClient with HTTP/1.1 to avoid stream concurrency limits")
+    void shouldConfigureHttpClientWithHttp11() throws Exception {
+      var freshService = new ExternalFileService(minioService);
+      var httpClientField = ExternalFileService.class.getDeclaredField("httpClient");
+      httpClientField.setAccessible(true);
+      var client = (HttpClient) httpClientField.get(freshService);
+      assertThat(client.version()).isEqualTo(HttpClient.Version.HTTP_1_1);
     }
 
     @Test
-    @DisplayName("HttpClient should be configured in constructor")
-    void httpClientShouldBeConfiguredInConstructor() {
-      assertThat(externalFileService).isNotNull();
+    @DisplayName("should configure HttpClient to follow redirects normally")
+    void shouldConfigureHttpClientToFollowRedirects() throws Exception {
+      var freshService = new ExternalFileService(minioService);
+      var httpClientField = ExternalFileService.class.getDeclaredField("httpClient");
+      httpClientField.setAccessible(true);
+      var client = (HttpClient) httpClientField.get(freshService);
+      assertThat(client.followRedirects()).isEqualTo(HttpClient.Redirect.NORMAL);
     }
   }
 
-  @Nested
-  @DisplayName("MinioService dependency")
-  class MinioServiceDependencyTests {
-
-    @Test
-    @DisplayName("should inject MinioService dependency")
-    void shouldInjectMinioService() throws Exception {
-      var field = ExternalFileService.class.getDeclaredField("minioService");
-      assertThat(field).isNotNull();
-      assertThat(field.getType()).isEqualTo(MinioService.class);
+  @SuppressWarnings("unchecked")
+  private HttpResponse<InputStream> mockHttpResponse(int statusCode, InputStream body, HttpHeaders headers) {
+    var response = (HttpResponse<InputStream>) mock(HttpResponse.class);
+    when(response.statusCode()).thenReturn(statusCode);
+    if (statusCode == 200) {
+      when(response.body()).thenReturn(body);
+      when(response.headers()).thenReturn(headers);
     }
-
-    @Test
-    @DisplayName("should accept MinioService in constructor")
-    void shouldAcceptMinioServiceInConstructor() throws Exception {
-      var constructors = ExternalFileService.class.getDeclaredConstructors();
-      var hasMinioServiceConstructor = java.util.Arrays.stream(constructors)
-          .anyMatch(c -> c.getParameterCount() == 1 &&
-              c.getParameterTypes()[0].equals(MinioService.class));
-      assertThat(hasMinioServiceConstructor).isTrue();
-    }
+    return response;
   }
 }
