@@ -405,7 +405,7 @@ class GlobalExceptionHandlerTest {
       when(messageSource.getMessage(anyString(), any(), any(Locale.class)))
           .thenReturn("Method not supported");
 
-      ResponseEntity<Object> response = handler.handleBindException(exception, null, null, webRequest);
+      ResponseEntity<Object> response = handler.handleBootBindException(exception, webRequest);
 
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
     }
