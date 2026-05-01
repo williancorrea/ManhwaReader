@@ -1,11 +1,8 @@
 package dev.williancorrea.manhwa.reader.storage.minio;
 
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.http.HttpHeaders;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -23,12 +20,6 @@ import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
 import io.minio.Result;
 import io.minio.SetBucketPolicyArgs;
-import io.minio.errors.ErrorResponseException;
-import io.minio.errors.InsufficientDataException;
-import io.minio.errors.InternalException;
-import io.minio.errors.InvalidResponseException;
-import io.minio.errors.ServerException;
-import io.minio.errors.XmlParserException;
 import io.minio.http.Method;
 import io.minio.messages.Item;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,6 +28,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class MinioService implements StorageInterface {
+
+  private static final int MULTIPART_THRESHOLD = 10 * 1024 * 1024;
 
   private final MinioClient minioClient;
 
@@ -57,27 +50,20 @@ public class MinioService implements StorageInterface {
               .recursive(true)
               .build()
       );
-
       for (Result<Item> item : result) {
         objects.add(item.get().objectName());
       }
       return objects;
     } catch (Exception e) {
-      throw new BusinessException("storage.error.list-objects", new Object[]{e.getMessage()}, e);
+      throw new BusinessException("storage.error.list-objects", new Object[] {e.getMessage()}, e);
     }
   }
 
   @Override
   public InputStream findObjectByName(String fileName) {
     try {
-      return minioClient.getObject(
-          GetObjectArgs.builder()
-              .bucket(bucketName)
-              .object(fileName)
-              .build()
-      );
+      return minioClient.getObject(GetObjectArgs.builder().bucket(bucketName).object(fileName).build());
     } catch (Exception e) {
-
       throw new BusinessException("storage.error.fetch-object", null, e);
     }
   }
@@ -85,13 +71,8 @@ public class MinioService implements StorageInterface {
   @Override
   public String findObjectByNamePresigned(String fileName) {
     try {
-      return this.minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
-          .method(Method.GET)
-          .bucket(bucketName)
-          .object(fileName)
-          .build());
+      return getPresignedUrl(fileName);
     } catch (Exception e) {
-
       throw new BusinessException("storage.error.fetch-object", null, e);
     }
   }
@@ -100,11 +81,8 @@ public class MinioService implements StorageInterface {
   public void remove(String nameObject) {
     try {
       minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(nameObject).build());
-    } catch (InvalidKeyException | ErrorResponseException | InsufficientDataException | InternalException
-             | InvalidResponseException | NoSuchAlgorithmException | ServerException | XmlParserException
-             | IllegalArgumentException | IOException e) {
-
-      throw new BusinessException("storage.error.remove-object", new Object[]{e.getMessage()}, e);
+    } catch (Exception e) {
+      throw new BusinessException("storage.error.remove-object", new Object[] {e.getMessage()}, e);
     }
   }
 
@@ -122,10 +100,7 @@ public class MinioService implements StorageInterface {
   public String uploadFile(MultipartFile file) {
     String fileName = renameFile(file.getOriginalFilename());
     try {
-      if (!this.minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
-        this.minioClient.makeBucket(MakeBucketArgs.builder().bucket(this.bucketName).build());
-      }
-
+      ensureBucketExists(false);
       minioClient.putObject(
           PutObjectArgs.builder()
               .bucket(bucketName)
@@ -133,21 +108,60 @@ public class MinioService implements StorageInterface {
               .stream(file.getInputStream(), file.getSize(), -1)
               .build()
       );
-      return this.minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
-          .method(Method.GET)
-          .bucket(bucketName)
-          .object(fileName)
-          .build());
-
-    } catch (InvalidKeyException | ErrorResponseException | InsufficientDataException | InternalException |
-             InvalidResponseException | NoSuchAlgorithmException | ServerException | XmlParserException |
-             IllegalArgumentException | IOException e) {
-
-      throw new BusinessException("storage.error.upload-file", new Object[]{e.getMessage()}, e);
+      return getPresignedUrl(fileName);
+    } catch (Exception e) {
+      throw new BusinessException("storage.error.upload-file", new Object[] {e.getMessage()}, e);
     }
   }
 
-  private void makeBucketPublic() {
+  @Override
+  public String uploadStream(InputStream stream, String originalFileName, HttpHeaders headers,
+                             String originalFolderName) {
+    String objectPath = normalizePath(originalFileName, originalFolderName).toLowerCase();
+    try {
+      ensureBucketExists(true);
+
+      long fileSize = headers.firstValueAsLong("Content-Length").orElse(-1);
+      String contentType = headers.firstValue("Content-Type").orElse("application/octet-stream");
+
+      var objectArgs = PutObjectArgs.builder()
+          .bucket(bucketName)
+          .contentType(contentType)
+          .object(objectPath);
+
+      if (fileSize > 0) {
+        objectArgs.stream(stream, fileSize, -1);
+      } else {
+        objectArgs.stream(stream, -1, MULTIPART_THRESHOLD);
+      }
+      minioClient.putObject(objectArgs.build());
+
+      return getPresignedUrl(objectPath);
+    } catch (Exception e) {
+      throw new BusinessException("storage.error.upload-file", new Object[] {e.getMessage()}, e);
+    }
+  }
+
+  private void ensureBucketExists(boolean makePublic) throws Exception {
+    if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
+      minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+      if (makePublic) {
+        makeBucketPublic();
+      }
+    }
+  }
+
+  private String getPresignedUrl(String objectPath) throws Exception {
+    return minioClient.getPresignedObjectUrl(
+        GetPresignedObjectUrlArgs.builder()
+            .method(Method.GET)
+            .bucket(bucketName)
+            .object(objectPath)
+            .build()
+    );
+  }
+
+  private void makeBucketPublic() throws Exception {
     String policy = """
         {
           "Version":"2012-10-17",
@@ -162,52 +176,9 @@ public class MinioService implements StorageInterface {
         }
         """.formatted(bucketName);
 
-    try {
-      minioClient.setBucketPolicy(
-          SetBucketPolicyArgs.builder()
-              .bucket(bucketName)
-              .config(policy)
-              .build()
-      );
-    } catch (Exception e) {
-      throw new BusinessException("storage.error.set-bucket-policy", new Object[]{e.getMessage()}, e);
-    }
-  }
-
-  public String uploadStream(InputStream stream, String originalFileName, HttpHeaders headers,
-                             String originalFolderName) {
-
-    String objectPath = normalizePath(originalFileName, originalFolderName);
-    try {
-      if (!this.minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
-        this.minioClient.makeBucket(MakeBucketArgs.builder().bucket(this.bucketName).build()); // Create bucket
-        this.makeBucketPublic(); // Make the bucket public
-      }
-
-      long fileSize = headers.firstValueAsLong("Content-Length").orElse(-1);
-      String contentType = headers.firstValue("Content-Type").orElse("application/octet-stream");
-      var objectArgs = PutObjectArgs.builder()
-          .bucket(bucketName)
-          .contentType(contentType)
-          .object(objectPath.toLowerCase());
-      if (fileSize > 0) {
-        objectArgs.stream(stream, fileSize, -1); //Tamanho do arquivo valido
-      } else {
-        objectArgs.stream(stream, -1, 10 * 1024 * 1024);// Definindo um partSize válido (mínimo 5MB).
-      }
-      minioClient.putObject(objectArgs.build());
-
-      return this.minioClient.getPresignedObjectUrl(
-          GetPresignedObjectUrlArgs.builder()
-              .method(Method.GET)
-              .bucket(bucketName)
-              .object(objectPath.toLowerCase())
-              .build()
-      );
-
-    } catch (Exception e) {
-      throw new BusinessException("storage.error.upload-file", new Object[]{e.getMessage()}, e);
-    }
+    minioClient.setBucketPolicy(
+        SetBucketPolicyArgs.builder().bucket(bucketName).config(policy).build()
+    );
   }
 
   private String normalizePath(String originalFileName, String originalFolderName) {
@@ -216,21 +187,15 @@ public class MinioService implements StorageInterface {
 
     String fileName = RemoveAccentuationUtils.normalize(originalFileName);
 
-    var folder = originalFolderName.split("/");
     StringBuilder folderName = new StringBuilder();
-    for (String s : folder) {
+    for (String segment : originalFolderName.split("/")) {
       if (!folderName.isEmpty()) {
         folderName.append("/");
       }
-      folderName.append(RemoveAccentuationUtils.normalize(s));
+      folderName.append(RemoveAccentuationUtils.normalize(segment));
     }
 
-    if (!folderName.isEmpty()) {
-      return folderName.append("/")
-          .append(fileName)
-          .toString();
-    }
-    return fileName;
+    return folderName.isEmpty() ? fileName : folderName.append("/").append(fileName).toString();
   }
 
   private String renameFile(String originalName) {
