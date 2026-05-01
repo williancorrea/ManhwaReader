@@ -283,6 +283,12 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
       work.setUpdatedAt(OffsetDateTime.now());
       work = workService.saveAndNotifyIfNew(work, SynchronizationOriginType.MEDIOCRESCAN);
 
+      if (work.getDisabled() != null && work.getDisabled()) {
+        log.info("--> [MediocrescanService][synchronizeByExternalId] Work ({}) is disabled, skipping chapters...",
+            obra.getNome());
+        return;
+      }
+
       prepareSyncRelationships(work, obra);
       prepareSyncChapters(work, obra, pageIndex, pageTotal);
 
@@ -344,7 +350,8 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
         log.error("--> [MediocrescanService][syncAttributes] ({}) Unknown status: {}",
             dto.getNome(),
             dto.getStatus().getNome());
-        throw new BusinessException("scraper.mediocrescan.error.status-not-found", new Object[]{dto.getStatus().getNome()});
+        throw new BusinessException("scraper.mediocrescan.error.status-not-found",
+            new Object[] {dto.getStatus().getNome()});
       }
     };
   }
@@ -707,7 +714,8 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
       cancelled.set(true);
       futures.forEach(f -> f.cancel(true));
       chapterExecutor.shutdownNow();
-      throw new BusinessException("scraper.mediocrescan.error.download-chapter-pages", new Object[]{chapterDto.getNumero()}, e.getCause());
+      throw new BusinessException("scraper.mediocrescan.error.download-chapter-pages",
+          new Object[] {chapterDto.getNumero()}, e.getCause());
     } finally {
       chapterExecutor.shutdown();
     }
