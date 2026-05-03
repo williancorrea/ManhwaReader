@@ -46,7 +46,7 @@ public class Page implements Serializable {
   private PageType type;
 
   @Lob
-  @Column(columnDefinition = "TEXT")
+  @Column(columnDefinition = "MEDIUMTEXT")
   private String content;
   
   private Boolean disabled;
