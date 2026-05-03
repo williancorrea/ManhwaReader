@@ -204,7 +204,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
               24, //Padrao 24
               pageIndex.intValue(),
               "data_ultimo_cap",
-              "5",  // 1,3,5
+              "5,3",  // 1,3,5
               titulo
           );
 
@@ -262,7 +262,9 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
       work = scraperBase.findWorkOrCreate(obra.getId().toString(), SynchronizationOriginType.MEDIOCRESCAN);
 
       if (scraperBase.isWorkUpdated(work, SynchronizationOriginType.MEDIOCRESCAN, obra.getDataUltimoCap())) {
-        log.info("--> [MediocrescanService][synchronizeByExternalId] ALREADY UPDATED - Work ({})", obra.getNome());
+        log.info("--> [MediocrescanService][synchronizeByExternalId] ALREADY UPDATED - {} - {}",
+            obra.getFormato().getNome(),
+            obra.getNome());
         return;
       }
 
@@ -301,7 +303,8 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
       work.setUpdatedAt(OffsetDateTime.now());
       work = workService.save(work);
 
-      log.info("<-- [MediocrescanService][synchronizeByExternalId] Synchronization completed: {}",
+      log.info("<-- [MediocrescanService][synchronizeByExternalId] Synchronization completed: {} - {}",
+          obra.getFormato().getNome(),
           obra.getNome().trim());
     } catch (Exception e) {
       scraperBase.syncWorkError(
@@ -632,13 +635,14 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
                           Long pIndex, Long pTotal) {
 
     if (Boolean.FALSE.equals(chapterDto.getTemPaginas())) {
-      syncPageNovel(work, dto, chapter, chapterDto);
+      syncPageNovel(work, dto, chapter, chapterDto, pIndex, pTotal);
       return;
     }
 
-    log.info("--> X <-- Pagination {}/{} [MediocrescanService][syncPage] ({}) Syncing chapter {}",
+    log.info("--> X <-- Pagination {}/{} [MediocrescanService][syncPage] - {} - ({}) Syncing chapter {}",
         pIndex,
         pTotal,
+        dto.getFormato().getNome(),
         dto.getNome(),
         chapterDto.getNumero());
     var pageDto = mediocrescanClient.obterCapitulo(getToken(), chapterDto.getId());
@@ -724,7 +728,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
 
   @Transactional
   protected void syncPageNovel(Work work, Mediocrescan_ObraDTO dto, Chapter chapter,
-                               Mediocrescan_CapituloDTO chapterDto) {
+                               Mediocrescan_CapituloDTO chapterDto, Long pIndex, Long pTotal) {
 
     if (Boolean.TRUE.equals(chapterDto.getTemPaginas())) {
       return;
@@ -744,7 +748,10 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
       return;
     }
 
-    log.info("--> X <-- [MediocrescanService][syncPageNovel] ({}) Syncing chapter {}", dto.getNome(),
+    log.info("--> X <-- Pagination {}/{} - [MediocrescanService][syncPageNovel] ({}) Syncing chapter {}",
+        pIndex,
+        pTotal,
+        dto.getNome(),
         chapterDto.getNumero());
     var pageDto = mediocrescanClient.obterCapitulo(getToken(), chapterDto.getId());
 
