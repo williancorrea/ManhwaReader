@@ -21,7 +21,8 @@
       "Bash(xargs grep:*)",
       "Bash(xargs wc *)",
       "Bash(./mvnw *)",
-      "Bash(npm *)"      
+      "Bash(npm *)",
+      "Bash(Get-ChildItem *)"
     ],
     "deny": [
       "Bash(git push *)"
