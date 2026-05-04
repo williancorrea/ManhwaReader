@@ -78,11 +78,11 @@ public class LibraryService {
     if (workIds == null || workIds.isEmpty()) {
       return Map.of();
     }
-    return repository.findByUserIdAndWorkIdIn(user.getId(), workIds)
+    return repository.findWorkIdAndStatusByUserIdAndWorkIdIn(user.getId(), workIds)
         .stream()
         .collect(Collectors.toMap(
-            l -> l.getWork().getId(),
-            Library::getStatus
+            row -> (UUID) row[0],
+            row -> (LibraryStatus) row[1]
         ));
   }
 

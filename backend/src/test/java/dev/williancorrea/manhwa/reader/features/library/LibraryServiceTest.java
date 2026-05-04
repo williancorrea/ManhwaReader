@@ -406,16 +406,12 @@ class LibraryServiceTest {
     @DisplayName("should return status map for given work ids")
     void shouldReturnStatusMapForGivenWorkIds() {
       var work2Id = UUID.randomUUID();
-      var library2 = Library.builder()
-          .id(UUID.randomUUID())
-          .user(user)
-          .work(Work.builder().id(work2Id).build())
-          .status(LibraryStatus.COMPLETED)
-          .build();
       var workIds = List.of(workId, work2Id);
-      var libraries = List.of(library, library2);
+      List<Object[]> rows = new ArrayList<>();
+      rows.add(new Object[]{workId, LibraryStatus.READING});
+      rows.add(new Object[]{work2Id, LibraryStatus.COMPLETED});
 
-      when(libraryRepository.findByUserIdAndWorkIdIn(userId, workIds)).thenReturn(libraries);
+      when(libraryRepository.findWorkIdAndStatusByUserIdAndWorkIdIn(userId, workIds)).thenReturn(rows);
 
       var result = libraryService.findStatusMapByUserAndWorkIds(user, workIds);
 
@@ -424,7 +420,7 @@ class LibraryServiceTest {
           .hasSize(2)
           .containsEntry(workId, LibraryStatus.READING)
           .containsEntry(work2Id, LibraryStatus.COMPLETED);
-      verify(libraryRepository).findByUserIdAndWorkIdIn(userId, workIds);
+      verify(libraryRepository).findWorkIdAndStatusByUserIdAndWorkIdIn(userId, workIds);
     }
 
     @Test
@@ -448,7 +444,9 @@ class LibraryServiceTest {
     void shouldReturnSingleEntryMap() {
       var workIds = List.of(workId);
 
-      when(libraryRepository.findByUserIdAndWorkIdIn(userId, workIds)).thenReturn(List.of(library));
+      List<Object[]> rows = new ArrayList<>();
+      rows.add(new Object[]{workId, LibraryStatus.READING});
+      when(libraryRepository.findWorkIdAndStatusByUserIdAndWorkIdIn(userId, workIds)).thenReturn(rows);
 
       var result = libraryService.findStatusMapByUserAndWorkIds(user, workIds);
 
@@ -462,22 +460,13 @@ class LibraryServiceTest {
     void shouldHandleMultipleStatuses() {
       var work2Id = UUID.randomUUID();
       var work3Id = UUID.randomUUID();
-      var library2 = Library.builder()
-          .id(UUID.randomUUID())
-          .user(user)
-          .work(Work.builder().id(work2Id).build())
-          .status(LibraryStatus.COMPLETED)
-          .build();
-      var library3 = Library.builder()
-          .id(UUID.randomUUID())
-          .user(user)
-          .work(Work.builder().id(work3Id).build())
-          .status(LibraryStatus.PLAN_TO_READ)
-          .build();
       var workIds = List.of(workId, work2Id, work3Id);
-      var libraries = List.of(library, library2, library3);
+      List<Object[]> rows = new ArrayList<>();
+      rows.add(new Object[]{workId, LibraryStatus.READING});
+      rows.add(new Object[]{work2Id, LibraryStatus.COMPLETED});
+      rows.add(new Object[]{work3Id, LibraryStatus.PLAN_TO_READ});
 
-      when(libraryRepository.findByUserIdAndWorkIdIn(userId, workIds)).thenReturn(libraries);
+      when(libraryRepository.findWorkIdAndStatusByUserIdAndWorkIdIn(userId, workIds)).thenReturn(rows);
 
       var result = libraryService.findStatusMapByUserAndWorkIds(user, workIds);
 

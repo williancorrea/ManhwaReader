@@ -14,8 +14,8 @@ public interface LibraryRepository extends JpaRepository<Library, UUID> {
 
   Optional<Library> findByUser_IdAndWork_Id(UUID userId, UUID workId);
 
-  @Query("SELECT l FROM Library l WHERE l.user.id = :userId AND l.work.id IN :workIds")
-  List<Library> findByUserIdAndWorkIdIn(
+  @Query("SELECT l.work.id, l.status FROM Library l WHERE l.user.id = :userId AND l.work.id IN :workIds")
+  List<Object[]> findWorkIdAndStatusByUserIdAndWorkIdIn(
       @Param("userId") UUID userId,
       @Param("workIds") List<UUID> workIds
   );
@@ -90,14 +90,17 @@ public interface LibraryRepository extends JpaRepository<Library, UUID> {
         COALESCE(
           (SELECT COUNT(c2.id) FROM chapter c2
            WHERE c2.work_id = w.id AND c2.disabled = false
-           AND c2.id NOT IN (SELECT rp.chapter_id FROM reading_progress rp WHERE rp.user_id = :userId)
+           AND NOT EXISTS (
+             SELECT 1 FROM reading_progress rp WHERE rp.chapter_id = c2.id AND rp.user_id = :userId
+           )
           ), 0
         ) AS unread_count,
-        (SELECT lang.code FROM language lang WHERE lang.id = w.original_language_id) AS original_language_code,
-        (SELECT lang.flag FROM language lang WHERE lang.id = w.original_language_id) AS original_language_flag,
-        (SELECT lang.name FROM language lang WHERE lang.id = w.original_language_id) AS original_language_name
+        lang.code AS original_language_code,
+        lang.flag AS original_language_flag,
+        lang.name AS original_language_name
       FROM library l
       JOIN work w ON l.work_id = w.id
+      LEFT JOIN language lang ON lang.id = w.original_language_id
       WHERE l.user_id = :userId
         AND (:status IS NULL OR l.status = :status)
         AND (:title IS NULL OR EXISTS (
