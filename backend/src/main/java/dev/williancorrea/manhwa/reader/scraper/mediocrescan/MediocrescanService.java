@@ -543,7 +543,7 @@ public class MediocrescanService implements Scraper<Mediocrescan_ObraDTO> {
                 work,
                 scanlator,
                 language)
-            .orElseGet(() -> null);
+            .orElse(null);
 
         var toNotifyNew = false;
         if (chapter == null) {
