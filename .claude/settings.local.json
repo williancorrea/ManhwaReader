@@ -20,7 +20,9 @@
       "Bash(echo *)",
       "Bash(xargs grep:*)",
       "Bash(xargs wc *)",
+      "Bash(xargs head *)",
       "Bash(./mvnw *)",
+      "Bash(.\\\\mvnw test *)",
       "Bash(npm *)",
       "Bash(Get-ChildItem *)"
     ],
