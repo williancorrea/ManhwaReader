@@ -162,7 +162,7 @@ public class ScraperBase {
             && obj.getLanguage().getCode().equalsIgnoreCase(item.getLanguage())) {
           found.set(true);
         }
-        if(!findOfficialTitle.get() && obj.getIsOfficial()) {
+        if(!findOfficialTitle.get() && Boolean.TRUE.equals(obj.getIsOfficial())) {
           findOfficialTitle.set(true);
         }
       });
