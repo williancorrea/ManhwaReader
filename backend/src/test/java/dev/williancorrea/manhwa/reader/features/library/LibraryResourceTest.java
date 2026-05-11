@@ -1,6 +1,5 @@
 package dev.williancorrea.manhwa.reader.features.library;
 
-import dev.williancorrea.manhwa.reader.features.access.user.User;
 import dev.williancorrea.manhwa.reader.features.access.user.UserRepository;
 import dev.williancorrea.manhwa.reader.features.library.dto.LibraryItemOutput;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +43,6 @@ class LibraryResourceTest {
   private LibraryResource libraryResource;
 
   private UUID userId;
-  private User user;
   private UserDetails userDetails;
   private String minioUrl;
   private String bucketName;
@@ -52,11 +50,6 @@ class LibraryResourceTest {
   @BeforeEach
   void setUp() {
     userId = UUID.randomUUID();
-    user = User.builder()
-        .id(userId)
-        .name("Test User")
-        .email("test@example.com")
-        .build();
 
     userDetails = mock(UserDetails.class);
     when(userDetails.getUsername()).thenReturn("test@example.com");
@@ -81,7 +74,7 @@ class LibraryResourceTest {
       );
       var items = List.of(libraryItem);
 
-      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+      when(userRepository.findIdByEmail("test@example.com")).thenReturn(Optional.of(userId));
       when(libraryService.findContinueReading(userId, 6, minioUrl + "/" + bucketName))
           .thenReturn(items);
 
@@ -92,14 +85,14 @@ class LibraryResourceTest {
           .isNotNull()
           .hasSize(1)
           .contains(libraryItem);
-      verify(userRepository).findByEmail("test@example.com");
+      verify(userRepository).findIdByEmail("test@example.com");
       verify(libraryService).findContinueReading(userId, 6, minioUrl + "/" + bucketName);
     }
 
     @Test
     @DisplayName("should limit size to maximum of 20")
     void shouldLimitSizeToMaximumOf20() {
-      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+      when(userRepository.findIdByEmail("test@example.com")).thenReturn(Optional.of(userId));
       when(libraryService.findContinueReading(userId, 20, minioUrl + "/" + bucketName))
           .thenReturn(List.of());
 
@@ -111,7 +104,7 @@ class LibraryResourceTest {
     @Test
     @DisplayName("should accept size less than 20")
     void shouldAcceptSizeLessThan20() {
-      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+      when(userRepository.findIdByEmail("test@example.com")).thenReturn(Optional.of(userId));
       when(libraryService.findContinueReading(userId, 10, minioUrl + "/" + bucketName))
           .thenReturn(List.of());
 
@@ -123,7 +116,7 @@ class LibraryResourceTest {
     @Test
     @DisplayName("should return empty list when no items available")
     void shouldReturnEmptyListWhenNoItemsAvailable() {
-      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+      when(userRepository.findIdByEmail("test@example.com")).thenReturn(Optional.of(userId));
       when(libraryService.findContinueReading(userId, 6, minioUrl + "/" + bucketName))
           .thenReturn(List.of());
 
@@ -136,7 +129,7 @@ class LibraryResourceTest {
     @Test
     @DisplayName("should construct correct storage base url")
     void shouldConstructCorrectStorageBaseUrl() {
-      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+      when(userRepository.findIdByEmail("test@example.com")).thenReturn(Optional.of(userId));
       when(libraryService.findContinueReading(userId, 6, "https://minio.example.com/covers"))
           .thenReturn(List.of());
 
@@ -158,7 +151,7 @@ class LibraryResourceTest {
       );
       var items = List.of(item1, item2);
 
-      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+      when(userRepository.findIdByEmail("test@example.com")).thenReturn(Optional.of(userId));
       when(libraryService.findContinueReading(userId, 6, minioUrl + "/" + bucketName))
           .thenReturn(items);
 
@@ -183,7 +176,7 @@ class LibraryResourceTest {
       );
       Page<LibraryItemOutput> page = new PageImpl<>(List.of(libraryItem), PageRequest.of(0, 20), 1);
 
-      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+      when(userRepository.findIdByEmail("test@example.com")).thenReturn(Optional.of(userId));
       when(libraryService.findUserLibrary(
           eq(userId), eq(null), eq(null), any(Pageable.class), eq(minioUrl + "/" + bucketName)
       )).thenReturn(page);
@@ -194,7 +187,7 @@ class LibraryResourceTest {
       assertThat(response.getBody())
           .isNotNull()
           .hasSize(1);
-      verify(userRepository).findByEmail("test@example.com");
+      verify(userRepository).findIdByEmail("test@example.com");
     }
 
     @Test
@@ -202,7 +195,7 @@ class LibraryResourceTest {
     void shouldLimitSizeToMaximumOf50() {
       Page<LibraryItemOutput> page = new PageImpl<>(List.of(), PageRequest.of(0, 50), 0);
 
-      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+      when(userRepository.findIdByEmail("test@example.com")).thenReturn(Optional.of(userId));
       when(libraryService.findUserLibrary(
           eq(userId), eq(null), eq(null), any(Pageable.class), eq(minioUrl + "/" + bucketName)
       )).thenReturn(page);
@@ -219,7 +212,7 @@ class LibraryResourceTest {
     void shouldAcceptSizeLessThan50() {
       Page<LibraryItemOutput> page = new PageImpl<>(List.of(), PageRequest.of(0, 30), 0);
 
-      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+      when(userRepository.findIdByEmail("test@example.com")).thenReturn(Optional.of(userId));
       when(libraryService.findUserLibrary(
           eq(userId), eq(null), eq(null), any(Pageable.class), eq(minioUrl + "/" + bucketName)
       )).thenReturn(page);
@@ -236,7 +229,7 @@ class LibraryResourceTest {
     void shouldFilterByStatus() {
       Page<LibraryItemOutput> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
 
-      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+      when(userRepository.findIdByEmail("test@example.com")).thenReturn(Optional.of(userId));
       when(libraryService.findUserLibrary(
           eq(userId), eq(LibraryStatus.READING), eq(null), any(Pageable.class), eq(minioUrl + "/" + bucketName)
       )).thenReturn(page);
@@ -253,7 +246,7 @@ class LibraryResourceTest {
     void shouldFilterByTitle() {
       Page<LibraryItemOutput> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
 
-      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+      when(userRepository.findIdByEmail("test@example.com")).thenReturn(Optional.of(userId));
       when(libraryService.findUserLibrary(
           eq(userId), eq(null), eq("Test"), any(Pageable.class), eq(minioUrl + "/" + bucketName)
       )).thenReturn(page);
@@ -270,7 +263,7 @@ class LibraryResourceTest {
     void shouldFilterByBothStatusAndTitle() {
       Page<LibraryItemOutput> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
 
-      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+      when(userRepository.findIdByEmail("test@example.com")).thenReturn(Optional.of(userId));
       when(libraryService.findUserLibrary(
           eq(userId), eq(LibraryStatus.COMPLETED), eq("Test"), any(Pageable.class), eq(minioUrl + "/" + bucketName)
       )).thenReturn(page);
@@ -287,7 +280,7 @@ class LibraryResourceTest {
     void shouldReturnEmptyPageWhenNoResults() {
       Page<LibraryItemOutput> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
 
-      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+      when(userRepository.findIdByEmail("test@example.com")).thenReturn(Optional.of(userId));
       when(libraryService.findUserLibrary(
           eq(userId), eq(null), eq(null), any(Pageable.class), eq(minioUrl + "/" + bucketName)
       )).thenReturn(page);
@@ -308,7 +301,7 @@ class LibraryResourceTest {
       );
       Page<LibraryItemOutput> page1 = new PageImpl<>(List.of(item1), PageRequest.of(0, 20), 40);
 
-      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+      when(userRepository.findIdByEmail("test@example.com")).thenReturn(Optional.of(userId));
       when(libraryService.findUserLibrary(
           eq(userId), eq(null), eq(null), any(Pageable.class), eq(minioUrl + "/" + bucketName)
       )).thenReturn(page1);
@@ -329,7 +322,7 @@ class LibraryResourceTest {
       );
       Page<LibraryItemOutput> page = new PageImpl<>(List.of(item), PageRequest.of(1, 20), 40);
 
-      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+      when(userRepository.findIdByEmail("test@example.com")).thenReturn(Optional.of(userId));
       when(libraryService.findUserLibrary(
           eq(userId), eq(null), eq(null), any(Pageable.class), eq(minioUrl + "/" + bucketName)
       )).thenReturn(page);
@@ -346,7 +339,7 @@ class LibraryResourceTest {
     void shouldConstructCorrectStorageBaseUrl() {
       Page<LibraryItemOutput> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
 
-      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+      when(userRepository.findIdByEmail("test@example.com")).thenReturn(Optional.of(userId));
       when(libraryService.findUserLibrary(
           eq(userId), eq(null), eq(null), any(Pageable.class), eq("https://minio.example.com/covers")
       )).thenReturn(page);
@@ -363,7 +356,7 @@ class LibraryResourceTest {
     void shouldHandleAllLibraryStatusValues() {
       Page<LibraryItemOutput> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
 
-      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+      when(userRepository.findIdByEmail("test@example.com")).thenReturn(Optional.of(userId));
       when(libraryService.findUserLibrary(
           eq(userId), any(LibraryStatus.class), eq(null), any(Pageable.class), eq(minioUrl + "/" + bucketName)
       )).thenReturn(page);
@@ -382,7 +375,7 @@ class LibraryResourceTest {
     void shouldReturnResponseWithCorrectStatusCode() {
       Page<LibraryItemOutput> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
 
-      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+      when(userRepository.findIdByEmail("test@example.com")).thenReturn(Optional.of(userId));
       when(libraryService.findUserLibrary(
           eq(userId), eq(null), eq(null), any(Pageable.class), eq(minioUrl + "/" + bucketName)
       )).thenReturn(page);

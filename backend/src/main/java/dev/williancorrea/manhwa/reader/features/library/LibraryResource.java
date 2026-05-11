@@ -37,9 +37,9 @@ public class LibraryResource {
       @AuthenticationPrincipal UserDetails userDetails
   ) {
     size = Math.min(size, 20);
-    var user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+    var userId = userRepository.findIdByEmail(userDetails.getUsername()).orElseThrow();
     return ResponseEntity.ok(
-        libraryService.findContinueReading(user.getId(), size, minioUrl + "/" + bucketName)
+        libraryService.findContinueReading(userId, size, minioUrl + "/" + bucketName)
     );
   }
 
@@ -53,10 +53,10 @@ public class LibraryResource {
       @AuthenticationPrincipal UserDetails userDetails
   ) {
     size = Math.min(size, 50);
-    var user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+    var userId = userRepository.findIdByEmail(userDetails.getUsername()).orElseThrow();
     var pageable = PageRequest.of(page, size);
     return ResponseEntity.ok(
-        libraryService.findUserLibrary(user.getId(), status, title, pageable, minioUrl + "/" + bucketName)
+        libraryService.findUserLibrary(userId, status, title, pageable, minioUrl + "/" + bucketName)
     );
   }
 }
