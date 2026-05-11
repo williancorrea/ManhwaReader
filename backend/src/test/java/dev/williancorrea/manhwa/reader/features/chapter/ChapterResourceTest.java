@@ -322,8 +322,8 @@ class ChapterResourceTest {
   class MarkAllChaptersReadTests {
 
     @Test
-    @DisplayName("should mark all chapters as read")
-    void shouldMarkAllChaptersAsRead() {
+    @DisplayName("should mark all chapters as read and add to library when not in library")
+    void shouldMarkAllChaptersAsReadAndAddToLibrary() {
       Chapter chapter2 = Chapter.builder()
           .id(UUID.randomUUID())
           .work(testWork)
@@ -335,24 +335,41 @@ class ChapterResourceTest {
           .build();
       when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
       when(workService.findBySlug(slug)).thenReturn(Optional.of(testWork));
+      when(libraryService.findByUserAndWork(testUser, testWork)).thenReturn(Optional.empty());
       when(chapterService.findAllByWorkId(workId)).thenReturn(List.of(testChapter, chapter2));
 
       ResponseEntity<Void> response = chapterResource.markAllChaptersRead(slug, userDetails);
 
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      verify(libraryService).saveOrUpdate(testUser, testWork, LibraryStatus.READING);
       verify(readingProgressService).markAllAsRead(testUser, List.of(testChapter, chapter2));
     }
 
     @Test
-    @DisplayName("should handle empty chapter list")
-    void shouldHandleEmptyChapterList() {
+    @DisplayName("should not add to library if already in library")
+    void shouldNotAddToLibraryIfAlreadyInLibrary() {
       when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
       when(workService.findBySlug(slug)).thenReturn(Optional.of(testWork));
+      when(libraryService.findByUserAndWork(testUser, testWork)).thenReturn(Optional.of(mock()));
+      when(chapterService.findAllByWorkId(workId)).thenReturn(List.of(testChapter));
+
+      chapterResource.markAllChaptersRead(slug, userDetails);
+
+      verify(libraryService, times(0)).saveOrUpdate(any(dev.williancorrea.manhwa.reader.features.access.user.User.class), any(), any());
+    }
+
+    @Test
+    @DisplayName("should handle empty chapter list and add to library")
+    void shouldHandleEmptyChapterListAndAddToLibrary() {
+      when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
+      when(workService.findBySlug(slug)).thenReturn(Optional.of(testWork));
+      when(libraryService.findByUserAndWork(testUser, testWork)).thenReturn(Optional.empty());
       when(chapterService.findAllByWorkId(workId)).thenReturn(Collections.emptyList());
 
       ResponseEntity<Void> response = chapterResource.markAllChaptersRead(slug, userDetails);
 
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      verify(libraryService).saveOrUpdate(testUser, testWork, LibraryStatus.READING);
       verify(readingProgressService).markAllAsRead(testUser, Collections.emptyList());
     }
   }

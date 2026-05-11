@@ -134,6 +134,9 @@ public class ChapterResource {
   ) {
     var user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
     var work = workService.findBySlug(slug).orElseThrow();
+    if (libraryService.findByUserAndWork(user, work).isEmpty()) {
+      libraryService.saveOrUpdate(user, work, LibraryStatus.READING);
+    }
     List<Chapter> chapters = chapterService.findAllByWorkId(work.getId());
     readingProgressService.markAllAsRead(user, chapters);
     return ResponseEntity.ok().build();

@@ -185,12 +185,16 @@ export class WorkDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.isTogglingAll()) return;
     this.isTogglingAll.set(true);
 
+    const isMarkingAllRead = !this.allChaptersRead;
     const action = this.allChaptersRead
       ? this.workService.markAllChaptersUnread(this.slug)
       : this.workService.markAllChaptersRead(this.slug);
 
     action.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
+        if (isMarkingAllRead && !this.work()?.userLibraryStatus) {
+          this.work.update(w => w ? { ...w, userLibraryStatus: 'READING' } : w);
+        }
         this.loadChapters(0);
         this.refreshNextUnread();
       },
