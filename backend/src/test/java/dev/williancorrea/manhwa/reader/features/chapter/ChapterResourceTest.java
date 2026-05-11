@@ -285,7 +285,7 @@ class ChapterResourceTest {
 
       chapterResource.markChapterRead(slug, chapterId, userDetails);
 
-      verify(libraryService, times(0)).saveOrUpdate(any(), any(), any());
+      verify(libraryService, times(0)).saveOrUpdate(any(dev.williancorrea.manhwa.reader.features.access.user.User.class), any(), any());
     }
   }
 

@@ -1,8 +1,10 @@
 package dev.williancorrea.manhwa.reader.features.library;
 
 import dev.williancorrea.manhwa.reader.features.access.user.User;
+import dev.williancorrea.manhwa.reader.features.access.user.UserRepository;
 import dev.williancorrea.manhwa.reader.features.library.dto.LibraryItemOutput;
 import dev.williancorrea.manhwa.reader.features.work.Work;
+import dev.williancorrea.manhwa.reader.features.work.WorkRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -35,6 +37,12 @@ class LibraryServiceTest {
 
   @Mock
   private LibraryRepository libraryRepository;
+
+  @Mock
+  private UserRepository userRepository;
+
+  @Mock
+  private WorkRepository workRepository;
 
   @InjectMocks
   private LibraryService libraryService;

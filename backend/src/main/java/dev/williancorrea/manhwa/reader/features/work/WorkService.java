@@ -83,7 +83,16 @@ public class WorkService {
 
   @Transactional(readOnly = true)
   public Optional<Work> findBySlugWithDetails(String slug) {
-    return repository.findBySlugWithDetails(slug);
+    Optional<Work> work = repository.findBySlugWithDetails(slug);
+    if (work.isPresent()) {
+      repository.findBySlugWithTitles(slug);
+      repository.findBySlugWithSynopses(slug);
+      repository.findBySlugWithTags(slug);
+      repository.findBySlugWithAuthors(slug);
+      repository.findBySlugWithLinks(slug);
+      repository.findBySlugWithCovers(slug);
+    }
+    return work;
   }
 
   @Transactional(readOnly = true)

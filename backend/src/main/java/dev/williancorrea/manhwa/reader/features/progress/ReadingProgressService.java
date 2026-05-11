@@ -76,8 +76,17 @@ public class ReadingProgressService {
     repository.deleteAllByUserIdAndWorkId(user.getId(), workId);
   }
 
+  @Transactional
+  public void unmarkAllByUserIdAndWorkId(UUID userId, UUID workId) {
+    repository.deleteAllByUserIdAndWorkId(userId, workId);
+  }
+
   public boolean hasReadAnyChapter(User user, UUID workId) {
     return repository.existsByUser_IdAndChapter_Work_Id(user.getId(), workId);
+  }
+
+  public boolean hasReadAnyChapterByUserIdAndWorkId(UUID userId, UUID workId) {
+    return repository.existsByUser_IdAndChapter_Work_Id(userId, workId);
   }
 
   public Map<UUID, ReadingProgress> findAllByUserAndChapterIds(User user, List<UUID> chapterIds) {

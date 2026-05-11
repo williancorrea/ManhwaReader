@@ -504,6 +504,12 @@ class WorkServiceTest {
       assertTrue(result.isPresent());
       assertEquals("test-slug", result.get().getSlug());
       verify(repository, times(1)).findBySlugWithDetails("test-slug");
+      verify(repository, times(1)).findBySlugWithTitles("test-slug");
+      verify(repository, times(1)).findBySlugWithSynopses("test-slug");
+      verify(repository, times(1)).findBySlugWithTags("test-slug");
+      verify(repository, times(1)).findBySlugWithAuthors("test-slug");
+      verify(repository, times(1)).findBySlugWithLinks("test-slug");
+      verify(repository, times(1)).findBySlugWithCovers("test-slug");
     }
 
     @Test
@@ -514,6 +520,7 @@ class WorkServiceTest {
 
       assertTrue(result.isEmpty());
       verify(repository, times(1)).findBySlugWithDetails("non-existent-slug");
+      verify(repository, org.mockito.Mockito.never()).findBySlugWithTitles(org.mockito.ArgumentMatchers.any());
     }
   }
 

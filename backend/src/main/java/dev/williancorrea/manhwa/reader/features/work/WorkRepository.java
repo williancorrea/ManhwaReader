@@ -25,5 +25,23 @@ public interface WorkRepository extends JpaRepository<Work, UUID>, JpaSpecificat
   @EntityGraph(attributePaths = {"originalLanguage"})
   @Query("SELECT w FROM Work w WHERE w.slug = :slug")
   Optional<Work> findBySlugWithDetails(@org.springframework.data.repository.query.Param("slug") String slug);
+
+  @Query("SELECT DISTINCT w FROM Work w LEFT JOIN FETCH w.titles t LEFT JOIN FETCH t.language WHERE w.slug = :slug")
+  Optional<Work> findBySlugWithTitles(@org.springframework.data.repository.query.Param("slug") String slug);
+
+  @Query("SELECT DISTINCT w FROM Work w LEFT JOIN FETCH w.synopses s LEFT JOIN FETCH s.language WHERE w.slug = :slug")
+  Optional<Work> findBySlugWithSynopses(@org.springframework.data.repository.query.Param("slug") String slug);
+
+  @Query("SELECT DISTINCT w FROM Work w LEFT JOIN FETCH w.tags wt LEFT JOIN FETCH wt.tag WHERE w.slug = :slug")
+  Optional<Work> findBySlugWithTags(@org.springframework.data.repository.query.Param("slug") String slug);
+
+  @Query("SELECT DISTINCT w FROM Work w LEFT JOIN FETCH w.authors wa LEFT JOIN FETCH wa.author WHERE w.slug = :slug")
+  Optional<Work> findBySlugWithAuthors(@org.springframework.data.repository.query.Param("slug") String slug);
+
+  @Query("SELECT DISTINCT w FROM Work w LEFT JOIN FETCH w.links wl LEFT JOIN FETCH wl.site WHERE w.slug = :slug")
+  Optional<Work> findBySlugWithLinks(@org.springframework.data.repository.query.Param("slug") String slug);
+
+  @Query("SELECT DISTINCT w FROM Work w LEFT JOIN FETCH w.covers WHERE w.slug = :slug")
+  Optional<Work> findBySlugWithCovers(@org.springframework.data.repository.query.Param("slug") String slug);
 }
 

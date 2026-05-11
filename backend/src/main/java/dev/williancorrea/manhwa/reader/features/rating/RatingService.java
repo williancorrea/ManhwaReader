@@ -40,5 +40,9 @@ public class RatingService {
   public Optional<Rating> findByUserAndWork(User user, Work work) {
     return repository.findByUser_IdAndWork_Id(user.getId(), work.getId());
   }
+
+  public Optional<Rating> findByUserIdAndWorkId(UUID userId, UUID workId) {
+    return repository.findByUser_IdAndWork_Id(userId, workId);
+  }
 }
 

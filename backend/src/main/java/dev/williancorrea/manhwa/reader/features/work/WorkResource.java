@@ -1,6 +1,5 @@
 package dev.williancorrea.manhwa.reader.features.work;
 
-import dev.williancorrea.manhwa.reader.features.access.user.User;
 import dev.williancorrea.manhwa.reader.features.access.user.UserRepository;
 import dev.williancorrea.manhwa.reader.features.chapter.ChapterService;
 import dev.williancorrea.manhwa.reader.features.library.LibraryService;
@@ -67,9 +66,9 @@ public class WorkResource {
 
     Page<Work> worksPage = workService.findAllWorks(filter, PageRequest.of(page, size));
 
-    User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+    UUID userId = userRepository.findIdByEmail(userDetails.getUsername()).orElseThrow();
     List<UUID> workIds = worksPage.map(Work::getId).getContent();
-    Map<UUID, LibraryStatus> libraryMap = libraryService.findStatusMapByUserAndWorkIds(user, workIds);
+    Map<UUID, LibraryStatus> libraryMap = libraryService.findStatusMapByUserIdAndWorkIds(userId, workIds);
 
     return ResponseEntity.ok(
         worksPage.map(work -> WorkCatalogOutput.fromEntity(
@@ -87,11 +86,11 @@ public class WorkResource {
       @AuthenticationPrincipal UserDetails userDetails
   ) {
     var work = workService.findBySlugWithDetails(slug).orElseThrow();
-    var user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
-    var library = libraryService.findByUserAndWork(user, work);
-    var rating = ratingService.findByUserAndWork(user, work);
-    var nextUnread = chapterService.findFirstUnreadChapter(work.getId(), user.getId());
-    boolean hasReadChapters = readingProgressService.hasReadAnyChapter(user, work.getId());
+    var userId = userRepository.findIdByEmail(userDetails.getUsername()).orElseThrow();
+    var library = libraryService.findByUserIdAndWorkId(userId, work.getId());
+    var rating = ratingService.findByUserIdAndWorkId(userId, work.getId());
+    var nextUnread = chapterService.findFirstUnreadChapter(work.getId(), userId);
+    boolean hasReadChapters = readingProgressService.hasReadAnyChapterByUserIdAndWorkId(userId, work.getId());
     return ResponseEntity.ok(WorkDetailOutput.fromEntity(work, minioUrl + "/" + bucketName, library, rating, nextUnread, hasReadChapters));
   }
 
@@ -103,8 +102,8 @@ public class WorkResource {
       @AuthenticationPrincipal UserDetails userDetails
   ) {
     var work = workService.findBySlug(slug).orElseThrow();
-    User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
-    libraryService.saveOrUpdate(user, work, LibraryStatus.valueOf(input.status()));
+    var userId = userRepository.findIdByEmail(userDetails.getUsername()).orElseThrow();
+    libraryService.saveOrUpdate(userId, work.getId(), LibraryStatus.valueOf(input.status()));
     return ResponseEntity.ok().build();
   }
 
@@ -115,9 +114,9 @@ public class WorkResource {
       @AuthenticationPrincipal UserDetails userDetails
   ) {
     var work = workService.findBySlug(slug).orElseThrow();
-    User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
-    libraryService.deleteByUserAndWork(user, work);
-    readingProgressService.unmarkAllByWorkId(user, work.getId());
+    var userId = userRepository.findIdByEmail(userDetails.getUsername()).orElseThrow();
+    libraryService.deleteByUserIdAndWorkId(userId, work.getId());
+    readingProgressService.unmarkAllByUserIdAndWorkId(userId, work.getId());
     return ResponseEntity.noContent().build();
   }
 }

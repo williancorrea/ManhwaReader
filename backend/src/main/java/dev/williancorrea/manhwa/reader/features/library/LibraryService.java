@@ -6,8 +6,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import dev.williancorrea.manhwa.reader.features.access.user.User;
+import dev.williancorrea.manhwa.reader.features.access.user.UserRepository;
 import dev.williancorrea.manhwa.reader.features.library.dto.LibraryItemOutput;
 import dev.williancorrea.manhwa.reader.features.work.Work;
+import dev.williancorrea.manhwa.reader.features.work.WorkRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -22,6 +24,8 @@ import org.springframework.validation.annotation.Validated;
 public class LibraryService {
 
   private final @Lazy LibraryRepository repository;
+  private final @Lazy UserRepository userRepository;
+  private final @Lazy WorkRepository workRepository;
 
   public List<Library> findAll() {
     return repository.findAll();
@@ -75,10 +79,14 @@ public class LibraryService {
   }
 
   public Map<UUID, LibraryStatus> findStatusMapByUserAndWorkIds(User user, List<UUID> workIds) {
+    return findStatusMapByUserIdAndWorkIds(user.getId(), workIds);
+  }
+
+  public Map<UUID, LibraryStatus> findStatusMapByUserIdAndWorkIds(UUID userId, List<UUID> workIds) {
     if (workIds == null || workIds.isEmpty()) {
       return Map.of();
     }
-    return repository.findWorkIdAndStatusByUserIdAndWorkIdIn(user.getId(), workIds)
+    return repository.findWorkIdAndStatusByUserIdAndWorkIdIn(userId, workIds)
         .stream()
         .collect(Collectors.toMap(
             row -> (UUID) row[0],
@@ -90,6 +98,10 @@ public class LibraryService {
     return repository.findByUser_IdAndWork_Id(user.getId(), work.getId());
   }
 
+  public Optional<Library> findByUserIdAndWorkId(UUID userId, UUID workId) {
+    return repository.findByUser_IdAndWork_Id(userId, workId);
+  }
+
   @Transactional
   public Library saveOrUpdate(User user, Work work, LibraryStatus status) {
     Library library = repository.findByUser_IdAndWork_Id(user.getId(), work.getId())
@@ -99,8 +111,24 @@ public class LibraryService {
   }
 
   @Transactional
+  public Library saveOrUpdate(UUID userId, UUID workId, LibraryStatus status) {
+    Library library = repository.findByUser_IdAndWork_Id(userId, workId)
+        .orElseGet(() -> Library.builder()
+            .user(userRepository.getReferenceById(userId))
+            .work(workRepository.getReferenceById(workId))
+            .build());
+    library.setStatus(status);
+    return repository.save(library);
+  }
+
+  @Transactional
   public void deleteByUserAndWork(User user, Work work) {
     repository.deleteByUserIdAndWorkId(user.getId(), work.getId());
+  }
+
+  @Transactional
+  public void deleteByUserIdAndWorkId(UUID userId, UUID workId) {
+    repository.deleteByUserIdAndWorkId(userId, workId);
   }
 
   @Transactional(readOnly = true)
