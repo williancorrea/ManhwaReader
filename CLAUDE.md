@@ -65,6 +65,7 @@ Aplicação Angular 21 SPA com standalone components (CSR puro — sem SSR/hydra
 - Utilize nomes de variáveis e funções descritivos
 - Evite duplicação de código e refatore quando necessário
 - Mantenha o código organizado e estruturado
+- Utilize o tratamento de falhas utilizando o "Fail Fast" evite "else" desnecessários
 
 ## Testes
 - **IMPORTANTE** a cobertura de código deve atingir 100%
